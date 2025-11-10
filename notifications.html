@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Notifications - Task-o-Mania</title>
+    <meta name="description" content="See all recent household notifications." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_notifications.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true">☆</span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html">
+            <span aria-hidden="true">🏠</span>
+          </a>
+          <a class="sidebar__link" href="households.html">
+            <span aria-hidden="true">👥</span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html">
+            <span aria-hidden="true">🛍</span>
+          </a>
+          <a class="sidebar__link sidebar__link--active" href="notifications.html" aria-current="page">
+            <span aria-hidden="true">🔔</span>
+          </a>
+          <a class="sidebar__link" href="activity.html">
+            <span aria-hidden="true">📊</span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <button class="back-btn" type="button" aria-label="Go back" onclick="history.back()">
+            <span aria-hidden="true">&#x2039;</span>
+          </button>
+
+          <h1 class="page-title">Notifications</h1>
+
+          <a class="avatar" href="profile.html" aria-label="Your profile">
+            <img src="assets/avatar-placeholder.jpg" alt="User avatar" />
+          </a>
+        </header>
+
+        <main class="page" role="main">
+          <section class="group">
+            <header>Today</header>
+
+            <article class="notification notification--actionable">
+              <div class="notification__icon" aria-hidden="true">AB</div>
+              <div class="notification__body">
+                <p><strong>Athwin Bose</strong> completed one task. Confirm if the task has been performed correctly.</p>
+                <div class="notification__actions">
+                  <button type="button" class="pill pill--primary">Accept</button>
+                  <button type="button" class="pill">See Task</button>
+                  <button type="button" class="pill pill--ghost">Decline</button>
+                </div>
+              </div>
+              <div class="notification__meta">
+                <span>15h</span>
+                <button type="button" aria-label="More options">⋯</button>
+              </div>
+            </article>
+
+            <article class="notification">
+              <div class="notification__icon" aria-hidden="true">MG</div>
+              <div class="notification__body">
+                <p><strong>Mary</strong> redeemed 150 points.</p>
+              </div>
+              <div class="notification__meta">
+                <span>20h</span>
+                <button type="button" aria-label="More options">⋯</button>
+              </div>
+            </article>
+
+            <article class="notification">
+              <div class="notification__icon" aria-hidden="true">M</div>
+              <div class="notification__body">
+                <p><strong>Mom</strong> added one new task.</p>
+              </div>
+              <div class="notification__meta">
+                <span>22h</span>
+                <button type="button" aria-label="More options">⋯</button>
+              </div>
+            </article>
+
+            <article class="notification">
+              <div class="notification__icon" aria-hidden="true">M</div>
+              <div class="notification__body">
+                <p><strong>Mom</strong> deleted one task.</p>
+              </div>
+              <div class="notification__meta">
+                <span>23h</span>
+                <button type="button" aria-label="More options">⋯</button>
+              </div>
+            </article>
+          </section>
+
+          <section class="group">
+            <header>Yesterday</header>
+
+            <article class="notification">
+              <div class="notification__icon" aria-hidden="true">MG</div>
+              <div class="notification__body">
+                <p><strong>Mom</strong> accepted your task – see your current points.</p>
+              </div>
+              <div class="notification__meta">
+                <span>1d</span>
+                <button type="button" aria-label="More options">⋯</button>
+              </div>
+            </article>
+
+            <article class="notification">
+              <div class="notification__icon" aria-hidden="true">B</div>
+              <div class="notification__body">
+                <p><strong>Bob</strong> joined the family.</p>
+              </div>
+              <div class="notification__meta">
+                <span>1d</span>
+                <button type="button" aria-label="More options">⋯</button>
+              </div>
+            </article>
+
+            <article class="notification">
+              <div class="notification__icon" aria-hidden="true">AB</div>
+              <div class="notification__body">
+                <p><strong>Mary</strong> completed the task.</p>
+              </div>
+              <div class="notification__meta">
+                <span>1d</span>
+                <button type="button" aria-label="More options">⋯</button>
+              </div>
+            </article>
+          </section>
+        </main>
+
+        <button class="fab" type="button" aria-label="Create task">
+          <span aria-hidden="true">+</span>
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
+

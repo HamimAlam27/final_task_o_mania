@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile - Task-o-Mania</title>
+    <meta name="description" content="View and edit your Task-o-Mania profile information." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_profile.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true">☆</span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html">
+            <span aria-hidden="true">🏠</span>
+          </a>
+          <a class="sidebar__link" href="task-list.html">
+            <span aria-hidden="true">🗒</span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html">
+            <span aria-hidden="true">🛍</span>
+          </a>
+          <a class="sidebar__link" href="settings.html">
+            <span aria-hidden="true">⚙️</span>
+          </a>
+          <a class="sidebar__link sidebar__link--active" href="profile.html" aria-current="page">
+            <span aria-hidden="true">👤</span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <button class="back-btn" type="button" aria-label="Go back" onclick="history.back()">
+            <span aria-hidden="true">&#x2039;</span>
+          </button>
+
+          <h1 class="page-title">Profile</h1>
+
+          <a class="avatar" href="profile.html" aria-label="Your profile">
+            <img src="assets/avatar-placeholder.jpg" alt="User avatar" />
+          </a>
+        </header>
+
+        <main class="page" role="main">
+          <section class="card">
+            <div class="card__avatar">
+              <img src="assets/avatar-placeholder.jpg" alt="Livia Vaccaro" />
+            </div>
+            <h2>Livia Vaccaro <span aria-hidden="true">✎</span></h2>
+
+            <dl>
+              <div>
+                <dt>Profile type:</dt>
+                <dd>household owner</dd>
+              </div>
+              <div>
+                <dt>Account pin:</dt>
+                <dd><a href="#">set pin</a></dd>
+              </div>
+              <div>
+                <dt>Total accumulated points:</dt>
+                <dd>5600 <small>(for this household)</small></dd>
+              </div>
+              <div>
+                <dt>email:</dt>
+                <dd><a href="mailto:liviavaccaro7@email.com">liviavaccaro7@email.com</a> <small>(required for password reset)</small></dd>
+              </div>
+              <div>
+                <dt>Phone:</dt>
+                <dd><a href="tel:1234567891011">1234567891011</a> <small>(required for password reset)</small></dd>
+              </div>
+            </dl>
+
+            <div class="links">
+              <a href="settings.html">Settings</a>
+              <button type="button" class="link-danger">Delete Profile</button>
+            </div>
+          </section>
+        </main>
+
+        <button class="fab" type="button" aria-label="Quick action">
+          <span aria-hidden="true">+</span>
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
+

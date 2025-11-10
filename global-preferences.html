@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Global Preferences - Task-o-Mania</title>
+    <meta name="description" content="Manage language and appearance preferences across Task-o-Mania." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_global_preferences.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true">☆</span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html">
+            <span aria-hidden="true">🏠</span>
+          </a>
+          <a class="sidebar__link" href="settings.html">
+            <span aria-hidden="true">⚙️</span>
+          </a>
+          <a class="sidebar__link sidebar__link--active" href="global-preferences.html" aria-current="page">
+            <span aria-hidden="true">🌐</span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <button class="back-btn" type="button" aria-label="Go back" onclick="history.back()">
+            <span aria-hidden="true">&#x2039;</span>
+          </button>
+
+          <div class="breadcrumbs">
+            <a href="settings.html">Settings</a>
+            <span>/</span>
+            <span>Global Preferences</span>
+          </div>
+
+          <a class="avatar" href="profile.html" aria-label="Your profile">
+            <img src="assets/avatar-placeholder.jpg" alt="User avatar" />
+          </a>
+        </header>
+
+        <main class="page" role="main">
+          <h1>Global Preferences</h1>
+
+          <section class="panel">
+            <button class="pref-row" type="button">
+              <span>Language</span>
+              <span class="chevron" aria-hidden="true">›</span>
+            </button>
+
+            <label class="pref-row pref-row--toggle">
+              <span>Dark Mode</span>
+              <span class="toggle">
+                <input type="checkbox" />
+                <span class="slider" aria-hidden="true"></span>
+              </span>
+            </label>
+          </section>
+
+          <p class="cta-text">
+            Need to deactivate your account? <a href="#">Take care of that now</a>
+          </p>
+        </main>
+
+        <button class="fab" type="button" aria-label="Quick action">
+          <span aria-hidden="true">+</span>
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
+

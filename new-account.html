@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create Account - Task-o-Mania</title>
+    <meta name="description" content="Create your Task-o-Mania account to manage household tasks." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_new_account.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <main class="page" role="main">
+      <a class="back-button" href="sign-in.html" aria-label="Back">
+        <span aria-hidden="true">&#x2039;</span>
+      </a>
+
+      <section class="card">
+        <header class="card-header">
+          <h1>New Account</h1>
+        </header>
+
+        <div class="avatar">
+          <img src="assets/avatar-placeholder.jpg" alt="Profile preview" />
+          <div class="ring" aria-hidden="true"></div>
+        </div>
+
+        <form class="form" action="#" method="post">
+          <div class="form-field">
+            <label for="name">Name <span aria-hidden="true">*</span></label>
+            <div class="input-wrapper">
+              <input id="name" name="name" type="text" value="Livia Vacarro" required />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="email">Email <span aria-hidden="true">*</span></label>
+            <div class="input-wrapper">
+              <input id="email" name="email" type="email" value="liviavacarro1987@gmail.com" required />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="username">Username <span aria-hidden="true">*</span></label>
+            <div class="input-wrapper">
+              <input id="username" name="username" type="text" value="liviavacarro1987" required />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="password">Password <span aria-hidden="true">*</span></label>
+            <div class="input-wrapper">
+              <input id="password" name="password" type="password" value="password" required />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="confirm-password">Repeat password <span aria-hidden="true">*</span></label>
+            <div class="input-wrapper">
+              <input id="confirm-password" name="confirm_password" type="password" value="password" required />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn-primary">Create an account</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
+

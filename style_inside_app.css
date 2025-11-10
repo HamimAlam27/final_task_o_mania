@@ -1,0 +1,199 @@
+/* Task-o-Mania - Create Household Page */
+
+:root {
+  --page-bg-image: url('IMAGES/PageBackground.png');
+  --text: #16161d;
+  --muted: #63677a;
+  --card-bg: rgba(255, 255, 255, 0.65);
+  --card-border: rgba(255, 255, 255, 0.8);
+  --input-bg: rgba(124, 114, 255, 0.08);
+  --input-border: rgba(132, 124, 255, 0.18);
+  --btn-start: #5b2df6;
+  --btn-end: #7047ff;
+  --btn-shadow: rgba(95, 50, 230, 0.35);
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text);
+  background-color: #f2f4ff;
+  background-image: var(--page-bg-image);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+.background {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(700px 600px at 25% 25%, rgba(255,255,255,0.76) 0%, transparent 65%),
+    radial-gradient(900px 700px at 75% 30%, rgba(244,235,255,0.76) 0%, transparent 60%),
+    radial-gradient(1200px 900px at 50% 80%, rgba(255,246,224,0.7) 0%, transparent 70%),
+    repeating-conic-gradient(from 20deg at 55% 45%, rgba(255,255,255,0.24) 0 18deg, rgba(255,255,255,0) 18deg 36deg),
+    var(--page-bg-image);
+  background-size: cover, cover, cover, cover, cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.95;
+  filter: saturate(1.05) contrast(1.02);
+  z-index: -1;
+}
+
+.page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: clamp(24px, 4vw, 48px);
+  position: relative;
+}
+
+.back-button {
+  position: absolute;
+  top: clamp(32px, 5vw, 48px);
+  left: clamp(32px, 5vw, 56px);
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(112, 106, 255, 0.18);
+  color: #5f4cff;
+  text-decoration: none;
+  font-size: 28px;
+  line-height: 1;
+  transition: transform .2s ease, background-color .2s ease;
+  backdrop-filter: blur(12px);
+}
+
+.back-button:hover { transform: translateX(-2px); background: rgba(112, 106, 255, 0.28); }
+
+.card {
+  width: min(920px, 100%);
+  padding: clamp(32px, 5vw, 64px) clamp(28px, 6vw, 96px);
+  border-radius: 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 30px 80px rgba(74, 52, 119, 0.15);
+  backdrop-filter: blur(22px);
+}
+
+.card-header h1 {
+  margin: 0 0 clamp(28px, 4vw, 42px);
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  text-align: center;
+}
+
+.form {
+  display: grid;
+  gap: clamp(24px, 3vw, 32px);
+}
+
+.form-field { display: grid; gap: 12px; }
+.form-field label {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(27, 27, 31, 0.72);
+}
+
+.input-wrapper {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.6),
+    0 6px 20px rgba(123, 111, 255, 0.08);
+}
+
+.input-wrapper select,
+.input-wrapper input {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: inherit;
+  width: 100%;
+  outline: none;
+}
+
+.input-wrapper input::placeholder { color: rgba(27, 27, 31, 0.4); font-weight: 500; }
+
+.select-wrapper { position: relative; }
+.select-wrapper select { appearance: none; padding-right: 28px; cursor: pointer; }
+.select-wrapper .select-caret {
+  font-size: 16px;
+  color: rgba(33, 20, 90, 0.6);
+}
+
+.input-icon {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(125, 117, 255, 0.18);
+}
+
+.input-icon svg { display: block; }
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(12px, 3vw, 28px);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 64px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(105deg, var(--btn-start), var(--btn-end));
+  box-shadow: 0 14px 30px var(--btn-shadow), inset 0 1px 0 rgba(255,255,255,0.18);
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.btn-primary:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.btn-primary:active { transform: translateY(0); box-shadow: 0 8px 18px var(--btn-shadow); }
+
+@media (max-width: 640px) {
+  .back-button {
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+    top: 24px;
+    left: 24px;
+  }
+
+  .card {
+    padding: clamp(28px, 6vw, 48px) clamp(20px, 6vw, 42px);
+  }
+
+  .input-wrapper {
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+  }
+
+  .select-wrapper .select-caret { display: none; }
+}

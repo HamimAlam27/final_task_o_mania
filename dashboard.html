@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard - Task-o-Mania</title>
+    <meta name="description" content="Task-o-Mania household dashboard overview." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_dashboard.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true">☆</span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link sidebar__link--active" href="dashboard.html" aria-current="page">
+            <span aria-hidden="true">🏠</span>
+          </a>
+          <a class="sidebar__link" href="households.html">
+            <span aria-hidden="true">👥</span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html">
+            <span aria-hidden="true">🛒</span>
+          </a>
+          <a class="sidebar__link" href="activity.html">
+            <span aria-hidden="true">📊</span>
+          </a>
+          <a class="sidebar__link" href="settings.html">
+            <span aria-hidden="true">⚙️</span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <div class="topbar__greeting">
+            <p class="subtitle">Hello!</p>
+            <h1>Livia Vacarro</h1>
+          </div>
+
+          <div class="topbar__actions">
+            <a class="credits-card" href="#rewards">
+              <span class="credits-card__amount">700 Credits</span>
+              <span class="credits-card__cta">Redeem rewards →</span>
+            </a>
+            <button class="icon-button" type="button" aria-label="Notifications">
+              <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z" stroke="#5f4cff" stroke-width="1.8" />
+                <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke="#5f4cff" stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+            </button>
+            <a class="avatar" href="profile.html" aria-label="Your profile">
+              <img src="assets/avatar-placeholder.jpg" alt="User avatar" />
+            </a>
+          </div>
+        </header>
+
+        <main class="page" role="main">
+          <section class="panel" id="tasks">
+            <div class="panel__header">
+              <h2>Active Tasks <span class="panel__count">4</span></h2>
+              <a class="panel__link" href="#">See all →</a>
+            </div>
+
+            <div class="task-grid">
+              <!-- Repeatable task card -->
+              <article class="task-card">
+                <header>
+                  <p class="task-card__meta">Uploaded by MOM</p>
+                  <span class="task-card__badge" aria-label="Recurring task">📄</span>
+                </header>
+                <h3 class="task-card__title">Grocery shopping (list in description)</h3>
+                <a class="task-card__credits" href="#">100 credits ☆</a>
+                <div class="task-card__progress" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">
+                  <span style="width: 45%"></span>
+                </div>
+              </article>
+
+              <article class="task-card">
+                <header>
+                  <p class="task-card__meta">Uploaded by MOM</p>
+                  <span class="task-card__badge" aria-label="Recurring task">📄</span>
+                </header>
+                <h3 class="task-card__title">Grocery shopping (list in description)</h3>
+                <a class="task-card__credits" href="#">100 credits ☆</a>
+                <div class="task-card__progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+                  <span style="width: 60%"></span>
+                </div>
+              </article>
+
+              <article class="task-card">
+                <header>
+                  <p class="task-card__meta">Uploaded by MOM</p>
+                  <span class="task-card__badge" aria-label="Recurring task">📄</span>
+                </header>
+                <h3 class="task-card__title">Grocery shopping (list in description)</h3>
+                <a class="task-card__credits" href="#">100 credits ☆</a>
+                <div class="task-card__progress" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
+                  <span style="width: 30%"></span>
+                </div>
+              </article>
+
+              <article class="task-card">
+                <header>
+                  <p class="task-card__meta">Uploaded by MOM</p>
+                  <span class="task-card__badge" aria-label="Recurring task">📄</span>
+                </header>
+                <h3 class="task-card__title">Grocery shopping (list in description)</h3>
+                <a class="task-card__credits" href="#">100 credits ☆</a>
+                <div class="task-card__progress" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+                  <span style="width: 80%"></span>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel" id="activity">
+            <div class="panel__header">
+              <h2>Recent Activity</h2>
+              <a class="panel__link" href="#">See all →</a>
+            </div>
+
+            <div class="activity-scroll" role="list">
+              <article class="activity-card" role="listitem">
+                <header>
+                  <span class="activity-card__icon">☆</span>
+                  <span class="activity-card__label">My activity</span>
+                  <span class="activity-card__value">08</span>
+                </header>
+                <figure aria-label="Activity trend">
+                  <svg viewBox="0 0 120 40" role="presentation" focusable="false">
+                    <path d="M0 28 L20 24 L40 30 L60 18 L80 22 L100 8 L120 14" stroke="#6b63ff" stroke-width="3" fill="none" stroke-linecap="round" />
+                  </svg>
+                </figure>
+                <p class="activity-card__delta"><span>10+</span> more from last week</p>
+              </article>
+
+              <article class="activity-card" role="listitem">
+                <header>
+                  <span class="activity-card__icon">📄</span>
+                  <span class="activity-card__label">Mom's activity</span>
+                  <span class="activity-card__value">10</span>
+                </header>
+                <figure aria-label="Activity trend">
+                  <svg viewBox="0 0 120 40" role="presentation" focusable="false">
+                    <path d="M0 30 L20 22 L40 28 L60 16 L80 20 L100 12 L120 18" stroke="#5fb3ff" stroke-width="3" fill="none" stroke-linecap="round" />
+                  </svg>
+                </figure>
+                <p class="activity-card__delta"><span>10+</span> more from last week</p>
+              </article>
+
+              <article class="activity-card" role="listitem">
+                <header>
+                  <span class="activity-card__icon">❤</span>
+                  <span class="activity-card__label">Joe's activity</span>
+                  <span class="activity-card__value">10</span>
+                </header>
+                <figure aria-label="Activity trend">
+                  <svg viewBox="0 0 120 40" role="presentation" focusable="false">
+                    <path d="M0 24 L20 18 L40 22 L60 30 L80 20 L100 24 L120 18" stroke="#ff7676" stroke-width="3" fill="none" stroke-linecap="round" />
+                  </svg>
+                </figure>
+                <p class="activity-card__delta"><span>05+</span> more from last week</p>
+              </article>
+
+              <article class="activity-card" role="listitem">
+                <header>
+                  <span class="activity-card__icon">☆</span>
+                  <span class="activity-card__label">My activity</span>
+                  <span class="activity-card__value">08</span>
+                </header>
+                <figure aria-label="Activity trend">
+                  <svg viewBox="0 0 120 40" role="presentation" focusable="false">
+                    <path d="M0 28 L20 24 L40 30 L60 18 L80 22 L100 8 L120 14" stroke="#6b63ff" stroke-width="3" fill="none" stroke-linecap="round" />
+                  </svg>
+                </figure>
+                <p class="activity-card__delta"><span>10+</span> more from last week</p>
+              </article>
+            </div>
+          </section>
+        </main>
+
+        <button class="fab" type="button" aria-label="Create task">
+          <span aria-hidden="true">+</span>
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
+

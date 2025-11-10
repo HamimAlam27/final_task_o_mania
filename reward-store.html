@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reward Store - Task-o-Mania</title>
+    <meta name="description" content="Redeem Task-o-Mania credits for fun rewards." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_reward_store.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true">☆</span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html">
+            <span aria-hidden="true">🏠</span>
+          </a>
+          <a class="sidebar__link" href="households.html">
+            <span aria-hidden="true">👥</span>
+          </a>
+          <a class="sidebar__link sidebar__link--active" href="reward-store.html" aria-current="page">
+            <span aria-hidden="true">🛒</span>
+          </a>
+          <a class="sidebar__link" href="activity.html">
+            <span aria-hidden="true">📊</span>
+          </a>
+          <a class="sidebar__link" href="#settings">
+            <span aria-hidden="true">⚙️</span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <button class="back-btn" type="button" aria-label="Go back" onclick="history.back()">
+            <span aria-hidden="true">&#x2039;</span>
+          </button>
+
+          <div class="title-block">
+            <h1>Reward Store</h1>
+            <p>Redeem your hard-earned points for amazing rewards.</p>
+          </div>
+
+          <div class="topbar__actions">
+            <button class="icon-button" type="button" aria-label="Notifications">
+              <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z" stroke="#5f4cff" stroke-width="1.8" />
+                <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke="#5f4cff" stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+            </button>
+            <a class="avatar" href="profile.html" aria-label="Your profile">
+              <img src="assets/avatar-placeholder.jpg" alt="User avatar" />
+            </a>
+          </div>
+        </header>
+
+        <main class="page" role="main">
+          <div class="credits-chip">
+            <span>700 Credits</span>
+            <small>☆</small>
+          </div>
+
+          <section class="stats">
+            <article class="stat-card">
+              <div class="stat-card__value">10</div>
+              <p>Total Reward</p>
+            </article>
+            <article class="stat-card">
+              <div class="stat-card__value">8</div>
+              <p>Available</p>
+            </article>
+          </section>
+
+          <section class="reward-grid" aria-label="Available rewards">
+            <!-- Repeat reward cards -->
+            <article class="reward-card">
+              <h2>Ice Cream Treat</h2>
+              <p>Pick your favorite ice cream flavor from the local shop</p>
+              <p class="points">150 Points</p>
+              <button type="button">Redeem Now</button>
+            </article>
+
+            <article class="reward-card">
+              <h2>Ice Cream Treat</h2>
+              <p>Pick your favorite ice cream flavor from the local shop</p>
+              <p class="points">150 Points</p>
+              <button type="button">Redeem Now</button>
+            </article>
+
+            <article class="reward-card">
+              <h2>Ice Cream Treat</h2>
+              <p>Pick your favorite ice cream flavor from the local shop</p>
+              <p class="points">150 Points</p>
+              <button type="button">Redeem Now</button>
+            </article>
+
+            <article class="reward-card">
+              <h2>Ice Cream Treat</h2>
+              <p>Pick your favorite ice cream flavor from the local shop</p>
+              <p class="points">150 Points</p>
+              <button type="button">Redeem Now</button>
+            </article>
+
+            <article class="reward-card">
+              <h2>Ice Cream Treat</h2>
+              <p>Pick your favorite ice cream flavor from the local shop</p>
+              <p class="points">150 Points</p>
+              <button type="button">Redeem Now</button>
+            </article>
+
+            <article class="reward-card">
+              <h2>Ice Cream Treat</h2>
+              <p>Pick your favorite ice cream flavor from the local shop</p>
+              <p class="points">2000 Points</p>
+              <button type="button">Redeem Now</button>
+            </article>
+          </section>
+        </main>
+
+        <button class="fab" type="button" aria-label="Add reward">
+          <span aria-hidden="true">+</span>
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
+

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Household Created - Task-o-Mania</title>
+    <meta name="description" content="Invite members to your newly created Task-o-Mania household." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_inside_app_2.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <main class="page" role="main">
+      <section class="card">
+        <header class="card-header">
+          <h1>Household Successfully Created</h1>
+        </header>
+
+        <div class="card-body">
+          <section class="block">
+            <h2>Invite users by invite link</h2>
+            <div class="input-wrapper readonly">
+              <input type="text" value="task-o-mania.invite.link.vacarnosfamily.com" readonly aria-label="Shareable invite link" />
+              <button type="button" class="btn-ghost" aria-label="Copy invite link">Copy</button>
+            </div>
+          </section>
+
+          <section class="block">
+            <h2>Invite users by username</h2>
+            <div class="input-wrapper">
+              <label for="member-1">Member 1</label>
+              <input id="member-1" name="member_1" type="text" placeholder="Enter username" />
+            </div>
+            <div class="input-wrapper">
+              <label for="member-2">Member 2</label>
+              <input id="member-2" name="member_2" type="text" placeholder="Enter username" />
+            </div>
+
+            <button type="button" class="add-member">
+              <span class="icon" aria-hidden="true">+</span>
+              <span>Add another member</span>
+            </button>
+          </section>
+
+          <p class="helper">
+            Want to add kids to your household but don’t have their accounts set up yet?
+            <a href="#">Click here!</a>
+          </p>
+
+          <div class="actions">
+            <a href="dashboard.html" class="btn-primary">Enter the household</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
+

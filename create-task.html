@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create Task - Task-o-Mania</title>
+    <meta name="description" content="Add a new task for your household members." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_create_task.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true">☆</span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link sidebar__link--active" href="create-task.html" aria-current="page">
+            <span aria-hidden="true">🧹</span>
+          </a>
+          <a class="sidebar__link" href="dashboard.html">
+            <span aria-hidden="true">🏠</span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html">
+            <span aria-hidden="true">🛍</span>
+          </a>
+          <a class="sidebar__link" href="create-reward.html">
+            <span aria-hidden="true">🎁</span>
+          </a>
+          <a class="sidebar__link" href="activity.html">
+            <span aria-hidden="true">📊</span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <button class="back-btn" type="button" aria-label="Go back" onclick="history.back()">
+            <span aria-hidden="true">&#x2039;</span>
+          </button>
+
+          <h1 class="page-title">Create Task</h1>
+
+          <a class="avatar" href="profile.html" aria-label="Your profile">
+            <img src="assets/avatar-placeholder.jpg" alt="User avatar" />
+          </a>
+        </header>
+
+        <main class="page" role="main">
+          <form class="form" action="#" method="post">
+            <div class="form-field">
+              <label for="task-name">Task Name <span aria-hidden="true">*</span></label>
+              <div class="input-wrapper">
+                <input id="task-name" name="task_name" type="text" value="Clean the living room" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field form-field--small">
+                <label for="task-points">Points <span aria-hidden="true">*</span></label>
+                <div class="input-wrapper">
+                  <input id="task-points" name="task_points" type="number" min="0" value="150" required />
+                </div>
+              </div>
+
+              <div class="form-field form-field--upload">
+                <label for="task-photo">+ Add Photo <span aria-hidden="true">*</span></label>
+                <label class="upload" for="task-photo">
+                  <input id="task-photo" name="task_photo" type="file" accept="image/*" hidden />
+                  <span>Upload your photo</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="task-description">Task Description</label>
+              <div class="input-wrapper">
+                <textarea id="task-description" name="task_description" rows="4" required>
+Make sure the floor is vacuumed, the furniture is dusted, and the cushions are neatly arranged. You'll earn 150 points and help keep the house cozy for everyone!
+                </textarea>
+              </div>
+            </div>
+
+            <label class="toggle">
+              <input type="checkbox" name="ai_validation" checked />
+              <span class="slider" aria-hidden="true"></span>
+              <span class="toggle__label">Apply the AI Validation</span>
+            </label>
+
+            <div class="actions">
+              <button type="submit" class="btn-primary">Add Task</button>
+            </div>
+          </form>
+        </main>
+
+        <button class="fab" type="button" aria-label="Quick create">
+          <span aria-hidden="true">+</span>
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
+

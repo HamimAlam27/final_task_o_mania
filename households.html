@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Households Overview - Task-o-Mania</title>
+    <meta name="description" content="See all households you belong to in Task-o-Mania." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_households.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true">☆</span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html">
+            <span aria-hidden="true">🏠</span>
+          </a>
+          <a class="sidebar__link sidebar__link--active" href="households.html" aria-current="page">
+            <span aria-hidden="true">👥</span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html">
+            <span aria-hidden="true">🛒</span>
+          </a>
+          <a class="sidebar__link" href="activity.html">
+            <span aria-hidden="true">📊</span>
+          </a>
+          <a class="sidebar__link" href="settings.html">
+            <span aria-hidden="true">⚙️</span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <div class="topbar__spacer"></div>
+          <div class="topbar__actions">
+            <button class="icon-button" type="button" aria-label="Notifications">
+              <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 2C7.68629 2 5 4.68629 5 8V9.38268C5 10.1481 4.70711 10.8826 4.17157 11.4182L3.41421 12.1756C2.15602 13.4338 3.03714 15.5 4.82843 15.5H17.1716C18.9629 15.5 19.844 13.4338 18.5858 12.1756L17.8284 11.4182C17.2929 10.8826 17 10.1481 17 9.38268V8C17 4.68629 14.3137 2 11 2Z" stroke="#5f4cff" stroke-width="1.8" />
+                <path d="M8.5 18.5C8.89782 19.5619 9.86827 20.3333 11 20.3333C12.1317 20.3333 13.1022 19.5619 13.5 18.5" stroke="#5f4cff" stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+            </button>
+            <a class="avatar" href="profile.html" aria-label="Your profile">
+              <img src="assets/avatar-placeholder.jpg" alt="User avatar" />
+            </a>
+          </div>
+        </header>
+
+        <main class="page" role="main">
+          <h1 class="page-title">Households that you're in:</h1>
+
+          <section class="household-grid" aria-label="Your households">
+            <article class="household-card">
+              <div class="household-card__avatar">
+                <svg aria-hidden="true" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="24" cy="26" r="12" fill="#e0d2ff" />
+                  <circle cx="40" cy="26" r="10" fill="#ccb8ff" />
+                  <ellipse cx="27" cy="46" rx="15" ry="10" fill="#7c65ff" />
+                  <ellipse cx="42" cy="44" rx="11" ry="8" fill="#5b2df6" />
+                </svg>
+              </div>
+              <p class="household-card__name">Vaccaro's Family</p>
+            </article>
+
+            <article class="household-card">
+              <div class="household-card__avatar">
+                <svg aria-hidden="true" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="24" cy="26" r="12" fill="#eed4ff" />
+                  <circle cx="40" cy="26" r="10" fill="#f3d9ff" />
+                  <ellipse cx="27" cy="46" rx="15" ry="10" fill="#8d6bff" />
+                  <ellipse cx="42" cy="44" rx="11" ry="8" fill="#6d4bff" />
+                </svg>
+              </div>
+              <p class="household-card__name">Girlie's House &lt;3</p>
+            </article>
+
+            <a class="household-card household-card--add" href="create-household.html">
+              <div class="household-card__avatar">
+                <span aria-hidden="true">+</span>
+              </div>
+              <p class="household-card__name">Add household</p>
+            </a>
+          </section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

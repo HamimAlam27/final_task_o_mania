@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Settings - Task-o-Mania</title>
+    <meta name="description" content="Manage Task-o-Mania preferences and controls." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_settings.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true">☆</span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html">
+            <span aria-hidden="true">🏠</span>
+          </a>
+          <a class="sidebar__link" href="households.html">
+            <span aria-hidden="true">👥</span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html">
+            <span aria-hidden="true">🛒</span>
+          </a>
+          <a class="sidebar__link" href="activity.html">
+            <span aria-hidden="true">📊</span>
+          </a>
+          <a class="sidebar__link sidebar__link--active" href="settings.html" aria-current="page">
+            <span aria-hidden="true">⚙️</span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <button class="back-btn" type="button" aria-label="Go back" onclick="history.back()">
+            <span aria-hidden="true">&#x2039;</span>
+          </button>
+
+          <h1 class="page-title">Settings</h1>
+
+          <a class="avatar" href="profile.html" aria-label="Your profile">
+            <img src="assets/avatar-placeholder.jpg" alt="User avatar" />
+          </a>
+        </header>
+
+        <main class="page" role="main">
+          <section class="grid" aria-label="Settings sections">
+            <article class="tile">
+              <div class="icon">🏡</div>
+              <div>
+                <h2>Household Management</h2>
+                <p>Organize members and roles.</p>
+              </div>
+            </article>
+            <article class="tile">
+              <div class="icon">🤖</div>
+              <div>
+                <h2>AI Validation</h2>
+                <p>Control how AI reviews or approves.</p>
+              </div>
+            </article>
+            <article class="tile">
+              <div class="icon">🌐</div>
+              <div>
+                <h2>Global preferences</h2>
+                <p>Set your default language and timezone.</p>
+              </div>
+            </article>
+            <article class="tile">
+              <div class="icon">📊</div>
+              <div>
+                <h2>All your data</h2>
+                <p>View or delete your personal and household data securely.</p>
+              </div>
+            </article>
+            <article class="tile">
+              <div class="icon">🔔</div>
+              <div>
+                <h2>Notifications</h2>
+                <p>Choose when and how you receive updates.</p>
+              </div>
+            </article>
+            <article class="tile">
+              <div class="icon">🔐</div>
+              <div>
+                <h2>Privacy & sharing</h2>
+                <p>Manage visibility, sharing preferences, and privacy controls.</p>
+              </div>
+            </article>
+          </section>
+
+          <p class="cta-text">
+            Need to deactivate your account? <a href="#">Take care of that now</a>
+          </p>
+        </main>
+
+        <button class="fab" type="button" aria-label="Quick action">
+          <span aria-hidden="true">+</span>
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
+

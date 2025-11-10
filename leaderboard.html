@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Leaderboard - Task-o-Mania</title>
+    <meta name="description" content="See household leaders across time frames." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_leaderboard.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true">☆</span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html">
+            <span aria-hidden="true">🏠</span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html">
+            <span aria-hidden="true">🛍</span>
+          </a>
+          <a class="sidebar__link sidebar__link--active" href="leaderboard.html" aria-current="page">
+            <span aria-hidden="true">🏆</span>
+          </a>
+          <a class="sidebar__link" href="activity.html">
+            <span aria-hidden="true">📊</span>
+          </a>
+          <a class="sidebar__link" href="notifications.html">
+            <span aria-hidden="true">🔔</span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <button class="back-btn" type="button" aria-label="Go back" onclick="history.back()">
+            <span aria-hidden="true">&#x2039;</span>
+          </button>
+
+          <div class="title-block">
+            <h1>Leaderboard</h1>
+            <p>All-time podium</p>
+          </div>
+
+          <a class="avatar" href="profile.html" aria-label="Your profile">
+            <img src="assets/avatar-placeholder.jpg" alt="User avatar" />
+          </a>
+        </header>
+
+        <main class="page" role="main">
+          <section class="podium" aria-label="All-time podium">
+            <article class="podium-card podium-card--second">
+              <img src="assets/avatar-placeholder.jpg" alt="Livia Vaccaro" />
+              <h2>Livia Vaccaro</h2>
+              <p>1.8k</p>
+              <span class="rank">#2</span>
+            </article>
+
+            <article class="podium-card podium-card--first">
+              <img src="assets/avatar-placeholder.jpg" alt="Livia Vaccaro" />
+              <h2>Livia Vaccaro</h2>
+              <p>2.5k points!</p>
+              <span class="rank">#1</span>
+            </article>
+
+            <article class="podium-card podium-card--third">
+              <img src="assets/avatar-placeholder.jpg" alt="Livia Vaccaro" />
+              <h2>Livia Vaccaro</h2>
+              <p>1.4k</p>
+              <span class="rank">#3</span>
+            </article>
+          </section>
+
+          <section class="board" aria-label="This week standings">
+            <header>This week</header>
+            <ol>
+              <li>
+                <span class="position">1st</span>
+                <span class="member">
+                  <img src="assets/avatar-placeholder.jpg" alt="Livia Vaccaro" />
+                  Livia Vaccaro
+                </span>
+                <span class="points">50 pts</span>
+              </li>
+              <li>
+                <span class="position">2nd</span>
+                <span class="member">
+                  <img src="assets/avatar-placeholder.jpg" alt="Livia Vaccaro" />
+                  Livia Vaccaro
+                </span>
+                <span class="points">45 pts</span>
+              </li>
+              <li>
+                <span class="position">3rd</span>
+                <span class="member">
+                  <img src="assets/avatar-placeholder.jpg" alt="Livia Vaccaro" />
+                  Livia Vaccaro
+                </span>
+                <span class="points">30 pts</span>
+              </li>
+              <li>
+                <span class="position">4th</span>
+                <span class="member">
+                  <img src="assets/avatar-placeholder.jpg" alt="Livia Vaccaro" />
+                  Livia Vaccaro
+                </span>
+                <span class="points">10 pts</span>
+              </li>
+            </ol>
+          </section>
+
+          <section class="board" aria-label="This month standings">
+            <header>This Month</header>
+            <ol>
+              <li>
+                <span class="position">1st</span>
+                <span class="member">
+                  <img src="assets/avatar-placeholder.jpg" alt="Livia Vaccaro" />
+                  Livia Vaccaro
+                </span>
+                <span class="points">200 pts</span>
+              </li>
+              <li>
+                <span class="position">2nd</span>
+                <span class="member">
+                  <img src="assets/avatar-placeholder.jpg" alt="Livia Vaccaro" />
+                  Livia Vaccaro
+                </span>
+                <span class="points">170 pts</span>
+              </li>
+              <li>
+                <span class="position">3rd</span>
+                <span class="member">
+                  <img src="assets/avatar-placeholder.jpg" alt="Livia Vaccaro" />
+                  Livia Vaccaro
+                </span>
+                <span class="points">145 pts</span>
+              </li>
+              <li>
+                <span class="position">4th</span>
+                <span class="member">
+                  <img src="assets/avatar-placeholder.jpg" alt="Livia Vaccaro" />
+                  Livia Vaccaro
+                </span>
+                <span class="points">100 pts</span>
+              </li>
+            </ol>
+          </section>
+        </main>
+
+        <button class="fab" type="button" aria-label="Create task">
+          <span aria-hidden="true">+</span>
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
+

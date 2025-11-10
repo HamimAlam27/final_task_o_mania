@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Task List - Task-o-Mania</title>
+    <meta name="description" content="Review household tasks and statuses." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_task_list.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true">☆</span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html">
+            <span aria-hidden="true">🏠</span>
+          </a>
+          <a class="sidebar__link sidebar__link--active" href="task-list.html" aria-current="page">
+            <span aria-hidden="true">🗒</span>
+          </a>
+          <a class="sidebar__link" href="create-task.html">
+            <span aria-hidden="true">➕</span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html">
+            <span aria-hidden="true">🛍</span>
+          </a>
+          <a class="sidebar__link" href="activity.html">
+            <span aria-hidden="true">📊</span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <button class="back-btn" type="button" aria-label="Go back" onclick="history.back()">
+            <span aria-hidden="true">&#x2039;</span>
+          </button>
+
+          <h1 class="page-title">Task List</h1>
+
+          <a class="avatar" href="profile.html" aria-label="Your profile">
+            <img src="assets/avatar-placeholder.jpg" alt="User avatar" />
+          </a>
+        </header>
+
+        <main class="page" role="main">
+          <section class="stats" aria-label="Task metrics">
+            <article class="stat-card">
+              <span class="value">4</span>
+              <p>Total task</p>
+            </article>
+            <article class="stat-card stat-card--pending">
+              <span class="value">2</span>
+              <p>Pending</p>
+            </article>
+            <article class="stat-card stat-card--completed">
+              <span class="value">1</span>
+              <p>Completed</p>
+            </article>
+            <article class="stat-card stat-card--review">
+              <span class="value">1</span>
+              <p>Under Review</p>
+            </article>
+          </section>
+
+          <section class="task-list" aria-label="Tasks">
+            <article class="task-card task-card--review">
+              <div class="accent"></div>
+              <div class="task-card__body">
+                <p class="meta">Uploaded by MOM</p>
+                <h2>Grocery shopping (list in description)</h2>
+                <a href="#">100 credits ☆</a>
+              </div>
+              <span class="badge badge--review">Under Review</span>
+            </article>
+          </section>
+        </main>
+
+        <button class="fab" type="button" aria-label="Add task">
+          <span aria-hidden="true">+</span>
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
