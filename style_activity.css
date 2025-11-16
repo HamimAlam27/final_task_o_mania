@@ -181,6 +181,8 @@ body {
 }
 
 .metrics {
+  width: min(720px, 100%);
+  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 24px;
@@ -188,46 +190,45 @@ body {
 
 .metric-card {
   position: relative;
-  padding: 22px;
-  border-radius: 22px;
-  background: rgba(206, 226, 255, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.78);
-  box-shadow: 0 18px 40px rgba(100, 140, 220, 0.18);
+  padding: 24px;
+  border-radius: 26px;
+  background: linear-gradient(135deg, rgba(209, 229, 255, 0.92), rgba(238, 229, 255, 0.78));
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 22px 48px rgba(100, 140, 220, 0.2);
   display: grid;
   gap: 12px;
   overflow: hidden;
+  text-align: center;
 }
 
-.metric-card--accent { background: rgba(198, 187, 255, 0.78); }
-
-.metric-card__label { margin: 0; font-size: 15px; font-weight: 600; color: rgba(22, 22, 29, 0.65); }
-.metric-card__value { font-size: 28px; font-weight: 800; color: var(--accent-1); }
-
-.metric-card__circle {
+.metric-card::after {
+  content: '';
   position: absolute;
-  top: 50%;
-  right: 18px;
-  transform: translateY(-50%);
-  width: 92px;
-  height: 92px;
+  inset: 12px;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  pointer-events: none;
 }
 
-.metric-card__circle svg { width: 100%; height: 100%; }
-
-.metric-card__circle .track {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.6);
-  stroke-width: 12;
+.metric-card--accent {
+  background: linear-gradient(135deg, rgba(208, 197, 255, 0.95), rgba(188, 173, 255, 0.75));
 }
 
-.metric-card__circle .progress {
-  fill: none;
-  stroke: rgba(91, 45, 246, 0.8);
-  stroke-width: 12;
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
-  stroke-linecap: round;
+.metric-card__label {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(22, 22, 29, 0.65);
+  text-align: center;
 }
+.metric-card__value {
+  font-size: 46px;
+  font-weight: 800;
+  color: var(--accent-1);
+  text-align: center;
+}
+.metric-card--accent .metric-card__value { color: #5b2df6; }
+
 
 .warnings {
   margin: 0;
@@ -237,6 +238,8 @@ body {
 }
 
 .chart-panel {
+  width: min(720px, 100%);
+  margin: 0 auto;
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
   border-radius: 24px;
@@ -274,6 +277,8 @@ body {
 .chart svg { width: 100%; height: auto; }
 
 .activity-scroll {
+  width: min(720px, 100%);
+  margin: 0 auto;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(220px, 1fr);
@@ -369,8 +374,7 @@ body {
   .page-title { font-size: 34px; }
   .topbar__actions { justify-content: space-between; }
   .fab { left: auto; right: 24px; bottom: 24px; }
-  .metrics { grid-template-columns: 1fr; }
-  .metric-card__circle { position: static; transform: none; justify-self: end; }
+  .metrics { width: 100%; grid-template-columns: 1fr; }
   .chart-panel { padding: 18px; }
   .activity-scroll { gap: 16px; }
   .activity-card { width: 100%; }

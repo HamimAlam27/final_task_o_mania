@@ -118,3 +118,14 @@
 [data-tooltip] span {
   text-decoration: none;
 }
+
+.fab--toolbar {
+  position: static;
+  left: auto;
+  right: auto;
+  top: auto;
+  bottom: auto;
+  margin-top: auto;
+  margin-bottom: 0;
+  align-self: center;
+}

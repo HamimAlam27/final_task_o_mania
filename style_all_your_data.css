@@ -1,0 +1,101 @@
+.topbar__intro {
+  flex: 1;
+  text-align: center;
+}
+
+.topbar__intro h1 {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 46px);
+  font-weight: 800;
+}
+
+.topbar__intro p {
+  margin: 6px 0 0;
+  color: rgba(22, 22, 29, 0.65);
+}
+
+.panel {
+  width: min(640px, 100%);
+  margin: 0 auto;
+  padding: clamp(22px, 3vw, 34px);
+}
+
+.panel + .panel { margin-top: 24px; }
+
+.panel__header h2 { margin: 0; font-size: 22px; font-weight: 800; }
+.panel__header p { margin: 6px 0 0; color: rgba(22, 22, 29, 0.65); }
+
+.danger-panel {
+  border: 1px solid rgba(255, 120, 140, 0.4);
+}
+
+.danger-panel .btn-danger {
+  width: 100%;
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+}
+
+.user-delete-panel .actions {
+  justify-content: flex-start;
+}
+
+.data-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(13, 7, 34, 0.55);
+  backdrop-filter: blur(10px);
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+  z-index: 1200;
+}
+
+.data-modal--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.data-modal__card {
+  width: min(420px, 100%);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  padding: 32px;
+  text-align: center;
+  box-shadow: 0 32px 70px rgba(44, 25, 94, 0.3);
+}
+
+.data-modal__card h2 { margin: 0 0 8px; font-size: 24px; }
+.data-modal__card p { margin: 0 0 18px; color: rgba(22,16,54,0.75); }
+
+.data-modal__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.data-modal__close,
+.data-modal__confirm {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 24px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.data-modal__close {
+  background: rgba(118, 103, 255, 0.2);
+  color: var(--accent-1);
+}
+
+.data-modal__confirm {
+  background: linear-gradient(125deg, var(--accent-1), var(--accent-2));
+  color: #fff;
+  box-shadow: 0 18px 32px rgba(91,45,246,0.35);
+}

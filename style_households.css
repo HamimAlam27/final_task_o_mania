@@ -7,7 +7,8 @@
 }
 
 .households-panel {
-  margin-top: clamp(12px, 3vw, 32px);
+  width: min(720px, 100%);
+  margin: clamp(12px, 3vw, 32px) auto 0;
 }
 
 .households-panel .panel__header {
@@ -23,7 +24,8 @@
 }
 
 .household-grid {
-  margin-top: clamp(16px, 4vw, 32px);
+  width: min(720px, 100%);
+  margin: clamp(16px, 4vw, 32px) auto 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: clamp(20px, 4vw, 36px);

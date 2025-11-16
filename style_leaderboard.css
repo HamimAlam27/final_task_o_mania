@@ -115,6 +115,8 @@ body {
 }
 
 .podium {
+  width: min(720px, 100%);
+  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 18px;
@@ -153,6 +155,8 @@ body {
 }
 
 .board {
+  width: min(720px, 100%);
+  margin: 0 auto;
   background: rgba(220, 205, 255, 0.35);
   border-radius: 32px;
   padding: 24px;

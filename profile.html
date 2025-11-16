@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -10,6 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style_profile.css" />
     <link rel="stylesheet" href="style_user_chrome.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    lucide.createIcons();
+  });
+</script>
   </head>
   <body>
     <div class="background" aria-hidden="true"></div>
@@ -17,26 +23,40 @@
     <div class="dashboard-shell">
       <aside class="sidebar" aria-label="Primary">
         <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
-          <span class="sidebar__logo-icon" aria-hidden="true">☆</span>
+          <span class="sidebar__logo-icon" aria-hidden="true"><i data-lucide="sparkles"></i></span>
         </a>
 
-        <nav class="sidebar__nav" aria-label="Main navigation">
+                <nav class="sidebar__nav" aria-label="Main navigation">
           <a class="sidebar__link" href="dashboard.html" data-tooltip="Home">
-            <span aria-hidden="true">🏠</span>
+            <span aria-hidden="true"><i data-lucide="home"></i></span>
           </a>
-          <a class="sidebar__link" href="task-list.html" data-tooltip="Task List">
-            <span aria-hidden="true">🗒</span>
+          <a class="sidebar__link" href="households.html" data-tooltip="Households">
+            <span aria-hidden="true"><i data-lucide="users"></i></span>
           </a>
           <a class="sidebar__link" href="reward-store.html" data-tooltip="Reward Store">
-            <span aria-hidden="true">🛍</span>
+            <span aria-hidden="true"><i data-lucide="gift"></i></span>
+          </a>
+          <a class="sidebar__link" href="task-list-total-tasks.html" data-tooltip="Task List">
+            <span aria-hidden="true"><i data-lucide="check-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="create-task.html" data-tooltip="Create Task">
+            <span aria-hidden="true"><i data-lucide="plus-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="activity.html" data-tooltip="Activity">
+            <span aria-hidden="true"><i data-lucide="activity"></i></span>
+          </a>
+          <a class="sidebar__link" href="leaderboard.html" data-tooltip="Leaderboard">
+            <span aria-hidden="true"><i data-lucide="trophy"></i></span>
           </a>
           <a class="sidebar__link" href="settings.html" data-tooltip="Definitions">
-            <span aria-hidden="true">⚙️</span>
-          </a>
-          <a class="sidebar__link" href="profile.html" data-tooltip="Profile">
-            <span aria-hidden="true">👤</span>
+            <span aria-hidden="true"><i data-lucide="settings"></i></span>
           </a>
         </nav>
+
+        <a class="fab fab--toolbar" data-tooltip="Submit task" href="submit-task.html" aria-label="Submit task">
+          <span aria-hidden="true">+</span>
+        </a>
+
       </aside>
 
       <div class="content">
@@ -55,7 +75,7 @@
               </svg>
             </a>
             <a class="avatar" data-tooltip="Profile" href="profile.html" aria-label="Your profile">
-              <img src="assets/avatar-placeholder.jpg" alt="User avatar" />
+              <img src="IMAGES/avatar.png" alt="User avatar" />
             </a>
           </div>
         </header>
@@ -63,9 +83,9 @@
         <main class="page" role="main">
           <section class="card">
             <div class="card__avatar">
-              <img src="assets/avatar-placeholder.jpg" alt="Livia Vaccaro" />
+              <img src="IMAGES/avatar.png" alt="Livia Vaccaro" />
             </div>
-            <h2>Livia Vaccaro <span aria-hidden="true">✎</span></h2>
+            <h2>Livia Vaccaro <span aria-hidden="true">?</span></h2>
 
             <dl>
               <div>
@@ -95,15 +115,13 @@
               <button type="button" class="link-danger">Delete Profile</button>
             </div>
           </section>
-        </main>
-
-        <a class="fab" href="submit-task.html" aria-label="Submit task">
-          <span aria-hidden="true">+</span>
-        </a>
-      </div>
+        </main></div>
     </div>
   </body>
 </html>
+
+
+
 
 
 

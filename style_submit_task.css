@@ -169,6 +169,8 @@ body {
 }
 
 .panel {
+  width: min(720px, 100%);
+  margin: 0 auto;
   background: var(--panel-bg);
   border-radius: 26px;
   border: 1px solid var(--panel-border);
@@ -196,8 +198,10 @@ body {
 }
 
 .form {
+  width: min(640px, 100%);
+  margin: 0 auto;
   display: grid;
-  gap: 20px;
+  gap: 22px;
   margin-top: 24px;
 }
 

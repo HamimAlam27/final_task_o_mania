@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FAQ - Task-o-Mania</title>
+    <meta name="description" content="Find the most common answers about how Task-o-Mania works." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_deactivate_account.css" />
+    <link rel="stylesheet" href="style_user_chrome.css" />
+    <link rel="stylesheet" href="style_faq.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    lucide.createIcons();
+  });
+</script>
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true">☆</span>
+        </a>
+
+                <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html" data-tooltip="Home">
+            <span aria-hidden="true"><i data-lucide="home"></i></span>
+          </a>
+          <a class="sidebar__link" href="households.html" data-tooltip="Households">
+            <span aria-hidden="true"><i data-lucide="users"></i></span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html" data-tooltip="Reward Store">
+            <span aria-hidden="true"><i data-lucide="gift"></i></span>
+          </a>
+          <a class="sidebar__link" href="task-list-total-tasks.html" data-tooltip="Task List">
+            <span aria-hidden="true"><i data-lucide="check-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="create-task.html" data-tooltip="Create Task">
+            <span aria-hidden="true"><i data-lucide="plus-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="activity.html" data-tooltip="Activity">
+            <span aria-hidden="true"><i data-lucide="activity"></i></span>
+          </a>
+          <a class="sidebar__link" href="leaderboard.html" data-tooltip="Leaderboard">
+            <span aria-hidden="true"><i data-lucide="trophy"></i></span>
+          </a>
+          <a class="sidebar__link" href="settings.html" data-tooltip="Definitions">
+            <span aria-hidden="true"><i data-lucide="settings"></i></span>
+          </a>
+        </nav>
+
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <button class="back-btn" type="button" aria-label="Go back" onclick="history.back()">
+            <span aria-hidden="true">&#x2039;</span>
+          </button>
+
+          <div class="topbar__intro">
+            <h1 class="page-title">Frequently Asked Questions (FAQ)</h1>
+            <p>Find answers to the most common questions about Task-O-Mania.</p>
+          </div>
+
+          <div class="topbar__actions user-actions">
+            <a class="notification-button" data-tooltip="Notifications" href="notifications.html" aria-label="Go to notifications">
+              <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z" stroke-linecap="round" />
+                <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke-linecap="round" />
+              </svg>
+            </a>
+            <a class="avatar" data-tooltip="Profile" href="profile.html" aria-label="Your profile">
+              <img src="IMAGES/avatar.png" alt="User avatar" />
+            </a>
+          </div>
+        </header>
+
+        <main class="page" role="main">
+          <section class="panel search-panel">
+            <label class="search-field" for="faq-search">
+              <span class="search-field__label">Search the FAQ</span>
+              <div class="input-wrapper">
+                <input id="faq-search" type="search" placeholder="Search for answers…" autocomplete="off" />
+                <span class="search-icon" aria-hidden="true">🔍</span>
+              </div>
+            </label>
+            <p class="no-results" hidden>No answers match your search.</p>
+          </section>
+
+          <section class="panel faq-section" data-category="tasks">
+            <header class="panel__header">
+              <div>
+                <h2>About Tasks</h2>
+                <p>Everything related to creating, submitting, and reviewing tasks.</p>
+              </div>
+            </header>
+            <div class="faq-list">
+              <article class="faq-item" data-search="how do i create a task you can create new tasks from the create task page by filling in all required fields and saving">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-task-1">
+                  <span>How do I create a task?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-task-1" hidden>
+                  Use the “Create Task” page to enter the title, description, points, and optional photo. Save it and it will instantly appear in the household task list.
+                </div>
+              </article>
+              <article class="faq-item" data-search="how do i submit a completed task upload proof submit task page add note">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-task-2">
+                  <span>How do I submit a completed task?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-task-2" hidden>
+                  Go to “Submit Task”, pick the task you finished, upload your proof photo, add an optional note, and tap “Submit”. The task owner or AI will review it right away.
+                </div>
+              </article>
+              <article class="faq-item" data-search="who approves or declines tasks owner admin ai validation reviewer">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-task-3">
+                  <span>Who is responsible for approving or declining tasks?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-task-3" hidden>
+                  Owners or admins can review submissions. If AI validation is enabled, the AI evaluates first and only escalates low-confidence results to humans.
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel faq-section" data-category="rewards">
+            <header class="panel__header">
+              <div>
+                <h2>Points & Rewards</h2>
+                <p>Understand how points, streaks, and rewards operate.</p>
+              </div>
+            </header>
+            <div class="faq-list">
+              <article class="faq-item" data-search="how are points assigned to each task owners define reward value difficulty">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-reward-1">
+                  <span>How are points assigned to each task?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-reward-1" hidden>
+                  When creating a task you choose the point value. Most families set higher points for longer or more complex chores.
+                </div>
+              </article>
+              <article class="faq-item" data-search="how can i redeem a reward reward store exchange points">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-reward-2">
+                  <span>How can I redeem a reward?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-reward-2" hidden>
+                  Visit the Reward Store page, pick a reward you can afford, and confirm the redemption. Owners or admins are notified to deliver it.
+                </div>
+              </article>
+              <article class="faq-item" data-search="why didnt i receive points after completing a task status pending under review declined resend">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-reward-3">
+                  <span>Why didn’t I receive points after completing a task?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-reward-3" hidden>
+                  Check the Task List filters. If the task is still pending or under review, wait for approval. If it was declined, resubmit with the requested updates.
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel faq-section" data-category="ai">
+            <header class="panel__header">
+              <div>
+                <h2>AI Validation</h2>
+                <p>How the AI verifier helps and when humans step in.</p>
+              </div>
+            </header>
+            <div class="faq-list">
+              <article class="faq-item" data-search="how does the ai decide whether to approve a task confidence threshold photo comparison rules">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-ai-1">
+                  <span>How does the AI decide whether to approve a task?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-ai-1" hidden>
+                  The AI compares the submitted proof with the task requirements and calculates a confidence score. If it meets the configured threshold, the task is approved automatically.
+                </div>
+              </article>
+              <article class="faq-item" data-search="what happens if the ai confidence is too low task moves to manual review owner admin notified">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-ai-2">
+                  <span>What happens if the AI confidence is too low?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-ai-2" hidden>
+                  The submission is flagged for manual review. Owners or admins receive a notification and can accept or decline it themselves.
+                </div>
+              </article>
+              <article class="faq-item" data-search="can i turn ai validation on or off toggle settings ai validation page">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-ai-3">
+                  <span>Can I turn AI validation on or off?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-ai-3" hidden>
+                  Yes. Owners can switch the AI Validation setting on or off and adjust the confidence threshold inside Settings &gt; AI Validation.
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel faq-section" data-category="households">
+            <header class="panel__header">
+              <div>
+                <h2>Households & Members</h2>
+                <p>Manage who belongs to your household and what they can do.</p>
+              </div>
+            </header>
+            <div class="faq-list">
+              <article class="faq-item" data-search="how do i add someone to my household invite link email username management page">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-household-1">
+                  <span>How do I add someone to my household?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-household-1" hidden>
+                  Use Settings &gt; Household Management to invite members via email or username, or share the invite link with them directly.
+                </div>
+              </article>
+              <article class="faq-item" data-search="what are the roles inside a household owner admin user kid permissions">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-household-2">
+                  <span>What are the roles inside a household (Owner, Admin, User, Kid)?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-household-2" hidden>
+                  Owners control every setting, admins help manage members and tasks, users can complete and submit tasks, and kids have a simplified view focused on their chores.
+                </div>
+              </article>
+              <article class="faq-item" data-search="how do i remove or edit a members role household management promote demote remove">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-household-3">
+                  <span>How do I remove or edit a member’s role?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-household-3" hidden>
+                  Open Household Management, find the member card, and use the role dropdown or remove button. Changes apply immediately.
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel faq-section" data-category="privacy">
+            <header class="panel__header">
+              <div>
+                <h2>Privacy & Data</h2>
+                <p>Your privacy and export controls in Task-O-Mania.</p>
+              </div>
+            </header>
+            <div class="faq-list">
+              <article class="faq-item" data-search="what data does task o mania collect task names completion logs optional photos">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-privacy-1">
+                  <span>What data does Task-O-Mania collect?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-privacy-1" hidden>
+                  We store task names, completion history, reward redemptions, and optional proof photos strictly for household usage. We never track private messages or location.
+                </div>
+              </article>
+              <article class="faq-item" data-search="how can i export my data settings all your data request view household report">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-privacy-2">
+                  <span>How can I export my data?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-privacy-2" hidden>
+                  Head to Settings &gt; All Your Data and use the available download or export options to generate a report.
+                </div>
+              </article>
+              <article class="faq-item" data-search="how long are submitted task photos stored retention options one week one month forever">
+                <button class="faq-item__trigger" aria-expanded="false" aria-controls="faq-privacy-3">
+                  <span>How long are submitted task photos stored?</span>
+                  <span class="faq-item__icon" aria-hidden="true"></span>
+                </button>
+                <div class="faq-item__content" id="faq-privacy-3" hidden>
+                  Owners decide the retention period in Settings &gt; AI Validation. You can choose 1 week, 1 month, or keep them indefinitely.
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel contact-panel">
+            <header class="panel__header">
+              <div>
+                <h2>Need more help?</h2>
+                <p>Didn’t find what you were looking for? Contact us.</p>
+              </div>
+            </header>
+            <button type="button" class="btn-primary contact-support">Send us a message</button>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const triggers = document.querySelectorAll('.faq-item__trigger');
+        const searchInput = document.getElementById('faq-search');
+        const faqItems = Array.from(document.querySelectorAll('.faq-item'));
+        const faqSections = Array.from(document.querySelectorAll('.faq-section'));
+        const noResults = document.querySelector('.no-results');
+        const contactBtn = document.querySelector('.contact-support');
+
+        triggers.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const expanded = btn.getAttribute('aria-expanded') === 'true';
+            const content = document.getElementById(btn.getAttribute('aria-controls'));
+            btn.setAttribute('aria-expanded', String(!expanded));
+            content.hidden = expanded;
+          });
+        });
+
+        const filterFaq = () => {
+          const query = searchInput?.value.trim().toLowerCase() ?? '';
+          let visibleCount = 0;
+
+          faqItems.forEach((item) => {
+            const matches = !query || item.dataset.search?.includes(query);
+            item.hidden = !matches;
+            if (matches) visibleCount += 1;
+          });
+
+          faqSections.forEach((section) => {
+            const hasVisible = section.querySelector('.faq-item:not([hidden])');
+            section.hidden = query && !hasVisible;
+          });
+
+          if (noResults) {
+            noResults.hidden = visibleCount > 0;
+          }
+        };
+
+        searchInput?.addEventListener('input', filterFaq);
+
+        contactBtn?.addEventListener('click', () => {
+          window.location.href = 'mailto:support@task-o-mania.com';
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+
+

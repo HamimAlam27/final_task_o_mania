@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -10,6 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style_settings.css" />
     <link rel="stylesheet" href="style_user_chrome.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    lucide.createIcons();
+  });
+</script>
   </head>
   <body>
     <div class="background" aria-hidden="true"></div>
@@ -17,36 +23,34 @@
     <div class="dashboard-shell">
       <aside class="sidebar" aria-label="Primary">
         <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
-          <span class="sidebar__logo-icon" aria-hidden="true">☆</span>
+          <span class="sidebar__logo-icon" aria-hidden="true"><i data-lucide="sparkles"></i></span>
         </a>
 
-     <nav class="sidebar__nav" aria-label="Main navigation">
+        <nav class="sidebar__nav" aria-label="Main navigation">
           <a class="sidebar__link" href="dashboard.html" data-tooltip="Home">
-            <span aria-hidden="true">🏠</span>
+            <span aria-hidden="true"><i data-lucide="home"></i></span>
           </a>
           <a class="sidebar__link" href="households.html" data-tooltip="Households">
-            <span aria-hidden="true">👥</span>
+            <span aria-hidden="true"><i data-lucide="users"></i></span>
           </a>
           <a class="sidebar__link" href="reward-store.html" data-tooltip="Reward Store">
-            <span aria-hidden="true">🛒</span>
+            <span aria-hidden="true"><i data-lucide="gift"></i></span>
           </a>
           <a class="sidebar__link" href="task-list-total-tasks.html" data-tooltip="Task List">
-            <span aria-hidden="true">🗒</span>
+            <span aria-hidden="true"><i data-lucide="check-square"></i></span>
           </a>
-          <a class="sidebar__link" href="create-task.html" data-tooltip="Create Reward">
-            <span aria-hidden="true">➕</span>
+          <a class="sidebar__link" href="create-task.html" data-tooltip="Submit task">
+            <span aria-hidden="true"><i data-lucide="plus-square"></i></span>
           </a>
-           <a class="sidebar__link" href="activity.html" data-tooltip="Activity">
-            <span aria-hidden="true">📊</span>
+          <a class="sidebar__link" href="activity.html" data-tooltip="Activity">
+            <span aria-hidden="true"><i data-lucide="activity"></i></span>
           </a>
           <a class="sidebar__link" href="leaderboard.html" data-tooltip="Leaderboard">
-            <span aria-hidden="true">🏆</span>
+            <span aria-hidden="true"><i data-lucide="trophy"></i></span>
           </a>
-          
           <a class="sidebar__link" href="settings.html" data-tooltip="Definitions">
-            <span aria-hidden="true">⚙️</span>
+            <span aria-hidden="true"><i data-lucide="settings"></i></span>
           </a>
-        
         </nav>
       </aside>
 
@@ -66,44 +70,44 @@
               </svg>
             </a>
             <a class="avatar" data-tooltip="Profile" href="profile.html" aria-label="Your profile">
-              <img src="assets/avatar-placeholder.jpg" alt="User avatar" />
+              <img src="IMAGES/avatar.png" alt="User avatar" />
             </a>
           </div>
         </header>
 
         <main class="page" role="main">
           <section class="grid" aria-label="Settings sections">
-            <a class="tile" href="settings/household_management.html"><div class="icon">🏡</div><div><h2>Household Management</h2><p>Organize members and roles.</p></div></a>
-            <a class="tile" href="#">
-              <div class="icon">🤖</div>
+            <a class="tile" href="settings/household_management.html"><div class="icon"><i data-lucide="users"></i></div><div><h2>Household Management</h2><p>Organize members and roles.</p></div></a>
+            <a class="tile" href="settings/ai_validation.html">
+              <div class="icon"><i data-lucide="cpu"></i></div>
               <div>
                 <h2>AI Validation</h2>
                 <p>Control how AI reviews or approves.</p>
               </div>
             </a>
-            <a class="tile" href="#">
-              <div class="icon">🌐</div>
+            <a class="tile" href="faq.html">
+              <div class="icon"><i data-lucide="help-circle"></i></div>
               <div>
-                <h2>Global preferences</h2>
-                <p>Set your default language and timezone.</p>
+                <h2>FAQ</h2>
+                <p>Find quick answers to common Task-O-Mania questions.</p>
               </div>
             </a>
-            <a class="tile" href="#">
-              <div class="icon">📊</div>
+            <a class="tile" href="settings/all_your_data.html">
+              <div class="icon"><i data-lucide="database"></i></div>
               <div>
                 <h2>All your data</h2>
                 <p>View or delete your personal and household data securely.</p>
               </div>
             </a>
             <a class="tile" href="#">
-              <div class="icon">🔔</div>
+              <div class="icon"><i data-lucide="bell"></i></div>
               <div>
                 <h2>Notifications</h2>
                 <p>Choose when and how you receive updates.</p>
               </div>
             </a>
-            <a class="tile" href="#">
-              <div class="icon">🔐</div>
+            <a class="tile" href="settings/privacy_and_sharing.html">
+              <div class="icon"><i data-lucide="shield"></i></div>
               <div>
                 <h2>Privacy & sharing</h2>
                 <p>Manage visibility, sharing preferences, and privacy controls.</p>
@@ -120,6 +124,9 @@
     </div>
   </body>
 </html>
+
+
+
 
 
 
