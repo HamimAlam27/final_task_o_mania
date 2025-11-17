@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Task Details - Task-o-Mania</title>
+    <meta name="description" content="View every field captured when creating a household task." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style_task_list.css" />
+    <link rel="stylesheet" href="style_user_chrome.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+      });
+    </script>
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true"><i data-lucide="sparkles"></i></span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html" data-tooltip="Home">
+            <span aria-hidden="true"><i data-lucide="home"></i></span>
+          </a>
+          <a class="sidebar__link" href="households.html" data-tooltip="Households">
+            <span aria-hidden="true"><i data-lucide="users"></i></span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html" data-tooltip="Reward Store">
+            <span aria-hidden="true"><i data-lucide="gift"></i></span>
+          </a>
+          <a class="sidebar__link" href="task-list-total-tasks.html" data-tooltip="Task List">
+            <span aria-hidden="true"><i data-lucide="check-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="choose_between_buttons.html" data-tooltip="New">
+            <span aria-hidden="true"><i data-lucide="plus-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="activity.html" data-tooltip="Activity">
+            <span aria-hidden="true"><i data-lucide="activity"></i></span>
+          </a>
+          <a class="sidebar__link" href="leaderboard.html" data-tooltip="Leaderboard">
+            <span aria-hidden="true"><i data-lucide="trophy"></i></span>
+          </a>
+          <a class="sidebar__link" href="settings.html" data-tooltip="Definitions">
+            <span aria-hidden="true"><i data-lucide="settings"></i></span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <a class="back-btn" href="task-list-total-tasks.html" aria-label="Back to the task list">
+            <span aria-hidden="true">&#x2039;</span>
+          </a>
+
+          <h1 class="page-title">Task Details</h1>
+
+          <div class="user-actions">
+            <a class="notification-button" data-tooltip="Notifications" href="notifications.html" aria-label="Go to notifications">
+              <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z" stroke-linecap="round" />
+                <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke-linecap="round" />
+              </svg>
+            </a>
+            <a class="avatar" data-tooltip="Profile" href="profile.html" aria-label="Your profile">
+              <img src="IMAGES/avatar.png" alt="User avatar" />
+            </a>
+          </div>
+        </header>
+
+        <main class="page" role="main">
+          <section class="task-details" aria-live="polite">
+            <div class="task-detail-message" data-task-loading>Loading selected task...</div>
+            <div class="task-detail-message" data-task-error hidden>
+              We could not find the selected task. <a href="task-list-total-tasks.html">Return to the task list</a> and try again.
+            </div>
+
+            <article class="task-detail-card" data-task-card hidden>
+              <header>
+                <p class="meta" data-task-meta></p>
+                <h2 data-task-title>Task details</h2>
+              </header>
+              <dl class="task-detail-fields" data-task-fields></dl>
+              <div class="task-detail-media" data-task-image-wrapper hidden>
+                <h3>Attachment</h3>
+                <img data-task-image alt="Task attachment" />
+              </div>
+
+              <div class="task-detail-review" data-review-actions hidden>
+                <p data-review-message>This task requires your review. Choose an action:</p>
+                <div class="task-detail-review__buttons">
+                  <button type="button" class="btn-primary" data-review-complete>Mark as Completed</button>
+                  <button type="button" class="btn-secondary" data-review-decline>Decline Task</button>
+                </div>
+              </div>
+
+              <div class="task-detail-actions">
+                <a class="btn-primary" href="task-list-total-tasks.html">Back to task list</a>
+              </div>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const STORAGE_KEY = 'taskomania_tasks';
+        const SELECTED_TASK_KEY = 'taskomania_selected_task';
+        const loadingMessage = document.querySelector('[data-task-loading]');
+        const errorMessage = document.querySelector('[data-task-error]');
+        const card = document.querySelector('[data-task-card]');
+        const titleEl = document.querySelector('[data-task-title]');
+        const metaEl = document.querySelector('[data-task-meta]');
+        const fieldsEl = document.querySelector('[data-task-fields]');
+        const imageWrapper = document.querySelector('[data-task-image-wrapper]');
+        const imageEl = document.querySelector('[data-task-image]');
+        const reviewActions = document.querySelector('[data-review-actions]');
+        const reviewMessage = document.querySelector('[data-review-message]');
+        const reviewCompleteBtn = document.querySelector('[data-review-complete]');
+        const reviewDeclineBtn = document.querySelector('[data-review-decline]');
+
+        let activeTaskId = null;
+
+        if (!loadingMessage || !errorMessage || !card || !fieldsEl) {
+          return;
+        }
+
+        const readStoredTasks = () => {
+          try {
+            const raw = window.localStorage.getItem(STORAGE_KEY);
+            if (!raw) return [];
+            return JSON.parse(raw);
+          } catch (error) {
+            console.warn('Unable to parse tasks from storage', error);
+            return [];
+          }
+        };
+
+        const persistTasks = (tasks) => {
+          try {
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+          } catch (error) {
+            console.warn('Unable to persist tasks', error);
+          }
+        };
+
+        const FIELD_ORDER = ['task_name', 'task_description', 'task_points', 'task_status'];
+
+        const formatLabel = (label) =>
+          label
+            .replace(/[-_]/g, ' ')
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+
+        const formatDateValue = (value) => {
+          if (!value) return '-';
+          const parsed = new Date(value);
+          if (Number.isNaN(parsed.getTime())) {
+            return value;
+          }
+          return parsed.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          });
+        };
+
+        const formatStatusValue = (value) => {
+          if (!value) return 'Pending';
+          return value
+            .toString()
+            .replace(/[_-]/g, ' ')
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+        };
+
+        const formatValue = (key, value) => {
+          if (value === null || value === undefined || value === '') return '-';
+          if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+          if (Array.isArray(value)) {
+            return value.map((item) => formatValue(key, item)).join(', ');
+          }
+          if (typeof value === 'object') {
+            if ('name' in value && 'size' in value) {
+              return value.name || 'Uploaded file';
+            }
+            return JSON.stringify(value);
+          }
+          if (key.includes('date')) {
+            return formatDateValue(value);
+          }
+          if (key.includes('status')) {
+            return formatStatusValue(value);
+          }
+          return value;
+        };
+
+        const getFieldOrderIndex = (key) => {
+          const index = FIELD_ORDER.indexOf(key);
+          return index === -1 ? FIELD_ORDER.length + key.charCodeAt(0) : index;
+        };
+
+        const normalizeStatus = (value) => {
+          if (!value) return 'pending';
+          return value.toString().trim().toLowerCase().replace(/\s+/g, '_');
+        };
+
+        const isAiValidationEnabled = (value) => {
+          if (value === undefined || value === null) return false;
+          const normalized = value.toString().toLowerCase();
+          return normalized === 'true' || normalized === 'on';
+        };
+
+        const renderTask = (task) => {
+          const { fields = {}, createdAt, id } = task;
+          activeTaskId = id;
+          titleEl.textContent = fields.task_name || 'Untitled task';
+          metaEl.textContent = createdAt
+            ? `Created on ${new Date(createdAt).toLocaleString()}`
+            : 'Creation date not available';
+
+          fieldsEl.innerHTML = '';
+          Object.entries(fields)
+            .filter(([key]) => key !== 'task_photo')
+            .sort((a, b) => getFieldOrderIndex(a[0]) - getFieldOrderIndex(b[0]))
+            .forEach(([key, value]) => {
+              const term = document.createElement('dt');
+              term.textContent = formatLabel(key);
+              const details = document.createElement('dd');
+              details.textContent = formatValue(key, value);
+              fieldsEl.appendChild(term);
+              fieldsEl.appendChild(details);
+            });
+
+          if (imageWrapper && imageEl) {
+            const photo = fields.task_photo;
+            if (photo && photo.dataUrl) {
+              imageEl.src = photo.dataUrl;
+              imageEl.alt = photo.name ? `${photo.name} attachment` : 'Task attachment';
+              imageWrapper.hidden = false;
+            } else {
+              imageWrapper.hidden = true;
+            }
+          }
+
+          toggleReviewActions(fields);
+        };
+
+        const toggleReviewActions = (fields) => {
+          if (!reviewActions) return;
+          const status = normalizeStatus(fields.task_status || fields.status);
+          const aiEnabled = isAiValidationEnabled(fields.ai_validation);
+          const shouldDisplay = status === 'pending';
+          reviewActions.hidden = !shouldDisplay;
+
+          if (!shouldDisplay) {
+            return;
+          }
+
+          const message = aiEnabled
+            ? 'AI Validation is enabled. Turn it off to review this task manually.'
+            : 'This task requires your review. Choose an action:';
+
+          if (reviewMessage) {
+            reviewMessage.textContent = message;
+          }
+
+          const isDisabled = aiEnabled;
+          if (reviewCompleteBtn) {
+            reviewCompleteBtn.disabled = isDisabled;
+          }
+          if (reviewDeclineBtn) {
+            reviewDeclineBtn.disabled = isDisabled;
+          }
+
+          reviewActions.classList.toggle('task-detail-review--disabled', isDisabled);
+        };
+
+        const updateTaskStatus = (nextStatus) => {
+          if (!activeTaskId) return;
+          const tasks = readStoredTasks();
+          const targetIndex = tasks.findIndex((task) => task.id === activeTaskId);
+          if (targetIndex === -1) return;
+
+          tasks[targetIndex].fields = {
+            ...tasks[targetIndex].fields,
+            task_status: nextStatus,
+          };
+          tasks[targetIndex].updatedAt = new Date().toISOString();
+
+          persistTasks(tasks);
+          renderTask(tasks[targetIndex]);
+        };
+
+        const init = () => {
+          const taskId = window.localStorage.getItem(SELECTED_TASK_KEY);
+          const tasks = readStoredTasks();
+          const selectedTask = tasks.find((task) => task.id === taskId);
+
+          loadingMessage.hidden = true;
+
+          if (!taskId || !selectedTask) {
+            errorMessage.hidden = false;
+            return;
+          }
+
+          renderTask(selectedTask);
+          card.hidden = false;
+        };
+
+        if (reviewCompleteBtn) {
+          reviewCompleteBtn.addEventListener('click', () => updateTaskStatus('completed'));
+        }
+
+        if (reviewDeclineBtn) {
+          reviewDeclineBtn.addEventListener('click', () => updateTaskStatus('declined'));
+        }
+
+        init();
+      })();
+    </script>
+  </body>
+</html>
+

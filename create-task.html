@@ -40,7 +40,7 @@
           <a class="sidebar__link" href="task-list-total-tasks.html" data-tooltip="Task List">
             <span aria-hidden="true"><i data-lucide="check-square"></i></span>
           </a>
-          <a class="sidebar__link" href="create-task.html" data-tooltip="Create Task">
+          <a class="sidebar__link" href="create-task.html" data-tooltip="New">
             <span aria-hidden="true"><i data-lucide="plus-square"></i></span>
           </a>
           <a class="sidebar__link" href="activity.html" data-tooltip="Activity">
@@ -53,10 +53,6 @@
             <span aria-hidden="true"><i data-lucide="settings"></i></span>
           </a>
         </nav>
-
-        <a class="fab fab--toolbar" data-tooltip="Submit task" href="submit-task.html" aria-label="Submit task">
-          <span aria-hidden="true">+</span>
-        </a>
 
       </aside>
 
@@ -203,6 +199,7 @@ Make sure the floor is vacuumed, the furniture is dusted, and the cushions are n
 
     <script>
       (function () {
+        const STORAGE_KEY = 'taskomania_tasks';
         const form = document.querySelector('.form');
         const modal = document.querySelector('.success-modal');
         const closeBtn = document.querySelector('.success-modal__close');
@@ -211,6 +208,111 @@ Make sure the floor is vacuumed, the furniture is dusted, and the cushions are n
         const splitContainer = document.querySelector('.split-points');
 
         if (!form || !modal || !closeBtn) return;
+
+        const readStoredTasks = () => {
+          try {
+            const raw = window.localStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+          } catch (error) {
+            console.warn('Unable to read tasks from storage', error);
+            return [];
+          }
+        };
+
+        const persistTasks = (tasks) => {
+          try {
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+          } catch (error) {
+            console.error('Unable to save task', error);
+          }
+        };
+
+        const generateTaskId = () => {
+          if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+            return window.crypto.randomUUID();
+          }
+          return `task-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        };
+
+        const serializeForm = () => {
+          const serialized = {};
+          Array.from(form.elements)
+            .filter((field) => field.name)
+            .forEach((field) => {
+              const { name, type } = field;
+
+              if (type === 'checkbox') {
+                serialized[name] = field.checked ? field.value || true : false;
+                return;
+              }
+
+              if (type === 'radio') {
+                if (field.checked) {
+                  serialized[name] = field.value;
+                }
+                return;
+              }
+
+              if (type === 'file') {
+                const file = field.files && field.files[0];
+                serialized[name] = file
+                  ? { name: file.name, type: file.type, size: file.size }
+                  : null;
+                return;
+              }
+
+              serialized[name] = field.value;
+            });
+          return serialized;
+        };
+
+        const readFileAsDataUrl = (file) =>
+          new Promise((resolve, reject) => {
+            if (!file) {
+              resolve(null);
+              return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () =>
+              reject(reader.error || new Error('Unable to read the selected file'));
+            reader.readAsDataURL(file);
+          });
+
+        const collectFields = async () => {
+          const fields = serializeForm();
+          const photoInput = document.getElementById('task-photo');
+          const file = photoInput && photoInput.files ? photoInput.files[0] : null;
+          const dataUrl = await readFileAsDataUrl(file);
+
+          if (file && dataUrl) {
+            fields.task_photo = {
+              name: file.name,
+              type: file.type,
+              size: file.size,
+              dataUrl,
+            };
+          } else if (!fields.task_photo) {
+            fields.task_photo = null;
+          }
+
+          return fields;
+        };
+
+        const saveTaskToStorage = async () => {
+          const fields = await collectFields();
+          if (!Object.keys(fields).length) return;
+
+          const newTask = {
+            id: generateTaskId(),
+            createdAt: new Date().toISOString(),
+            fields,
+          };
+
+          const tasks = readStoredTasks();
+          tasks.push(newTask);
+          persistTasks(tasks);
+        };
 
         function showModal() {
           modal.setAttribute('aria-hidden', 'false');
@@ -222,9 +324,16 @@ Make sure the floor is vacuumed, the furniture is dusted, and the cushions are n
           modal.classList.remove('success-modal--visible');
         }
 
-        form.addEventListener('submit', function (event) {
+        form.addEventListener('submit', async function (event) {
           event.preventDefault();
-          showModal();
+          try {
+            await saveTaskToStorage();
+            form.reset();
+            syncSplitState();
+            showModal();
+          } catch (error) {
+            console.error('Unable to save the new task', error);
+          }
         });
 
         closeBtn.addEventListener('click', hideModal);
@@ -253,10 +362,12 @@ Make sure the floor is vacuumed, the furniture is dusted, and the cushions are n
           syncSplitState();
           splitToggle.addEventListener('change', syncSplitState);
         }
+
       })();
     </script>
   </body>
 </html>
+
 
 
 

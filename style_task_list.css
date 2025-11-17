@@ -150,6 +150,29 @@ body {
   gap: 16px;
 }
 
+.task-list__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-delete-pending {
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  background: linear-gradient(140deg, #ff7a59, #f6416c);
+  box-shadow: 0 12px 22px rgba(246, 65, 108, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-delete-pending:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 28px rgba(246, 65, 108, 0.35);
+}
+
 .task-card {
   position: relative;
   display: grid;
@@ -184,10 +207,12 @@ body {
 .task-card--completed .accent { background: #4ad66d; }
 .task-card--pending .accent { background: #ffae32; }
 .task-card--review .accent { background: #59c0f4; }
+.task-card--declined .accent { background: #ff6b6b; }
 
 .badge--completed { background: #4ad66d; }
 .badge--pending { background: #ffae32; }
 .badge--review { background: #59c0f4; }
+.badge--declined { background: #ff6b6b; }
 
 .fab {
   position: fixed;
@@ -208,6 +233,163 @@ body {
 }
 
 .fab:hover { transform: translateY(-4px); box-shadow: 0 18px 32px rgba(91,45,246,0.4); }
+
+.task-details {
+  width: min(640px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.task-detail-message {
+  margin: 0;
+  padding: 18px 22px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  color: var(--muted);
+  text-align: center;
+  box-shadow: 0 12px 26px rgba(140, 120, 200, 0.12);
+}
+
+.task-detail-card {
+  width: 100%;
+  padding: 32px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 30px 60px rgba(76, 57, 131, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.task-detail-card header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.task-detail-card .meta {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.task-detail-card h2 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 40px);
+}
+
+.task-detail-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px 24px;
+  margin: 0;
+}
+
+.task-detail-fields dt {
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.task-detail-fields dd {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.task-detail-media {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.task-detail-media h3 {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.task-detail-media img {
+  width: min(320px, 100%);
+  border-radius: 22px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 40px rgba(90, 70, 130, 0.18);
+  object-fit: cover;
+}
+
+.task-detail-review {
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(124, 114, 255, 0.08);
+  border: 1px dashed rgba(124, 114, 255, 0.4);
+}
+
+.task-detail-review p {
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+
+.task-detail-review__buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.task-detail-review--disabled {
+  opacity: 0.6;
+}
+
+.task-detail-actions {
+  margin-top: 10px;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  box-shadow: 0 14px 28px rgba(91, 45, 246, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 32px rgba(91, 45, 246, 0.32);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 700;
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff5a5a;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(255, 107, 107, 0.25);
+}
 
 @media (max-width: 960px) {
   :root { --sidebar-width: 72px; }
