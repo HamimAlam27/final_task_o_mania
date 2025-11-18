@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pending Task Review - Task-o-Mania</title>
+    <meta name="description" content="Owner review page for pending household tasks." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style_task_list.css" />
+    <link rel="stylesheet" href="style_user_chrome.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true"><i data-lucide="sparkles"></i></span>
+        </a>
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html" data-tooltip="Home">
+            <span aria-hidden="true"><i data-lucide="home"></i></span>
+          </a>
+          <a class="sidebar__link" href="households.html" data-tooltip="Households">
+            <span aria-hidden="true"><i data-lucide="users"></i></span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html" data-tooltip="Reward Store">
+            <span aria-hidden="true"><i data-lucide="gift"></i></span>
+          </a>
+          <a class="sidebar__link sidebar__link--active" href="task-list-total-tasks.html" data-tooltip="Task List">
+            <span aria-hidden="true"><i data-lucide="check-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="choose_between_buttons.html" data-tooltip="New">
+            <span aria-hidden="true"><i data-lucide="plus-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="activity.html" data-tooltip="Activity">
+            <span aria-hidden="true"><i data-lucide="activity"></i></span>
+          </a>
+          <a class="sidebar__link" href="leaderboard.html" data-tooltip="Leaderboard">
+            <span aria-hidden="true"><i data-lucide="trophy"></i></span>
+          </a>
+          <a class="sidebar__link" href="settings.html" data-tooltip="Definitions">
+            <span aria-hidden="true"><i data-lucide="settings"></i></span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <div class="topbar__greeting">
+            <p class="subtitle">Owner review space</p>
+            <h1>Pending Task Details</h1>
+          </div>
+          <div class="user-actions">
+            <a class="notification-button" href="notifications.html" aria-label="Notifications">
+              <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z" stroke-linecap="round"></path>
+                <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke-linecap="round"></path>
+              </svg>
+            </a>
+            <a class="avatar" href="profile.html" aria-label="Profile">
+              <img src="IMAGES/avatar.png" alt="User avatar" />
+            </a>
+          </div>
+        </header>
+
+        <main class="page" role="main">
+          <section class="task-details" aria-live="polite">
+            <div class="task-detail-message" data-owner-loading>Loading pending task...</div>
+            <div class="task-detail-message" data-owner-error hidden>
+              We could not find a pending task to review. <a href="total_task_list_bt_columns.html">Return to the task board</a>.
+            </div>
+
+            <article class="task-detail-card" data-owner-card hidden>
+              <header>
+                <p class="meta" data-owner-status>Pending task</p>
+                <h2 data-owner-title>Pending Task</h2>
+              </header>
+              <dl class="task-detail-fields" data-owner-fields></dl>
+              <div class="task-detail-media" data-owner-photo hidden>
+                <h3>Submitted photo</h3>
+                <img data-owner-photo-img alt="Submitted task evidence" />
+              </div>
+
+              <div class="task-detail-actions">
+                <button type="button" class="btn-primary" data-owner-complete>Mark as Completed</button>
+                <button type="button" class="btn-secondary" data-owner-decline>Decline</button>
+              </div>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const STORAGE_KEY = 'taskomania_tasks';
+        const SELECTED_TASK_KEY = 'taskomania_selected_task';
+        const listPage = 'total_task_list_bt_columns.html';
+
+        const loadingEl = document.querySelector('[data-owner-loading]');
+        const errorEl = document.querySelector('[data-owner-error]');
+        const cardEl = document.querySelector('[data-owner-card]');
+        const titleEl = document.querySelector('[data-owner-title]');
+        const statusEl = document.querySelector('[data-owner-status]');
+        const fieldsEl = document.querySelector('[data-owner-fields]');
+        const photoWrapper = document.querySelector('[data-owner-photo]');
+        const photoImg = document.querySelector('[data-owner-photo-img]');
+        const completeBtn = document.querySelector('[data-owner-complete]');
+        const declineBtn = document.querySelector('[data-owner-decline]');
+
+        if (!loadingEl || !errorEl || !cardEl || !fieldsEl) {
+          return;
+        }
+
+        const readStoredTasks = () => {
+          try {
+            const raw = window.localStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+          } catch (error) {
+            console.warn('Unable to read tasks from storage', error);
+            return [];
+          }
+        };
+
+        const persistTasks = (tasks) => {
+          try {
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+          } catch (error) {
+            console.warn('Unable to save tasks', error);
+          }
+        };
+
+        const normalizeStatus = (value) => {
+          if (!value) return 'todo';
+          return value.toString().trim().toLowerCase().replace(/\s+/g, '_');
+        };
+
+        const formatLabel = (label) =>
+          label
+            .replace(/[-_]/g, ' ')
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+
+        const formatValue = (value) => {
+          if (value === null || value === undefined || value === '') return '-';
+          if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+          if (Array.isArray(value)) return value.join(', ');
+          if (typeof value === 'object') {
+            if ('name' in value && 'size' in value) {
+              return value.name || 'Uploaded file';
+            }
+            return JSON.stringify(value);
+          }
+          return value;
+        };
+
+        const OWNER_EXCLUDED_FIELDS = new Set(['task_submission_photo', 'task_confirmation_method']);
+
+        const populateFields = (task) => {
+          const { fields = {} } = task;
+          fieldsEl.innerHTML = '';
+          Object.entries(fields)
+            .filter(([key]) => !OWNER_EXCLUDED_FIELDS.has(key))
+            .forEach(([key, value]) => {
+              const term = document.createElement('dt');
+              term.textContent = formatLabel(key);
+              const details = document.createElement('dd');
+              details.textContent = formatValue(value);
+              fieldsEl.appendChild(term);
+              fieldsEl.appendChild(details);
+            });
+        };
+
+        const populatePhoto = (task) => {
+          const submission = task?.fields?.task_submission_photo;
+          if (!photoWrapper || !photoImg) return;
+          if (submission && submission.dataUrl) {
+            photoImg.src = submission.dataUrl;
+            photoImg.alt = submission.name ? `${submission.name} submission` : 'Submitted evidence';
+            photoWrapper.hidden = false;
+          } else {
+            photoWrapper.hidden = true;
+            photoImg.removeAttribute('src');
+          }
+        };
+
+        let activeTaskIndex = -1;
+        let tasksCache = [];
+
+        const renderTask = () => {
+          const taskId = window.localStorage.getItem(SELECTED_TASK_KEY);
+          tasksCache = readStoredTasks();
+          activeTaskIndex = tasksCache.findIndex((task) => task.id === taskId);
+
+          loadingEl.hidden = true;
+
+          if (activeTaskIndex === -1) {
+            errorEl.hidden = false;
+            return;
+          }
+
+          const task = tasksCache[activeTaskIndex];
+          const status = normalizeStatus(task?.fields?.task_status || task?.fields?.status);
+
+          if (status !== 'pending') {
+            errorEl.hidden = false;
+            errorEl.textContent = 'This task is not pending anymore.';
+            return;
+          }
+
+          titleEl.textContent = task?.fields?.task_name || 'Pending task';
+          statusEl.textContent = 'Pending task';
+          populateFields(task);
+          populatePhoto(task);
+
+          cardEl.hidden = false;
+        };
+
+        const updateTaskStatus = (nextStatus) => {
+          if (activeTaskIndex === -1) return;
+          const tasks = [...tasksCache];
+          const target = tasks[activeTaskIndex];
+          tasks[activeTaskIndex] = {
+            ...target,
+            fields: {
+              ...target.fields,
+              task_status: nextStatus,
+            },
+            updatedAt: new Date().toISOString(),
+          };
+          persistTasks(tasks);
+          window.location.href = listPage;
+        };
+
+        if (completeBtn) {
+          completeBtn.addEventListener('click', () => updateTaskStatus('completed'));
+        }
+
+        if (declineBtn) {
+          declineBtn.addEventListener('click', () => updateTaskStatus('todo'));
+        }
+
+        renderTask();
+      })();
+    </script>
+  </body>
+</html>

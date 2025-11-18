@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Task Matrix - Task-o-Mania</title>
+    <meta name="description" content="Compare every household task across To Do, In Progress, Pending, and Completed states." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style_task_list.css" />
+    <link rel="stylesheet" href="style_user_chrome.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true"><i data-lucide="sparkles"></i></span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html" data-tooltip="Home">
+            <span aria-hidden="true"><i data-lucide="home"></i></span>
+          </a>
+          <a class="sidebar__link" href="households.html" data-tooltip="Households">
+            <span aria-hidden="true"><i data-lucide="users"></i></span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html" data-tooltip="Reward Store">
+            <span aria-hidden="true"><i data-lucide="gift"></i></span>
+          </a>
+          <a class="sidebar__link sidebar__link--active" href="task-list-total-tasks.html" data-tooltip="Task List">
+            <span aria-hidden="true"><i data-lucide="check-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="choose_between_buttons.html" data-tooltip="New">
+            <span aria-hidden="true"><i data-lucide="plus-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="activity.html" data-tooltip="Activity">
+            <span aria-hidden="true"><i data-lucide="activity"></i></span>
+          </a>
+          <a class="sidebar__link" href="leaderboard.html" data-tooltip="Leaderboard">
+            <span aria-hidden="true"><i data-lucide="trophy"></i></span>
+          </a>
+          <a class="sidebar__link" href="settings.html" data-tooltip="Definitions">
+            <span aria-hidden="true"><i data-lucide="settings"></i></span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <div class="topbar__greeting">
+            <p class="subtitle">Every task, one glance</p>
+            <h1>Household Task Matrix</h1>
+          </div>
+
+          <div class="topbar__actions">
+            <div class="user-actions">
+              <a class="notification-button" data-tooltip="Notifications" href="notifications.html" aria-label="Go to notifications">
+                <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z" stroke-linecap="round"></path>
+                  <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke-linecap="round"></path>
+                </svg>
+              </a>
+              <a class="avatar" data-tooltip="Profile" href="profile.html" aria-label="Your profile">
+                <img src="IMAGES/avatar.png" alt="User avatar" />
+              </a>
+            </div>
+          </div>
+        </header>
+
+        <main class="page" role="main">
+          <section class="task-columns" aria-label="Task overview">
+            <header class="task-columns__intro">
+              <div>
+                <p class="subtitle">Move tasks from left to right</p>
+                <h2>Track available work, join teammates, await approval, and celebrate completions.</h2>
+              </div>
+              <div class="task-columns__legend">
+                <span>Click a card to open task details.</span>
+                <span class="legend-dot legend-dot--todo">To Do</span>
+                <span class="legend-dot legend-dot--progress">In Progress</span>
+                <span class="legend-dot legend-dot--pending">Pending</span>
+                <span class="legend-dot legend-dot--completed">Completed</span>
+              </div>
+            </header>
+
+            <div class="task-columns__grid">
+              <article class="task-column task-column--todo" data-column="todo">
+                <header>
+                  <div>
+                    <h3>To Do</h3>
+                  </div>
+                  <span class="column-count" data-column-count="todo">0</span>
+                </header>
+                <p class="column-description">All available house tasks waiting for a hero.</p>
+                <div class="task-column__list" data-column-list="todo"></div>
+                <p class="task-column__empty" data-column-empty="todo">No available tasks yet. Create a task to populate this column.</p>
+              </article>
+
+              <article class="task-column task-column--progress" data-column="in_progress">
+                <header>
+                  <div>
+                    <h3>In Progress</h3>
+                  </div>
+                  <span class="column-count" data-column-count="in_progress">0</span>
+                </header>
+                <p class="column-description">Join ongoing tasks and share the effort (and the points).</p>
+                <div class="task-column__list" data-column-list="in_progress"></div>
+                <p class="task-column__empty" data-column-empty="in_progress">No one is working on any task right now.</p>
+              </article>
+
+              <article class="task-column task-column--pending" data-column="pending">
+                <header>
+                  <div>
+                    <h3>Pending</h3>
+                  </div>
+                  <span class="column-count" data-column-count="pending">0</span>
+                </header>
+                <p class="column-description">Awaiting final confirmation by the owner.</p>
+                <div class="task-column__list" data-column-list="pending"></div>
+                <p class="task-column__empty" data-column-empty="pending">No tasks are pending confirmation.</p>
+              </article>
+
+              <article class="task-column task-column--completed" data-column="completed">
+                <header>
+                  <div>
+                    <h3>Completed</h3>
+                  </div>
+                  <span class="column-count" data-column-count="completed">0</span>
+                </header>
+                <p class="column-description">Approved and rewarded tasks.</p>
+                <div class="task-column__list" data-column-list="completed"></div>
+                <p class="task-column__empty" data-column-empty="completed">No completed tasks yet.</p>
+              </article>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const STORAGE_KEY = 'taskomania_tasks';
+        const SELECTED_TASK_KEY = 'taskomania_selected_task';
+        const DETAIL_PAGE = 'task_list_detail.html';
+        const OWNER_PENDING_PAGE = 'when_owner_clicks_on_pending.html';
+
+        const normalizeStatus = (value) => {
+          if (!value) return 'todo';
+          const normalized = String(value).trim().toLowerCase();
+          if (['todo', 'to_do', 'available', 'new'].includes(normalized)) return 'todo';
+          if (['in progress', 'in_progress', 'doing', 'active'].includes(normalized)) return 'in_progress';
+          if (['pending', 'under_review', 'awaiting', 'waiting'].includes(normalized)) return 'pending';
+          if (['completed', 'done', 'approved'].includes(normalized)) return 'completed';
+          return 'todo';
+        };
+
+        const readStoredTasks = () => {
+          try {
+            const raw = window.localStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+          } catch (error) {
+            console.warn('Unable to read tasks from storage', error);
+            return [];
+          }
+        };
+
+        const persistSelectedTask = (taskId) => {
+          try {
+            window.localStorage.setItem(SELECTED_TASK_KEY, taskId);
+          } catch (error) {
+            console.warn('Unable to persist the selected task', error);
+          }
+        };
+
+        const handleNavigateToDetails = (taskId) => {
+          if (!taskId) return;
+          persistSelectedTask(taskId);
+          window.location.href = DETAIL_PAGE;
+        };
+
+        const columns = ['todo', 'in_progress', 'pending', 'completed'];
+
+        const columnLists = columns.reduce((acc, key) => {
+          acc[key] = document.querySelector(`[data-column-list="${key}"]`);
+          return acc;
+        }, {});
+
+        const columnEmpty = columns.reduce((acc, key) => {
+          acc[key] = document.querySelector(`[data-column-empty="${key}"]`);
+          return acc;
+        }, {});
+
+        const columnCounts = columns.reduce((acc, key) => {
+          acc[key] = document.querySelector(`[data-column-count="${key}"]`);
+          return acc;
+        }, {});
+
+        const toggleColumnEmptyState = (key, hasItems) => {
+          const emptyMessage = columnEmpty[key];
+          if (!emptyMessage) return;
+          emptyMessage.hidden = hasItems;
+        };
+
+        const updateColumnCount = (key, count) => {
+          const countEl = columnCounts[key];
+          if (!countEl) return;
+          countEl.textContent = count;
+        };
+
+        const formatPoints = (value) => {
+          if (!value) return 'No points assigned';
+          const numeric = Number(value);
+          return Number.isNaN(numeric) ? value : `${numeric} pts`;
+        };
+
+        const handleNavigateToPending = (taskId) => {
+          if (!taskId) return;
+          persistSelectedTask(taskId);
+          window.location.href = OWNER_PENDING_PAGE;
+        };
+
+        const createCard = (task, statusKey) => {
+          const { fields = {}, id } = task;
+          const card = document.createElement('article');
+          card.className = `task-matrix-card task-matrix-card--${statusKey}`;
+          card.tabIndex = 0;
+          card.setAttribute('role', 'button');
+
+          const body = document.createElement('div');
+          body.className = 'task-matrix-card__body';
+          card.appendChild(body);
+
+          const title = document.createElement('h4');
+          title.textContent = fields.task_name || 'Untitled task';
+          body.appendChild(title);
+
+          const details = document.createElement('div');
+          details.className = 'task-matrix-card__details';
+          details.innerHTML = `<span>${formatPoints(fields.task_points)}</span>`;
+          body.appendChild(details);
+
+          const handleClick = () => {
+            if (statusKey === 'pending') {
+              handleNavigateToPending(id);
+              return;
+            }
+            handleNavigateToDetails(id);
+          };
+
+          card.addEventListener('click', handleClick);
+          card.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              handleClick();
+            }
+          });
+
+          return card;
+        };
+
+        const renderTasks = () => {
+          const tasks = readStoredTasks().sort((a, b) => {
+            const getTime = (value) => {
+              if (!value) return 0;
+              const parsed = new Date(value).getTime();
+              return Number.isNaN(parsed) ? 0 : parsed;
+            };
+            return getTime(b.createdAt) - getTime(a.createdAt);
+          });
+
+          columns.forEach((key) => {
+            if (columnLists[key]) {
+              columnLists[key].innerHTML = '';
+            }
+          });
+
+          const grouped = {
+            todo: [],
+            in_progress: [],
+            pending: [],
+            completed: [],
+          };
+
+          tasks.forEach((task) => {
+            const status = normalizeStatus(task?.fields?.task_status || task?.fields?.status);
+            grouped[status]?.push(task);
+          });
+
+          columns.forEach((key) => {
+            const list = columnLists[key];
+            const items = grouped[key] || [];
+            if (!list) return;
+            toggleColumnEmptyState(key, items.length > 0);
+            updateColumnCount(key, items.length);
+            items.forEach((task) => {
+              list.appendChild(createCard(task, key));
+            });
+          });
+        };
+
+        renderTasks();
+        window.addEventListener('storage', renderTasks);
+
+      })();
+    </script>
+  </body>
+</html>
