@@ -3,29 +3,29 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>New Kids Account - Task-o-Mania</title>
-    <meta name="description" content="Create a kids account for your Task-o-Mania household." />
+    <title>Create Account - Task-o-Mania</title>
+    <meta name="description" content="Create your Task-o-Mania account to manage household tasks." />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style_new_kids_account.css" />
+    <link rel="stylesheet" href="style_new_account.css" />
     <link rel="stylesheet" href="style_user_chrome.css" />
-    
   </head>
   <body>
     <div class="background" aria-hidden="true"></div>
 
     <main class="page" role="main">
-      <a class="back-button" href="create-household_2.html" aria-label="Back">
+      <a class="back-button" href="index.html" aria-label="Back">
         <span aria-hidden="true">&#x2039;</span>
       </a>
 
       <section class="card">
         <header class="card-header">
-          <h1>New Kids Account</h1>
+          <h1>New Account</h1>
         </header>
 
         <div class="user-actions">
+          
           <div class="avatar">
             <img src="IMAGES/avatar.png" alt="Profile preview" />
             <div class="ring" aria-hidden="true"></div>
@@ -41,20 +41,36 @@
           </div>
 
           <div class="form-field">
+            <label for="email">Email <span aria-hidden="true">*</span></label>
+            <div class="input-wrapper">
+              <input id="email" name="email" type="email" value="liviavacarro1987@gmail.com" required />
+            </div>
+          </div>
+
+          <div class="form-field">
             <label for="username">Username <span aria-hidden="true">*</span></label>
             <div class="input-wrapper">
               <input id="username" name="username" type="text" value="liviavacarro1987" required />
             </div>
           </div>
 
-          <p class="notice">
-            <strong>Attention:</strong> Kids accounts will be automatically associated with <em>your email</em> for easy
-            management and password reset. If you want the kid to have their account created with their own email,
-            <a href="new-account.html">click here!</a>
-          </p>
+          <div class="form-field">
+            <label for="password">Password <span aria-hidden="true">*</span></label>
+            <div class="input-wrapper">
+              <input id="password" name="password" type="password" value="password" required />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="confirm-password">Repeat password <span aria-hidden="true">*</span></label>
+            <div class="input-wrapper">
+              <input id="confirm-password" name="confirm_password" type="password" value="password" required />
+            </div>
+          </div>
 
           <div class="actions">
-            <a href="dashboard.html" class="btn-primary" role="button">Create an account</a>
+            <a href="households.html" class="btn-primary" role="button">Create an account</a>
+            <a href="new-kids-account.html" class="btn-secondary" role="button">Create Kids Account</a>
           </div>
         </form>
       </section>

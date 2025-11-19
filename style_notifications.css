@@ -132,7 +132,7 @@ body {
 
 .notification-card {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto auto 1fr;
   gap: 18px;
   align-items: center;
   padding: 14px 18px;
@@ -305,3 +305,46 @@ body {
   .fab { left: auto; right: 24px; bottom: 24px; }
 }
 
+.notification-card__check {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  border: 1px solid rgba(127, 115, 255, 0.5);
+  background: rgba(255, 255, 255, 0.7);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.notification-card__check input {
+  display: none;
+}
+
+.notification-card__check span {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 2px solid rgba(127, 115, 255, 0.4);
+  background: transparent;
+  position: relative;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.notification-card__check input:checked + span {
+  border-color: transparent;
+  background: linear-gradient(120deg, var(--accent-1), var(--accent-2));
+}
+
+.notification-card__check input:checked + span::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  width: 4px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-top: 0;
+  border-left: 0;
+  transform: rotate(45deg);
+}
