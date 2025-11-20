@@ -12,8 +12,9 @@ $invited_by = $_SESSION['user_id'];
 // Form sends invited_emails[] array
 $emails = $_POST['invited_emails'] ?? [];
 
-if (!is_array($emails) || empty($emails)) {
-    die("No emails received");
+if (!is_array($emails) || empty($emails) || $emails[0]==="") {
+    header("Location: ../../households.php");
+    exit;
 }
 
 foreach ($emails as $email) {
