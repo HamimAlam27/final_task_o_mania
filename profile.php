@@ -7,6 +7,52 @@ if (isset($_GET['logout'])) {
     header("Location: sign-in.html");
     exit;
 }
+require_once 'src/config/db.php';
+
+// Redirect if not logged in
+if (!isset($_SESSION['user_id'])) {
+  header('Location: sign-in.php');
+  exit();
+}
+
+$user_id = intval($_SESSION['user_id']);
+
+// Fetch user
+$user = null;
+$stmt = $conn->prepare("SELECT USER_NAME, USER_EMAIL, AVATAR FROM `user` WHERE ID_USER = ? LIMIT 1");
+if ($stmt) {
+  $stmt->bind_param('i', $user_id);
+  $stmt->execute();
+  $res = $stmt->get_result();
+  $user = $res->fetch_assoc();
+  $stmt->close();
+}
+
+// Determine profile type: owner if user has any household_member role = 'admin'
+$profile_type = 'member';
+$stmt = $conn->prepare("SELECT ROLE FROM household_member WHERE ID_USER = ? LIMIT 1");
+if ($stmt) {
+  $stmt->bind_param('i', $user_id);
+  $stmt->execute();
+  $res = $stmt->get_result();
+  $row = $res->fetch_assoc();
+  if ($row && isset($row['ROLE']) && $row['ROLE'] === 'admin') {
+    $profile_type = 'household owner';
+  }
+  $stmt->close();
+}
+
+// Sum total points across households for this user
+$total_points = 0;
+$stmt = $conn->prepare("SELECT SUM(TOTAL_POINTS) AS total FROM points WHERE ID_USER = ?");
+if ($stmt) {
+  $stmt->bind_param('i', $user_id);
+  $stmt->execute();
+  $res = $stmt->get_result();
+  $r = $res->fetch_assoc();
+  if ($r && $r['total'] !== null) $total_points = intval($r['total']);
+  $stmt->close();
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -89,11 +135,16 @@ if (isset($_GET['logout'])) {
         <main class="page" role="main">
           <section class="card">
             <div class="card__avatar">
-              <img src="IMAGES/avatar.png" alt="Livia Vaccaro" />
+              <?php if (!empty($user['AVATAR'])): ?>
+                <?php $data = base64_encode($user['AVATAR']); ?>
+                <img src="data:image/png;base64,<?php echo $data; ?>" alt="<?php echo htmlspecialchars($user['USER_NAME'] ?? 'User'); ?>" />
+              <?php else: ?>
+                <img src="IMAGES/avatar.png" alt="<?php echo htmlspecialchars($user['USER_NAME'] ?? 'User'); ?>" />
+              <?php endif; ?>
             </div>
             <h2 class="card__name">
-              Livia Vaccaro
-              <a href="edit-profile.html" class="name-edit" aria-label="Go to edit profile page">
+              <?php echo htmlspecialchars($user['USER_NAME'] ?? 'Your name'); ?>
+              <a href="edit-profile.php" class="name-edit" aria-label="Go to edit profile page">
                 <i data-lucide="pencil"></i>
               </a>
             </h2>
@@ -101,18 +152,25 @@ if (isset($_GET['logout'])) {
             <dl>
               <div>
                 <dt>Profile type:</dt>
-                <dd>household owner</dd>
+                <dd><?php echo htmlspecialchars($profile_type); ?></dd>
               </div>
               <div>
                 <dt>Total accumulated points:</dt>
-                <dd>5600 <small>(for this household)</small></dd>
+                <dd><?php echo htmlspecialchars($total_points); ?> <small>(across households)</small></dd>
               </div>
               <div>
                 <dt>email:</dt>
-                <dd><a href="mailto:liviavaccaro7@email.com">liviavaccaro7@email.com</a> <small>(required for password reset)</small></dd>
+                <dd>
+                  <?php if (!empty($user['USER_EMAIL'])): ?>
+                    <a href="mailto:<?php echo htmlspecialchars($user['USER_EMAIL']); ?>"><?php echo htmlspecialchars($user['USER_EMAIL']); ?></a>
+                  <?php else: ?>
+                    <span class="muted">No email set</span>
+                  <?php endif; ?>
+                  <small> (required for password reset)</small>
+                </dd>
               </div>
             </dl>
-  <a href="profile.php?logout=1">Log Out</a>
+            <a href="profile.php?logout=1">Log Out</a>
           </section>
         </main>
     </div>
