@@ -25,11 +25,11 @@
 
 <?php
 session_start();
-require "../src/config/db.php";
+require "../../src/config/db.php";
 
 // Ensure the user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: ../sign-in.php");
+    header("Location: ../../sign-in.php");
     exit;
 }
 
@@ -52,15 +52,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("ss", $household_name, $invite_link);
 
     if ($stmt->execute()) {
-        $household_id = $stmt->insert_id;
-
+        // get insert id from connection
+        $household_id = $conn->insert_id;
+        $_SESSION['household'] = $household_id;
         // Insert into HOUSEHOLD_MEMBER as owner
         $stmt2 = $conn->prepare("INSERT INTO HOUSEHOLD_MEMBER (ID_USER, ID_HOUSEHOLD, ROLE) VALUES (?, ?, 'admin')");
         $stmt2->bind_param("ii", $user_id, $household_id);
         $stmt2->execute();
 
-        // Redirect to choose_household page
-        header("Location: ../households.php");
+        // Redirect to second step and pass invite token and household id
+        $invite_param = urlencode($invite_link);
+        header("Location: ../../create-household_2.php?invite={$invite_param}");
         exit;
     } else {
         die("Error creating household: " . $stmt->error);

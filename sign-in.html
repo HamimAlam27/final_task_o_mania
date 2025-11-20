@@ -24,23 +24,23 @@
           <h1>Sign-in to your account</h1>
         </header>
 
-        <form class="form" action="#" method="post">
+        <form class="form" action="api/account/signin.php" method="post">
           <div class="form-field">
             <label for="username">Username</label>
             <div class="input-wrapper">
-              <input id="username" name="username" type="text" value="liviavacarros1980" required />
+              <input id="username" name="username" type="text" placeholder="liviavacarros1980" required />
             </div>
           </div>
 
           <div class="form-field">
             <label for="password">Password</label>
             <div class="input-wrapper">
-              <input id="password" name="password" type="password" value="password" required />
+              <input id="password" name="password" type="password" placeholder="password" required />
             </div>
           </div>
 
           <div class="actions">
-            <a href="households.html" class="btn-primary" role="button">Sign In</a>
+            <button class="btn-primary" type="submit">Sign In</button>
           </div>
         </form>
       </section>

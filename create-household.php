@@ -1,5 +1,75 @@
-<?php
-header('Content-Type: text/html; charset=utf-8');
-readfile(__DIR__ . DIRECTORY_SEPARATOR . 'create-household.html');
-?>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create a Household - Task-o-Mania</title>
+    <meta name="description" content="Set up a new Task-o-Mania household in just a few steps." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_inside_app.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    lucide.createIcons();
+  });
+</script>
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <main class="page" role="main">
+      <a class="back-button" href="households.php" aria-label="Back">
+        <span aria-hidden="true">&#x2039;</span>
+      </a>
+
+      <section class="card">
+        <header class="card-header">
+          <h1>Create a Household</h1>
+        </header>
+
+        <form class="form" action="api/household/create_household.php" method="post">
+          <div class="form-field">
+            <label for="household-type">Household Type</label>
+            <div class="input-wrapper select-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="10" cy="6" r="3" fill="#6d6bff" />
+                  <path d="M4 16.5C4 13.4624 6.46243 11 9.5 11H10.5C13.5376 11 16 13.4624 16 16.5" stroke="#6d6bff" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </span>
+              <select id="household-type" name="household_type" required>
+                <option value="family" selected>Family</option>
+                <option value="roommates">Roommates</option>
+                <option value="partners">Partners</option>
+                <option value="friends">Friends</option>
+              </select>
+              <span class="select-caret" aria-hidden="true">&#x25BE;</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="household-name">Household Name</label>
+            <div class="input-wrapper">
+              <input
+                id="household-name"
+                name="household_name"
+                type="text"
+                placeholder="Vacarro's Family"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn-primary" type="submit">Next Step</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
+
+
 

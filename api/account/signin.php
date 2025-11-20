@@ -1,8 +1,8 @@
 <?php
 session_start();
-require "../src/config/db.php";
+require "../../src/config/db.php";
 
-$email = $_POST['email'] ?? "";
+$email = $_POST['username'] ?? "";
 $password = $_POST['password'] ?? "";
 
 // Fetch user
@@ -12,7 +12,7 @@ $stmt->execute();
 $res = $stmt->get_result();
 
 if ($res->num_rows === 0) {
-    header("Location: ../sign-in.php?error=account_not_found");
+    header("Location: ../../sign-in.html?error=account_not_found");
     exit;
 }
 
@@ -20,7 +20,7 @@ $user = $res->fetch_assoc();
 
 // Verify password
 if (!password_verify($password, $user['USER_PASSWORD'])) {
-    header("Location: ../sign-in.php?error=wrong_password");
+    header("Location: ../../sign-in.php?error=wrong_password");
     exit;
 }
 
@@ -44,12 +44,11 @@ while ($row = $result->fetch_assoc()) {
 
 // Redirect based on number of households
 if (count($households) === 0) {
-    header("Location: ../no_household.php");
+    header("Location: ../../households.php");
 } elseif (count($households) === 1) {
-    $_SESSION['active_household'] = $households[0]['ID_HOUSEHOLD'];
-    header("Location: ../households.php");
+    header("Location: ../../households.php");
 } else {
-    header("Location: ../households.php");
+    header("Location: ../../households.php");
 }
 exit;
 ?>

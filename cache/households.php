@@ -25,7 +25,7 @@ if (!isset($_SESSION['user_id'])) {
 $db_host = 'localhost';
 $db_user = 'root';
 $db_password = '';
-$db_name = 'task_mania';
+$db_name = 'task_o_mania';
 
 // Initialize variables
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'User';
@@ -42,16 +42,16 @@ try {
         throw new Exception('Database connection failed');
     }
     
-    $conn->set_charset("utf8mb4");
+    $conn->set_charset("utf8");
     
     // Get user's households
     $stmt = $conn->prepare("
-        SELECT h.ID_HOUSEHOLD, h.HOUSEHOLD_NAME, COUNT(hm.ID_USER) as member_count
-        FROM household h
-        JOIN household_member hm ON h.ID_HOUSEHOLD = hm.ID_HOUSEHOLD
-        WHERE hm.ID_USER = ?
-        GROUP BY h.ID_HOUSEHOLD
-        ORDER BY h.ID_HOUSEHOLD DESC
+        SELECT h.household_id, h.household_name, h.household_type, h.created_at, COUNT(hm.user_id) as member_count
+        FROM households h
+        JOIN household_members hm ON h.household_id = hm.household_id
+        WHERE hm.user_id = ? AND hm.is_active = 1
+        GROUP BY h.household_id
+        ORDER BY h.created_at DESC
     ");
     
     if (!$stmt) {
@@ -69,20 +69,16 @@ try {
     
     $has_household = count($households) > 0;
     
-    // Get user's total points (for credits display)
-    $points_stmt = $conn->prepare("
-        SELECT SUM(p.TOTAL_POINTS) as total_credits
-        FROM points p
-        WHERE p.ID_USER = ?
-    ");
-    if ($points_stmt) {
-        $points_stmt->bind_param("i", $user_id);
-        $points_stmt->execute();
-        $points_result = $points_stmt->get_result();
-        if ($points_row = $points_result->fetch_assoc()) {
-            $user_credits = $points_row['total_credits'] ?? 0;
+    // Get user's total credits
+    $credits_stmt = $conn->prepare("SELECT total_credits FROM users WHERE user_id = ?");
+    if ($credits_stmt) {
+        $credits_stmt->bind_param("i", $user_id);
+        $credits_stmt->execute();
+        $credits_result = $credits_stmt->get_result();
+        if ($credits_row = $credits_result->fetch_assoc()) {
+            $user_credits = $credits_row['total_credits'] ?? 0;
         }
-        $points_stmt->close();
+        $credits_stmt->close();
     }
     
     $stmt->close();
@@ -171,7 +167,7 @@ function getHouseholdColor($index) {
                 <?php foreach ($households as $index => $household): 
                   $colors = getHouseholdColor($index);
                 ?>
-                  <article class="household-card" onclick="window.location.href='dashboard.php?household_id=<?php echo htmlspecialchars($household['ID_HOUSEHOLD']); ?>';" style="cursor: pointer;">
+                  <article class="household-card" onclick="window.location.href='dashboard.php?household_id=<?php echo htmlspecialchars($household['household_id']); ?>';" style="cursor: pointer;">
                     <div class="household-card__avatar">
                       <svg aria-hidden="true" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="24" cy="26" r="12" fill="<?php echo htmlspecialchars($colors['vlight']); ?>" />
@@ -181,7 +177,7 @@ function getHouseholdColor($index) {
                       </svg>
                     </div>
                     <div>
-                      <p class="household-card__name"><?php echo htmlspecialchars($household['HOUSEHOLD_NAME']); ?></p>
+                      <p class="household-card__name"><?php echo htmlspecialchars($household['household_name']); ?></p>
                       <p style="font-size: 12px; color: #999; margin: 4px 0 0 0;">
                         <?php echo htmlspecialchars($household['member_count']); ?> member<?php echo $household['member_count'] > 1 ? 's' : ''; ?>
                       </p>

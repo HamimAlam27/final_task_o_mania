@@ -32,49 +32,66 @@
           </div>
         </div>
 
-        <form class="form" action="#" method="post">
+        <form id="signup-form" class="form" action="api/account/singup.php" method="post">
           <div class="form-field">
             <label for="name">Name <span aria-hidden="true">*</span></label>
             <div class="input-wrapper">
-              <input id="name" name="name" type="text" value="Livia Vacarro" required />
+              <input id="name" name="name" type="text" placeholder="Livia Vacarro" required />
             </div>
           </div>
 
           <div class="form-field">
             <label for="email">Email <span aria-hidden="true">*</span></label>
             <div class="input-wrapper">
-              <input id="email" name="email" type="email" value="liviavacarro1987@gmail.com" required />
+              <input id="email" name="email" type="email" placeholder="liviavacarro1987@gmail.com" required />
             </div>
           </div>
 
           <div class="form-field">
             <label for="username">Username <span aria-hidden="true">*</span></label>
             <div class="input-wrapper">
-              <input id="username" name="username" type="text" value="liviavacarro1987" required />
+              <input id="username" name="username" type="text" placeholder="liviavacarro1987" required />
             </div>
           </div>
 
           <div class="form-field">
             <label for="password">Password <span aria-hidden="true">*</span></label>
             <div class="input-wrapper">
-              <input id="password" name="password" type="password" value="password" required />
+              <input id="password" name="password" type="password" placeholder="password" required />
             </div>
           </div>
 
           <div class="form-field">
             <label for="confirm-password">Repeat password <span aria-hidden="true">*</span></label>
             <div class="input-wrapper">
-              <input id="confirm-password" name="confirm_password" type="password" value="password" required />
+              <input id="confirm-password" name="confirm_password" type="password" placeholder="password" required />
             </div>
           </div>
 
           <div class="actions">
-            <a href="households.html" class="btn-primary" role="button">Create an account</a>
+            <button class="btn-primary" type="submit">Create an account</button>
             <a href="new-kids-account.html" class="btn-secondary" role="button">Create Kids Account</a>
+
           </div>
         </form>
       </section>
     </main>
+    <script>
+  document.getElementById('signup-form').addEventListener('submit', function(event) {
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm-password').value;
+
+    if (password !== confirm) {
+      event.preventDefault();  // Stop form submission
+      alert("❌ Passwords do not match. Please try again.");
+      return;
+    }
+
+    // If they match, redirect (or submit backend)
+    window.location.href = "households.html";
+  });
+</script>
+
   </body>
 </html>
 
