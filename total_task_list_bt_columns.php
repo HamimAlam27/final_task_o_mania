@@ -1,0 +1,310 @@
+<?php
+session_start();
+require 'src/config/db.php';
+
+// Validate user session
+if (!isset($_SESSION['user_id'])) {
+  header('Location: sign-in.php');
+  exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$tasks_by_status = [
+  'todo' => [],
+  'in_progress' => [],
+  'pending' => [],
+  'completed' => []
+];
+
+// Fetch all households the user belongs to
+$household_query = $conn->prepare("
+  SELECT ID_HOUSEHOLD 
+  FROM household_member 
+  WHERE ID_USER = ?
+");
+$household_query->bind_param('i', $user_id);
+$household_query->execute();
+$household_result = $household_query->get_result();
+$household_ids = [];
+
+while ($row = $household_result->fetch_assoc()) {
+  $household_ids[] = $row['ID_HOUSEHOLD'];
+}
+$household_query->close();
+
+// Fetch tasks from all user's households
+if (!empty($household_ids)) {
+  $placeholders = implode(',', array_fill(0, count($household_ids), '?'));
+  $task_query = $conn->prepare("
+    SELECT 
+      ID_TASK,
+      TASK_NAME,
+      TASK_POINT,
+      TASK_STATUS
+    FROM task 
+    WHERE ID_HOUSEHOLD IN ($placeholders)
+    ORDER BY TASK_CREATED DESC
+  ");
+  
+  $task_query->bind_param(str_repeat('i', count($household_ids)), ...$household_ids);
+  $task_query->execute();
+  $task_result = $task_query->get_result();
+  
+  while ($task = $task_result->fetch_assoc()) {
+    $status = strtolower(str_replace(' ', '_', $task['TASK_STATUS']));
+    
+    // Normalize status to match column keys
+    if (!in_array($status, ['todo', 'in_progress', 'pending', 'completed'])) {
+      if (in_array($status, ['to_do', 'available', 'new'])) $status = 'todo';
+      elseif (in_array($status, ['in progress', 'doing', 'active'])) $status = 'in_progress';
+      elseif (in_array($status, ['under_review', 'awaiting', 'waiting'])) $status = 'pending';
+      else $status = 'todo';
+    }
+    
+    $tasks_by_status[$status][] = [
+      'id' => $task['ID_TASK'],
+      'task_name' => $task['TASK_NAME'],
+      'task_points' => $task['TASK_POINT']
+    ];
+  }
+  $task_query->close();
+}
+?>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Task Matrix - Task-o-Mania</title>
+    <meta name="description" content="Compare every household task across To Do, In Progress, Pending, and Completed states." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style_task_list.css" />
+    <link rel="stylesheet" href="style_user_chrome.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <?php include 'sidebar.php'; ?>
+
+      <div class="content">
+        <header class="topbar">
+          <div class="topbar__greeting">
+            <p class="subtitle">Every task, one glance</p>
+            <h1>Household Task Matrix</h1>
+          </div>
+
+          <?php include 'header.php'; ?>
+        </header>
+
+        <main class="page" role="main">
+          <section class="task-columns" aria-label="Task overview">
+            <header class="task-columns__intro">
+              <div>
+                <p class="subtitle">Move tasks from left to right</p>
+                <h2>Track available work, join teammates, await approval, and celebrate completions.</h2>
+              </div>
+              <div class="task-columns__legend">
+                <span>Click a card to open task details.</span>
+                <span class="legend-dot legend-dot--todo">To Do</span>
+                <span class="legend-dot legend-dot--progress">In Progress</span>
+                <span class="legend-dot legend-dot--pending">Pending</span>
+                <span class="legend-dot legend-dot--completed">Completed</span>
+              </div>
+            </header>
+
+            <div class="task-columns__grid">
+              <article class="task-column task-column--todo" data-column="todo">
+                <header>
+                  <div>
+                    <h3>To Do</h3>
+                  </div>
+                  <span class="column-count" data-column-count="todo">0</span>
+                </header>
+                <p class="column-description">All available house tasks waiting for a hero.</p>
+                <div class="task-column__list" data-column-list="todo"></div>
+                <p class="task-column__empty" data-column-empty="todo">No available tasks yet. Create a task to populate this column.</p>
+              </article>
+
+              <article class="task-column task-column--progress" data-column="in_progress">
+                <header>
+                  <div>
+                    <h3>In Progress</h3>
+                  </div>
+                  <span class="column-count" data-column-count="in_progress">0</span>
+                </header>
+                <p class="column-description">Join ongoing tasks and share the effort (and the points).</p>
+                <div class="task-column__list" data-column-list="in_progress"></div>
+                <p class="task-column__empty" data-column-empty="in_progress">No one is working on any task right now.</p>
+              </article>
+
+              <article class="task-column task-column--pending" data-column="pending">
+                <header>
+                  <div>
+                    <h3>Pending</h3>
+                  </div>
+                  <span class="column-count" data-column-count="pending">0</span>
+                </header>
+                <p class="column-description">Awaiting final confirmation by the owner.</p>
+                <div class="task-column__list" data-column-list="pending"></div>
+                <p class="task-column__empty" data-column-empty="pending">No tasks are pending confirmation.</p>
+              </article>
+
+              <article class="task-column task-column--completed" data-column="completed">
+                <header>
+                  <div>
+                    <h3>Completed</h3>
+                  </div>
+                  <span class="column-count" data-column-count="completed">0</span>
+                </header>
+                <p class="column-description">Approved and rewarded tasks.</p>
+                <div class="task-column__list" data-column-list="completed"></div>
+                <p class="task-column__empty" data-column-empty="completed">No completed tasks yet.</p>
+              </article>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const DETAIL_PAGE = 'task_list_detail.html';
+        const OWNER_PENDING_PAGE = 'when_owner_clicks_on_pending.html';
+
+        // Tasks passed from PHP server-side
+        const serverTasks = {
+          todo: <?php echo json_encode($tasks_by_status['todo']); ?>,
+          in_progress: <?php echo json_encode($tasks_by_status['in_progress']); ?>,
+          pending: <?php echo json_encode($tasks_by_status['pending']); ?>,
+          completed: <?php echo json_encode($tasks_by_status['completed']); ?>
+        };
+
+        const handleNavigateToDetails = (taskId) => {
+          if (!taskId) return;
+          try {
+            window.localStorage.setItem('taskomania_selected_task', taskId);
+          } catch (error) {
+            console.warn('Unable to persist the selected task', error);
+          }
+          window.location.href = DETAIL_PAGE;
+        };
+
+        const handleNavigateToPending = (taskId) => {
+          if (!taskId) return;
+          try {
+            window.localStorage.setItem('taskomania_selected_task', taskId);
+          } catch (error) {
+            console.warn('Unable to persist the selected task', error);
+          }
+          window.location.href = OWNER_PENDING_PAGE;
+        };
+
+        const columns = ['todo', 'in_progress', 'pending', 'completed'];
+
+        const columnLists = columns.reduce((acc, key) => {
+          acc[key] = document.querySelector(`[data-column-list="${key}"]`);
+          return acc;
+        }, {});
+
+        const columnEmpty = columns.reduce((acc, key) => {
+          acc[key] = document.querySelector(`[data-column-empty="${key}"]`);
+          return acc;
+        }, {});
+
+        const columnCounts = columns.reduce((acc, key) => {
+          acc[key] = document.querySelector(`[data-column-count="${key}"]`);
+          return acc;
+        }, {});
+
+        const toggleColumnEmptyState = (key, hasItems) => {
+          const emptyMessage = columnEmpty[key];
+          if (!emptyMessage) return;
+          emptyMessage.hidden = hasItems;
+        };
+
+        const updateColumnCount = (key, count) => {
+          const countEl = columnCounts[key];
+          if (!countEl) return;
+          countEl.textContent = count;
+        };
+
+        const formatPoints = (value) => {
+          if (!value) return 'No points assigned';
+          const numeric = Number(value);
+          return Number.isNaN(numeric) ? value : `${numeric} pts`;
+        };
+
+        const createCard = (task, statusKey) => {
+          const { id, task_name, task_points } = task;
+          const card = document.createElement('article');
+          card.className = `task-matrix-card task-matrix-card--${statusKey}`;
+          card.tabIndex = 0;
+          card.setAttribute('role', 'button');
+
+          const body = document.createElement('div');
+          body.className = 'task-matrix-card__body';
+          card.appendChild(body);
+
+          const title = document.createElement('h4');
+          title.textContent = task_name || 'Untitled task';
+          body.appendChild(title);
+
+          const details = document.createElement('div');
+          details.className = 'task-matrix-card__details';
+          details.innerHTML = `<span>${formatPoints(task_points)}</span>`;
+          body.appendChild(details);
+
+          const handleClick = () => {
+            if (statusKey === 'pending') {
+              handleNavigateToPending(id);
+              return;
+            }
+            handleNavigateToDetails(id);
+          };
+
+          card.addEventListener('click', handleClick);
+          card.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              handleClick();
+            }
+          });
+
+          return card;
+        };
+
+        const renderTasks = () => {
+          columns.forEach((key) => {
+            if (columnLists[key]) {
+              columnLists[key].innerHTML = '';
+            }
+          });
+
+          columns.forEach((key) => {
+            const list = columnLists[key];
+            const items = serverTasks[key] || [];
+            if (!list) return;
+            toggleColumnEmptyState(key, items.length > 0);
+            updateColumnCount(key, items.length);
+            items.forEach((task) => {
+              list.appendChild(createCard(task, key));
+            });
+          });
+        };
+
+        renderTasks();
+      })();
+    </script>
+  </body>
+</html>
