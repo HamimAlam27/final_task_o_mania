@@ -113,7 +113,7 @@
             </header>
 
             <div class="button-grid">
-              <button type="button" class="btn-primary btn-primary--wide" data-link="create-task.html">
+              <button type="button" class="btn-primary btn-primary--wide" data-link="create-task.php">
                 Create New Task
               </button>
             </div>

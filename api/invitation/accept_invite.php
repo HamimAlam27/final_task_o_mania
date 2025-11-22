@@ -30,6 +30,7 @@ $user_res = $stmt->get_result()->fetch_assoc();
 $added_user_id = $user_res['ID_USER'];
 
 // Add to household members
+// Trigger tr_create_points_on_household_join automatically creates POINTS record when user is added
 $stmt = $conn->prepare("INSERT INTO household_member (ID_HOUSEHOLD, ID_USER, ROLE) VALUES (?, ?, 'member')");
 $stmt->bind_param("ii", $household_id, $added_user_id);
 $stmt->execute();

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Submit Task - Task-o-Mania</title>
+    <meta name="description" content="Submit proof for your completed household tasks." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_submit_task.css" />
+    <link rel="stylesheet" href="style_user_chrome.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    lucide.createIcons();
+  });
+</script>
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true"><i data-lucide="sparkles"></i></span>
+        </a>
+
+                <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html" data-tooltip="Home">
+            <span aria-hidden="true"><i data-lucide="home"></i></span>
+          </a>
+          <a class="sidebar__link" href="households.html" data-tooltip="Households">
+            <span aria-hidden="true"><i data-lucide="users"></i></span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html" data-tooltip="Reward Store">
+            <span aria-hidden="true"><i data-lucide="gift"></i></span>
+          </a>
+          <a class="sidebar__link" href="task-list-total-tasks.html" data-tooltip="Task List">
+            <span aria-hidden="true"><i data-lucide="check-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="choose_between_buttons.html" data-tooltip="New">
+            <span aria-hidden="true"><i data-lucide="plus-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="activity.html" data-tooltip="Activity">
+            <span aria-hidden="true"><i data-lucide="activity"></i></span>
+          </a>
+          <a class="sidebar__link" href="leaderboard.html" data-tooltip="Leaderboard">
+            <span aria-hidden="true"><i data-lucide="trophy"></i></span>
+          </a>
+          <a class="sidebar__link" href="settings.html" data-tooltip="Definitions">
+            <span aria-hidden="true"><i data-lucide="settings"></i></span>
+          </a>
+        </nav>
+
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <button class="back-btn" type="button" aria-label="Go back" onclick="history.back()">
+            <span aria-hidden="true">&#x2039;</span>
+          </button>
+
+          <h1 class="page-title">Submit Task</h1>
+
+          <div class="topbar__actions user-actions">
+            <a class="notification-button" data-tooltip="Notifications" href="notifications.html" aria-label="Go to notifications">
+              <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z" stroke-linecap="round" />
+                <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke-linecap="round" />
+              </svg>
+            </a>
+            <a class="avatar" data-tooltip="Profile" href="profile.html" aria-label="Your profile">
+              <img src="IMAGES/avatar.png" alt="User avatar" />
+            </a>
+          </div>
+        </header>
+
+        <main class="page" role="main">
+          <section class="panel">
+            <header class="panel__header">
+              <div>
+                <h2>Pick the task you've completed</h2>
+                <p>Select one of the active tasks below, upload a proof photo, and add an optional note.</p>
+              </div>
+            </header>
+
+            <form class="form submit-form" action="#" method="post">
+              <div class="form-field">
+                <label for="task-select">Active Task <span aria-hidden="true">*</span></label>
+                <div class="input-wrapper select-wrapper">
+                  <select id="task-select" name="task_select" required>
+                    <option value="" disabled selected>Select the task you finished</option>
+                    <option value="living-room">Clean the living room</option>
+                    <option value="recycling">Sort recycling bins</option>
+                    <option value="plants">Water all indoor plants</option>
+                    <option value="laundry">Fold laundry</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-field form-field--upload">
+                <label for="task-photo">Upload proof photo <span aria-hidden="true">*</span></label>
+                <label class="upload" for="task-photo">
+                  <input id="task-photo" name="task_photo" type="file" accept="image/*" required hidden />
+                  <span>Drag & drop or click to upload</span>
+                </label>
+              </div>
+
+              <div class="form-field">
+                <label for="task-note">Optional note</label>
+                <div class="input-wrapper">
+                  <textarea id="task-note" name="task_note" rows="4" placeholder="Add a comment for the reviewer"></textarea>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button type="submit" class="btn-primary">Submit</button>
+              </div>
+            </form>
+          </section>
+        </main></div>
+    </div>
+
+    <div class="submit-modal" role="alertdialog" aria-modal="true" aria-labelledby="submit-modal-title" aria-hidden="true">
+      <div class="submit-modal__card">
+        <h2 id="submit-modal-title">Task j� est� submetida</h2>
+        <p>Podes acompanhar o estado desta tarefa na lista de tarefas.</p>
+        <button type="button" class="submit-modal__close">Close</button>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const form = document.querySelector('.submit-form');
+        const modal = document.querySelector('.submit-modal');
+        const closeBtn = document.querySelector('.submit-modal__close');
+
+        if (!form || !modal || !closeBtn) return;
+
+        function showModal() {
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('submit-modal--visible');
+        }
+
+        function hideModal() {
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('submit-modal--visible');
+        }
+
+        form.addEventListener('submit', function (event) {
+          event.preventDefault();
+          showModal();
+        });
+
+        closeBtn.addEventListener('click', hideModal);
+        modal.addEventListener('click', function (event) {
+          if (event.target === modal) hideModal();
+        });
+        window.addEventListener('keydown', function (event) {
+          if (event.key === 'Escape') hideModal();
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+
+
+
+
+

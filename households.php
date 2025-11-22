@@ -7,6 +7,7 @@
  * - Display user's households from database
  * - Handle users with no household (redirect to create)
  * - Display user info (username, credits)
+ * - Set selected household in session when clicked
  */
 
 // Set headers
@@ -21,11 +22,16 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Handle household selection via POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['household_id'])) {
+    $household_id = intval($_POST['household_id']);
+    $_SESSION['household_id'] = $household_id;
+    header('Location: dashboard.php');
+    exit;
+}
+
 // Database configuration
-$db_host = 'localhost';
-$db_user = 'root';
-$db_password = '';
-$db_name = 'task_mania';
+require 'src/config/db.php';
 
 // Initialize variables
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'User';
@@ -35,20 +41,11 @@ $user_credits = 0;
 $has_household = false;
 
 try {
-    // Create database connection
-    $conn = new mysqli($db_host, $db_user, $db_password, $db_name);
-    
-    if ($conn->connect_error) {
-        throw new Exception('Database connection failed');
-    }
-    
-    $conn->set_charset("utf8mb4");
-    
     // Get user's households
     $stmt = $conn->prepare("
         SELECT h.ID_HOUSEHOLD, h.HOUSEHOLD_NAME, COUNT(hm.ID_USER) as member_count
-        FROM household h
-        JOIN household_member hm ON h.ID_HOUSEHOLD = hm.ID_HOUSEHOLD
+        FROM HOUSEHOLD h
+        JOIN HOUSEHOLD_MEMBER hm ON h.ID_HOUSEHOLD = hm.ID_HOUSEHOLD
         WHERE hm.ID_USER = ?
         GROUP BY h.ID_HOUSEHOLD
         ORDER BY h.ID_HOUSEHOLD DESC
@@ -72,7 +69,7 @@ try {
     // Get user's total points (for credits display)
     $points_stmt = $conn->prepare("
         SELECT SUM(p.TOTAL_POINTS) as total_credits
-        FROM points p
+        FROM POINTS p
         WHERE p.ID_USER = ?
     ");
     if ($points_stmt) {
@@ -86,7 +83,6 @@ try {
     }
     
     $stmt->close();
-    $conn->close();
     
 } catch (Exception $e) {
     $households = [];
@@ -155,22 +151,24 @@ function getHouseholdColor($index) {
                 <?php foreach ($households as $index => $household): 
                   $colors = getHouseholdColor($index);
                 ?>
-                  <article class="household-card" onclick="window.location.href='dashboard.php?household_id=<?php echo htmlspecialchars($household['ID_HOUSEHOLD']); ?>';" style="cursor: pointer;">
-                    <div class="household-card__avatar">
-                      <svg aria-hidden="true" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="24" cy="26" r="12" fill="<?php echo htmlspecialchars($colors['vlight']); ?>" />
-                        <circle cx="40" cy="26" r="10" fill="<?php echo htmlspecialchars($colors['light']); ?>" />
-                        <ellipse cx="27" cy="46" rx="15" ry="10" fill="<?php echo htmlspecialchars($colors['light']); ?>" />
-                        <ellipse cx="42" cy="44" rx="11" ry="8" fill="<?php echo htmlspecialchars($colors['dark']); ?>" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="household-card__name"><?php echo htmlspecialchars($household['HOUSEHOLD_NAME']); ?></p>
-                      <p style="font-size: 12px; color: #999; margin: 4px 0 0 0;">
-                        <?php echo htmlspecialchars($household['member_count']); ?> member<?php echo $household['member_count'] > 1 ? 's' : ''; ?>
-                      </p>
-                    </div>
-                  </article>
+                  <form method="POST" style="all: unset; display: contents;">
+                    <button type="submit" name="household_id" value="<?php echo htmlspecialchars($household['ID_HOUSEHOLD']); ?>" class="household-card" style="cursor: pointer; border: none; background: none; padding: 0;">
+                      <div class="household-card__avatar">
+                        <svg aria-hidden="true" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="24" cy="26" r="12" fill="<?php echo htmlspecialchars($colors['vlight']); ?>" />
+                          <circle cx="40" cy="26" r="10" fill="<?php echo htmlspecialchars($colors['light']); ?>" />
+                          <ellipse cx="27" cy="46" rx="15" ry="10" fill="<?php echo htmlspecialchars($colors['light']); ?>" />
+                          <ellipse cx="42" cy="44" rx="11" ry="8" fill="<?php echo htmlspecialchars($colors['dark']); ?>" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="household-card__name"><?php echo htmlspecialchars($household['HOUSEHOLD_NAME']); ?></p>
+                        <p style="font-size: 12px; color: #999; margin: 4px 0 0 0;">
+                          <?php echo htmlspecialchars($household['member_count']); ?> member<?php echo $household['member_count'] > 1 ? 's' : ''; ?>
+                        </p>
+                      </div>
+                    </button>
+                  </form>
                 <?php endforeach; ?>
 
                 <a class="household-card household-card--add" href="create-household.php">

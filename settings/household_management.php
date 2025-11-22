@@ -1,3 +1,63 @@
+<?php
+session_start();
+require '../src/config/db.php';
+
+// Validate user session
+if (!isset($_SESSION['user_id'])) {
+  header('Location: ../sign-in.php');
+  exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$household_id = $_SESSION['household_id'] ?? null;
+
+// If no household selected, redirect to households page
+if (!$household_id) {
+  header('Location: ../households.php');
+  exit;
+}
+
+// Fetch household info
+$household_stmt = $conn->prepare("SELECT HOUSEHOLD_NAME, INVITE_LINK FROM HOUSEHOLD WHERE ID_HOUSEHOLD = ?");
+$household_stmt->bind_param('i', $household_id);
+$household_stmt->execute();
+$household_result = $household_stmt->get_result();
+$household = $household_result->fetch_assoc();
+$household_stmt->close();
+
+// Fetch household members
+$members_stmt = $conn->prepare("
+  SELECT u.ID_USER, u.USER_NAME, hm.ROLE
+  FROM USER u
+  JOIN HOUSEHOLD_MEMBER hm ON u.ID_USER = hm.ID_USER
+  WHERE hm.ID_HOUSEHOLD = ?
+  ORDER BY hm.ROLE DESC, u.USER_NAME ASC
+");
+$members_stmt->bind_param('i', $household_id);
+$members_stmt->execute();
+$members_result = $members_stmt->get_result();
+$members = [];
+while ($member = $members_result->fetch_assoc()) {
+  $members[] = $member;
+}
+$members_stmt->close();
+
+// Check if current user is admin/owner
+$user_role = null;
+foreach ($members as $member) {
+  if ($member['ID_USER'] === $user_id) {
+    $user_role = $member['ROLE'];
+    break;
+  }
+}
+
+// Restrict access to admins only
+if ($user_role !== 'admin' && $user_role !== 'admin') {
+  $_SESSION['error'] = 'You do not have permission to manage this household';
+  header('Location: ../dashboard.php');
+  exit;
+}
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -22,39 +82,7 @@
     <div class="background" aria-hidden="true"></div>
 
     <div class="dashboard-shell">
-      <aside class="sidebar" aria-label="Primary">
-        <a class="sidebar__logo" href="../index.html" aria-label="Task-o-Mania home">
-          <span class="sidebar__logo-icon" aria-hidden="true"><i data-lucide="sparkles"></i></span>
-        </a>
-
-                <nav class="sidebar__nav" aria-label="Main navigation">
-          <a class="sidebar__link" href="../dashboard.html" data-tooltip="Home">
-            <span aria-hidden="true"><i data-lucide="home"></i></span>
-          </a>
-          <a class="sidebar__link" href="../households.html" data-tooltip="Households">
-            <span aria-hidden="true"><i data-lucide="users"></i></span>
-          </a>
-          <a class="sidebar__link" href="../reward-store.html" data-tooltip="Reward Store">
-            <span aria-hidden="true"><i data-lucide="gift"></i></span>
-          </a>
-          <a class="sidebar__link" href="../task-list-total-tasks.html" data-tooltip="Task List">
-            <span aria-hidden="true"><i data-lucide="check-square"></i></span>
-          </a>
-          <a class="sidebar__link" href="../create-task.html" data-tooltip="Create Task">
-            <span aria-hidden="true"><i data-lucide="plus-square"></i></span>
-          </a>
-          <a class="sidebar__link" href="../activity.html" data-tooltip="Activity">
-            <span aria-hidden="true"><i data-lucide="activity"></i></span>
-          </a>
-          <a class="sidebar__link" href="../leaderboard.html" data-tooltip="Leaderboard">
-            <span aria-hidden="true"><i data-lucide="trophy"></i></span>
-          </a>
-          <a class="sidebar__link" href="../settings.html" data-tooltip="Definitions">
-            <span aria-hidden="true"><i data-lucide="settings"></i></span>
-          </a>
-        </nav>
-
-      </aside>
+      <?php include '../sidebar.php'; ?>
 
       <div class="content">
         <header class="topbar">
@@ -67,17 +95,7 @@
             <p>Control every aspect of your household: members, permissions, invites, and ownership.</p>
           </div>
 
-          <div class="topbar__actions user-actions">
-            <a class="notification-button" data-tooltip="Notifications" href="../notifications.html" aria-label="Go to notifications">
-              <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z" stroke-linecap="round" />
-                <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke-linecap="round" />
-              </svg>
-            </a>
-            <a class="avatar" data-tooltip="Profile" href="../profile.html" aria-label="Your profile">
-              <img src="../IMAGES/avatar.png" alt="User avatar" />
-            </a>
-          </div>
+          <?php include '../header.php'; ?>
         </header>
 
         <main class="page" role="main">
@@ -88,11 +106,11 @@
                 <p>Rename your household. Everyone inside will see this change immediately.</p>
               </div>
             </header>
-            <form class="form household-name-form" action="#" method="post">
+            <form class="form household-name-form" action="../api/household/update_name.php" method="post">
               <div class="form-field">
                 <label for="household-name">Household name</label>
                 <div class="input-wrapper">
-                  <input id="household-name" name="household_name" type="text" value="Vaccaro's Family HQ" required />
+                  <input id="household-name" name="household_name" type="text" value="<?php echo htmlspecialchars($household['HOUSEHOLD_NAME'] ?? ''); ?>" required />
                 </div>
               </div>
               <div class="actions">
@@ -100,8 +118,6 @@
               </div>
             </form>
           </section>
-
-          
 
           <section class="panel members-panel">
             <header class="panel__header">
@@ -112,81 +128,26 @@
             </header>
 
             <div class="members-grid" id="members-grid">
-              <article class="member-card" data-member="Livia Vacarro">
+              <?php foreach ($members as $member): ?>
+              <article class="member-card" data-member="<?php echo htmlspecialchars($member['USER_NAME']); ?>" data-user-id="<?php echo $member['ID_USER']; ?>">
                 <div class="member-card__info">
                   <img src="../IMAGES/avatar.png" alt="" />
                   <div>
-                    <p>Livia Vacarro</p>
-                    <span>Owner</span>
+                    <p><?php echo htmlspecialchars($member['USER_NAME']); ?></p>
+                    <span><?php echo ucfirst(htmlspecialchars($member['ROLE'])); ?></span>
                   </div>
                 </div>
                 <div class="member-card__controls">
-                  <select class="role-select">
-                    <option>Owner</option>
-                    <option>Admin</option>
-                    <option>User</option>
-                    <option>Kid</option>
+                  <select class="role-select" data-user-id="<?php echo $member['ID_USER']; ?>">
+                    <option value="admin" <?php echo $member['ROLE'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
+                    <option value="member" <?php echo $member['ROLE'] === 'member' ? 'selected' : ''; ?>>Member</option>
                   </select>
-                  <button type="button" class="pill pill--ghost member-remove">Remove</button>
+                  <?php if ($member['ID_USER'] !== $user_id): ?>
+                  <button type="button" class="pill pill--ghost member-remove" data-user-id="<?php echo $member['ID_USER']; ?>">Remove</button>
+                  <?php endif; ?>
                 </div>
               </article>
-
-              <article class="member-card" data-member="Sophia (Mom)">
-                <div class="member-card__info">
-                  <img src="../IMAGES/avatar.png" alt="" />
-                  <div>
-                    <p>Sophia (Mom)</p>
-                    <span>Admin</span>
-                  </div>
-                </div>
-                <div class="member-card__controls">
-                  <select class="role-select">
-                    <option>Owner</option>
-                    <option selected>Admin</option>
-                    <option>User</option>
-                    <option>Kid</option>
-                  </select>
-                  <button type="button" class="pill pill--ghost member-remove">Remove</button>
-                </div>
-              </article>
-
-              <article class="member-card" data-member="Victor (Dad)">
-                <div class="member-card__info">
-                  <img src="../IMAGES/avatar.png" alt="" />
-                  <div>
-                    <p>Victor (Dad)</p>
-                    <span>User</span>
-                  </div>
-                </div>
-                <div class="member-card__controls">
-                  <select class="role-select">
-                    <option>Owner</option>
-                    <option>Admin</option>
-                    <option selected>User</option>
-                    <option>Kid</option>
-                  </select>
-                  <button type="button" class="pill pill--ghost member-remove">Remove</button>
-                </div>
-              </article>
-
-              <article class="member-card" data-member="Julia (Kid)">
-                <div class="member-card__info">
-                  <img src="../IMAGES/avatar.png" alt="" />
-                  <div>
-                    <p>Julia (Kid)</p>
-                    <span>Kid</span>
-                  </div>
-                </div>
-                <div class="member-card__controls">
-                  <select class="role-select">
-                    <option>Owner</option>
-                    <option>Admin</option>
-                    <option>User</option>
-                    <option selected>Kid</option>
-                  </select>
-                  <button type="button" class="pill pill--ghost member-remove">Remove</button>
-                </div>
-              </article>
+              <?php endforeach; ?>
             </div>
           </section>
 
@@ -198,11 +159,11 @@
               </div>
             </header>
 
-            <form class="form add-member-form" action="#" method="post">
+            <form class="form add-member-form" id="add-member-form">
               <div class="form-field">
-                <label for="invite-email">Email or username</label>
+                <label for="invite-email">Email address</label>
                 <div class="input-wrapper">
-                  <input id="invite-email" name="invite_email" type="text" placeholder="username@example.com" required />
+                  <input id="invite-email" name="email" type="email" placeholder="user@example.com" required />
                 </div>
               </div>
               <div class="actions">
@@ -219,89 +180,12 @@
               </div>
             </header>
             <div class="invite-link-controls">
-              <button type="button" class="btn-primary generate-link">Generate invite link</button>
               <div class="input-wrapper">
-                <input type="text" id="invite-link" readonly value="Link not generated yet" />
+                <input type="text" id="invite-link" readonly value="<?php echo $household['INVITE_LINK'] ? 'https://task-o-mania.local/households.php?invite=' . htmlspecialchars($household['INVITE_LINK']) : 'No link generated'; ?>" />
               </div>
               <button type="button" class="pill copy-link">Copy link</button>
             </div>
           </section>
-
-          <section class="panel permissions-panel">
-            <header class="panel__header">
-              <div>
-                <h2>Household Permissions</h2>
-                <p>Decide who can perform the most important actions.</p>
-              </div>
-            </header>
-
-            <form class="form permissions-form" action="#" method="post">
-              <div class="form-field">
-                <label for="perm-create">Who can create tasks?</label>
-                <div class="input-wrapper select-wrapper">
-                  <select id="perm-create" data-perm="create">
-                    <option value="owners" selected>Owner only</option>
-                    <option value="admins">Owner & Admins</option>
-                    <option value="everyone">Everyone</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-field">
-                <label for="perm-delete">Who can delete tasks?</label>
-                <div class="input-wrapper select-wrapper">
-                  <select id="perm-delete" data-perm="delete">
-                    <option value="owners" selected>Owner only</option>
-                    <option value="admins">Owner & Admins</option>
-                    <option value="everyone">Everyone</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-field">
-                <label for="perm-approve">Who can approve/decline tasks?</label>
-                <div class="input-wrapper select-wrapper">
-                  <select id="perm-approve" data-perm="approve">
-                    <option value="owners">Owner only</option>
-                    <option value="admins" selected>Owner & Admins</option>
-                    <option value="everyone">Everyone</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="actions">
-                <button type="submit" class="btn-primary">Save permissions</button>
-              </div>
-            </form>
-
-          </section>
-
-          <section class="panel transfer-panel">
-            <header class="panel__header">
-              <div>
-                <h2>Transfer Ownership</h2>
-                <p>Select a member to become the new owner.</p>
-              </div>
-            </header>
-            <form class="form transfer-form" action="#" method="post">
-              <div class="form-field">
-                <label for="new-owner">New owner</label>
-                <div class="input-wrapper select-wrapper">
-                  <select id="new-owner" required>
-                    <option value="" disabled selected>Select member</option>
-                    <option>Sophia (Mom)</option>
-                    <option>Victor (Dad)</option>
-                    <option>Julia (Kid)</option>
-                  </select>
-                </div>
-              </div>
-              <div class="actions">
-                <button type="submit" class="btn-primary">Transfer ownership</button>
-              </div>
-            </form>
-          </section>
-
-          
 
           <section class="panel danger-panel">
             <header class="panel__header">
@@ -310,7 +194,10 @@
                 <p>This action cannot be undone. All data will be lost.</p>
               </div>
             </header>
-            <button type="button" class="btn-primary btn-danger delete-household">Delete household</button>
+            <form action="../api/household/delete.php" method="post" onsubmit="return confirm('Are you sure? This cannot be undone.');">
+              <input type="hidden" name="household_id" value="<?php echo $household_id; ?>" />
+              <button type="submit" class="btn-primary btn-danger">Delete household</button>
+            </form>
           </section>
         </main>
 
@@ -327,6 +214,110 @@
         </div>
       </div>
     </div>
+
+    <script>
+      (function () {
+        const modal = document.querySelector('.household-modal');
+        const modalMessage = document.querySelector('.household-modal__message');
+        const modalClose = document.querySelector('.household-modal__close');
+        const copyBtn = document.querySelector('.copy-link');
+        const inviteInput = document.getElementById('invite-link');
+        const membersGrid = document.getElementById('members-grid');
+        const addMemberForm = document.getElementById('add-member-form');
+
+        if (!modal) return;
+
+        const showInfo = (message) => {
+          modalMessage.textContent = message;
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('household-modal--visible');
+        };
+
+        const hideModal = () => {
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('household-modal--visible');
+        };
+
+        modalClose.addEventListener('click', hideModal);
+        modal.addEventListener('click', (event) => {
+          if (event.target === modal) hideModal();
+        });
+
+        // Copy link
+        copyBtn?.addEventListener('click', () => {
+          inviteInput.select();
+          document.execCommand('copy');
+          showInfo('Invite link copied.');
+        });
+
+        // Add member form - send to API
+        addMemberForm?.addEventListener('submit', (event) => {
+          event.preventDefault();
+          const email = document.getElementById('invite-email').value;
+          
+          fetch('../api/invitation/send_invite.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              email: email,
+              household_id: <?php echo $household_id; ?>,
+              invited_by: <?php echo $user_id; ?>
+            })
+          })
+          .then(r => r.text())
+          .then(data => {
+            addMemberForm.reset();
+            showInfo('Invite sent successfully!');
+          })
+          .catch(e => showInfo('Error sending invite.'));
+        });
+
+        // Role change
+        membersGrid?.addEventListener('change', (event) => {
+          if (event.target.classList.contains('role-select')) {
+            const userId = event.target.dataset.userId;
+            const newRole = event.target.value;
+            
+            fetch('../api/household/update_member_role.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ user_id: userId, role: newRole, household_id: <?php echo $household_id; ?> })
+            })
+            .then(r => r.json())
+            .then(data => showInfo(data.message || 'Role updated.'))
+            .catch(e => showInfo('Error updating role.'));
+          }
+        });
+
+        // Remove member
+        membersGrid?.addEventListener('click', (event) => {
+          if (event.target.classList.contains('member-remove')) {
+            const userId = event.target.dataset.userId;
+            if (confirm('Remove this member?')) {
+              fetch('../api/household/remove_member.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, household_id: <?php echo $household_id; ?> })
+              })
+              .then(r => r.json())
+              .then(data => {
+                if (data.success) {
+                  event.target.closest('.member-card').remove();
+                  showInfo('Member removed.');
+                } else {
+                  showInfo(data.message || 'Error removing member.');
+                }
+              })
+              .catch(e => showInfo('Error removing member.'));
+            }
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+
 
     <script>
       (function () {
@@ -453,14 +444,13 @@
             }
             showInfo('Permissions updated.');
           });
-        });
+
 
         deleteBtn?.addEventListener('click', () => {
           showConfirm('Are you sure you want to delete the household?', () => {
             showInfo('Household deleted.');
           });
-        });
-      })();
+        })();
     </script>
   </body>
 </html>

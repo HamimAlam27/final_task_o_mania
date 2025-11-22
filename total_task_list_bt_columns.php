@@ -53,13 +53,6 @@ if (!empty($household_ids)) {
   while ($task = $task_result->fetch_assoc()) {
     $status = strtolower(str_replace(' ', '_', $task['TASK_STATUS']));
     
-    // Normalize status to match column keys
-    if (!in_array($status, ['todo', 'in_progress', 'pending', 'completed'])) {
-      if (in_array($status, ['to_do', 'available', 'new'])) $status = 'todo';
-      elseif (in_array($status, ['in progress', 'doing', 'active'])) $status = 'in_progress';
-      elseif (in_array($status, ['under_review', 'awaiting', 'waiting'])) $status = 'pending';
-      else $status = 'todo';
-    }
     
     $tasks_by_status[$status][] = [
       'id' => $task['ID_TASK'],
@@ -82,6 +75,7 @@ if (!empty($household_ids)) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style_task_list.css" />
     <link rel="stylesheet" href="style_user_chrome.css" />
+    
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -185,19 +179,14 @@ if (!empty($household_ids)) {
         // Tasks passed from PHP server-side
         const serverTasks = {
           todo: <?php echo json_encode($tasks_by_status['todo']); ?>,
-          in_progress: <?php echo json_encode($tasks_by_status['in_progress']); ?>,
+          in_progress: <?php echo json_encode($tasks_by_status['in-progress']); ?>,
           pending: <?php echo json_encode($tasks_by_status['pending']); ?>,
           completed: <?php echo json_encode($tasks_by_status['completed']); ?>
         };
 
         const handleNavigateToDetails = (taskId) => {
           if (!taskId) return;
-          try {
-            window.localStorage.setItem('taskomania_selected_task', taskId);
-          } catch (error) {
-            console.warn('Unable to persist the selected task', error);
-          }
-          window.location.href = DETAIL_PAGE;
+          window.location.href = 'task_list_detail.php?task_id=' + taskId;
         };
 
         const handleNavigateToPending = (taskId) => {
