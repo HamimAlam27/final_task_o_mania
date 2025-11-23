@@ -1,214 +1,168 @@
+<?php
+session_start();
+require 'src/config/db.php';
+
+// Validate user session
+if (!isset($_SESSION['user_id'])) {
+  header('Location: sign-in.php');
+  exit;
+}
+
+$user_id = $_SESSION['user_id'];
+
+// Validate household session
+if (!isset($_SESSION['household_id'])) {
+  header('Location: households.php');
+  exit;
+}
+$household_id = $_SESSION['household_id'];
+
+// Fetch rewards belonging to this household
+$stmt = $conn->prepare("
+        SELECT ID_REWARD, REWARD_NAME, REWARD_DESCRIPTION, POINTS_TO_DISCOUNT AS REWARD_POINTS
+        FROM REWARDS_CATALOGUE
+        WHERE ID_HOUSEHOLD = ?
+        ORDER BY ID_REWARD DESC
+    ");
+$stmt->bind_param("i", $household_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Total rewards in this household
+$stmt_total = $conn->prepare("SELECT COUNT(*) AS total FROM REWARDS_CATALOGUE WHERE ID_HOUSEHOLD = ?");
+$stmt_total->bind_param("i", $household_id);
+$stmt_total->execute();
+$total = $stmt_total->get_result()->fetch_assoc()['total'];
+
+// Available rewards in this household
+$stmt_available = $conn->prepare("SELECT COUNT(*) AS available FROM REWARDS_CATALOGUE WHERE ID_HOUSEHOLD = ? AND IS_ACTIVE = 1");
+$stmt_available->bind_param("i", $household_id);
+$stmt_available->execute();
+$available = $stmt_available->get_result()->fetch_assoc()['available'];
+?>
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Reward Store - Task-o-Mania</title>
-    <meta name="description" content="Redeem Task-o-Mania credits for fun rewards." />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style_reward_store.css" />
-    <link rel="stylesheet" href="style_user_chrome.css" />
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    lucide.createIcons();
-  });
-</script>
 
-  </head>
-  <body>
-    <div class="background" aria-hidden="true"></div>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reward Store - Task-o-Mania</title>
+  <meta name="description" content="Redeem Task-o-Mania credits for fun rewards." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style_reward_store.css" />
+  <link rel="stylesheet" href="style_user_chrome.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      lucide.createIcons();
+    });
+  </script>
 
-    <div class="dashboard-shell">
-        <?php include 'sidebar.php'; ?>
+</head>
 
-      <div class="content">
-        <header class="topbar">
-          <div class="topbar__greeting">
-            <p class="subtitle">Rewards hub</p>
-            <h1>Reward Store</h1>
-          </div>
+<body>
+  <div class="background" aria-hidden="true"></div>
 
-          <div class="topbar__actions">
-            <div class="user-actions">
-              <a class="notification-button" data-tooltip="Notifications" href="notifications.html" aria-label="Go to notifications">
-                <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z"
-                    stroke-linecap="round"
-                  />
-                  <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke-linecap="round" />
-                </svg>
-              </a>
-              <a class="avatar" data-tooltip="Profile" href="profile.html" aria-label="Your profile">
-                <img src="IMAGES/avatar.png" alt="User avatar" />
-              </a>
-            </div>
-          </div>
-        </header>
+  <div class="dashboard-shell">
+    <?php include 'sidebar.php'; ?>
 
-        <main class="page" role="main">
-          <div class="credits-chip">
-            <span>700 Credits</span>
-            <small></small>
-          </div>
+    <div class="content">
+      <header class="topbar">
+        <div class="topbar__greeting">
+          <p class="subtitle">Rewards hub</p>
+          <h1>Reward Store</h1>
+        </div>
+        <?php include 'header.php'; ?>
 
-          <section class="stats">
-            <article class="stat-card">
-              <div class="stat-card__value">10</div>
-              <p>Total Reward</p>
-            </article>
-            <article class="stat-card">
-              <div class="stat-card__value">8</div>
-              <p>Available</p>
-            </article>
-          </section>
+      </header>
 
-          <section class="new-reward" aria-label="Add new reward">
-            <form class="new-reward__form">
-              <label>
-                <span>Reward name</span>
-                <div class="input-wrapper">
-                  <input type="text" name="reward_name" placeholder="Movie night" required />
-                </div>
-              </label>
-              <label>
-                <span>Description</span>
-                <div class="input-wrapper">
-                  <textarea name="reward_description" rows="2" placeholder="Describe the reward" required></textarea>
-                </div>
-              </label>
-              <label>
-                <span>Points</span>
-                <div class="input-wrapper">
-                  <input type="number" name="reward_points" min="1" placeholder="100" required />
-                </div>
-              </label>
-              <button type="submit" class="btn-primary">Add reward</button>
-            </form>
-          </section>
+      <main class="page" role="main">
+        <div class="credits-chip">
+          <span><a href="create-reward.html" style="text-decoration: none; color:white;">Add New Reward</a></span>
+          <small></small>
+        </div>
 
-          <section class="reward-grid" aria-label="Available rewards">
-            <!-- Repeat reward cards -->
-            <article class="reward-card">
-              <h2>Ice Cream Treat</h2>
-              <p>Pick your favorite ice cream flavor from the local shop</p>
-              <p class="points">150 Points</p>
-              <button type="button" class="redeem-btn">Redeem Now</button>
-            </article>
 
-            <article class="reward-card">
-              <h2>Ice Cream Treat</h2>
-              <p>Pick your favorite ice cream flavor from the local shop</p>
-              <p class="points">150 Points</p>
-              <button type="button" class="redeem-btn">Redeem Now</button>
-            </article>
+        <section class="stats">
+          <article class="stat-card">
+            <div class="stat-card__value"><?= $total ?></div>
+            <p>Total Reward</p>
+          </article>
+          <article class="stat-card">
+            <div class="stat-card__value"><?= $available ?></div>
+            <p>Available</p>
+          </article>
+        </section>
 
-            <article class="reward-card">
-              <h2>Ice Cream Treat</h2>
-              <p>Pick your favorite ice cream flavor from the local shop</p>
-              <p class="points">150 Points</p>
-              <button type="button" class="redeem-btn">Redeem Now</button>
-            </article>
+        <section class="reward-grid" aria-label="Available rewards">
+          <?php
 
-            <article class="reward-card">
-              <h2>Ice Cream Treat</h2>
-              <p>Pick your favorite ice cream flavor from the local shop</p>
-              <p class="points">150 Points</p>
-              <button type="button" class="redeem-btn">Redeem Now</button>
-            </article>
+          if ($result->num_rows === 0): ?>
+            <p>No rewards available yet.</p>
+            <?php else:
+            while ($row = $result->fetch_assoc()): ?>
+              <article class="reward-card">
+                <h2><?= htmlspecialchars($row['REWARD_NAME']) ?></h2>
+                <p><?= htmlspecialchars($row['REWARD_DESCRIPTION']) ?></p>
+                <p class="points"><?= htmlspecialchars($row['REWARD_POINTS']) ?> Points</p>
+                <button type="button" class="redeem-btn"><a href="reward.html">redeem</a></button>
+                <!-- Redeem Button Form -->
+                <form action="redeem_reward.php" method="POST">
+                  <input type="hidden" name="reward_id" value="<?= $row['ID_REWARD'] ?>">
+                  <button type="submit" class="redeem-btn">Redeem Now</button>
+                </form>
+              </article>
+          <?php endwhile;
+          endif;
 
-            <article class="reward-card">
-              <h2>Ice Cream Treat</h2>
-              <p>Pick your favorite ice cream flavor from the local shop</p>
-              <p class="points">150 Points</p>
-              <button type="button" class="redeem-btn">Redeem Now</button>
-            </article>
+          $stmt->close();
+          ?>
+        </section>
 
-            <article class="reward-card">
-              <h2>Ice Cream Treat</h2>
-              <p>Pick your favorite ice cream flavor from the local shop</p>
-              <p class="points">2000 Points</p>
-              <button type="button" class="redeem-btn">Redeem Now</button>
-            </article>
-          </section>
-        </main>
 
-        <div class="reward-modal" role="alertdialog" aria-modal="true" aria-hidden="true">
-          <div class="reward-modal__card">
-            <h2>Reward redeemed</h2>
-            <p>Your points were redeemed successfully.</p>
-            <button type="button" class="reward-modal__close">OK</button>
-          </div>
+      </main>
+
+      <div class="reward-modal" role="alertdialog" aria-modal="true" aria-hidden="true">
+        <div class="reward-modal__card">
+          <h2>Reward redeemed</h2>
+          <p>Your points were redeemed successfully.</p>
+          <button type="button" class="reward-modal__close">OK</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <script>
-      (function () {
-        const buttons = document.querySelectorAll('.redeem-btn');
-        const modal = document.querySelector('.reward-modal');
-        const closeBtn = document.querySelector('.reward-modal__close');
-        const newRewardForm = document.querySelector('.new-reward__form');
-        const rewardGrid = document.querySelector('.reward-grid');
+  <script>
+    (function() {
+      const buttons = document.querySelectorAll('.redeem-btn');
+      const modal = document.querySelector('.reward-modal');
+      const closeBtn = document.querySelector('.reward-modal__close');
+      const newRewardForm = document.querySelector('.new-reward__form');
+      const rewardGrid = document.querySelector('.reward-grid');
 
-        if (!buttons.length || !modal || !closeBtn) return;
+      if (!buttons.length || !modal || !closeBtn) return;
 
-        const showModal = () => {
-          modal.setAttribute('aria-hidden', 'false');
-          modal.classList.add('reward-modal--visible');
-        };
+      const showModal = () => {
+        modal.setAttribute('aria-hidden', 'false');
+        modal.classList.add('reward-modal--visible');
+      };
 
-        buttons.forEach((button) => {
-          button.addEventListener('click', (event) => {
-            event.preventDefault();
-            showModal();
-          });
-        });
-
-        closeBtn.addEventListener('click', () => {
-          modal.classList.remove('reward-modal--visible');
-          modal.setAttribute('aria-hidden', 'true');
-          window.location.href = 'reward-store.html';
-        });
-        newRewardForm?.addEventListener('submit', (event) => {
+      buttons.forEach((button) => {
+        button.addEventListener('click', (event) => {
           event.preventDefault();
-          const formData = new FormData(newRewardForm);
-          const name = formData.get('reward_name');
-          const description = formData.get('reward_description');
-          const points = formData.get('reward_points');
-
-          if (!name || !description || !points || !rewardGrid) return;
-
-          const card = document.createElement('article');
-          card.className = 'reward-card';
-          card.innerHTML = `
-            <h2>${name}</h2>
-            <p>${description}</p>
-            <p class="points">${points} Points</p>
-            <button type="button" class="redeem-btn">Redeem Now</button>
-          `;
-          rewardGrid.prepend(card);
-          newRewardForm.reset();
-
-          const button = card.querySelector('button');
-          button?.addEventListener('click', (evt) => {
-            evt.preventDefault();
-            showModal();
-          });
+          showModal();
         });
-      })();
-    </script>
-  </body>
+      });
+
+      closeBtn.addEventListener('click', () => {
+        modal.classList.remove('reward-modal--visible');
+        modal.setAttribute('aria-hidden', 'true');
+      });
+
+    })();
+  </script>
+</body>
+
 </html>
-
-
-
-
-
-
-
-
-
