@@ -38,6 +38,7 @@ if (!empty($household_ids)) {
   $task_query = $conn->prepare("
     SELECT 
       ID_TASK,
+      ID_USER,
       TASK_NAME,
       TASK_POINT,
       TASK_STATUS
@@ -49,17 +50,54 @@ if (!empty($household_ids)) {
   $task_query->bind_param(str_repeat('i', count($household_ids)), ...$household_ids);
   $task_query->execute();
   $task_result = $task_query->get_result();
+
+  $progress_check = $conn->prepare("SELECT 1 FROM PROGRESS WHERE ID_TASK = ? AND ID_USER = ? LIMIT 1");
+  $completion_check = $conn->prepare("SELECT 1 FROM COMPLETION WHERE ID_TASK = ? AND SUBMITTED_BY = ? AND STATUS = 'approved' LIMIT 1");
   
   while ($task = $task_result->fetch_assoc()) {
-    $status = strtolower(str_replace(' ', '_', $task['TASK_STATUS']));
+    $status = strtolower(str_replace([' ', '-'], '_', $task['TASK_STATUS']));
+
+    if (!array_key_exists($status, $tasks_by_status)) {
+      continue;
+    }
+
+    $include = true;
     
-    
+    if ($status === 'pending') {
+      $progress_check->bind_param('ii', $task['ID_TASK'], $user_id);
+      $progress_check->execute();
+      $progress_result = $progress_check->get_result();
+      $is_worker = $progress_result->num_rows > 0;
+      $progress_result->free_result();
+      $task_owner = $task['ID_USER'] ? intval($task['ID_USER']) : $user_id;
+      $include = $task_owner === $user_id || $is_worker;
+    }
+
+    if ($status === 'completed') {
+      $completion_check->bind_param('ii', $task['ID_TASK'], $user_id);
+      $completion_check->execute();
+      $completion_result = $completion_check->get_result();
+      $include = $completion_result->num_rows > 0;
+      $completion_result->free_result();
+      $task_owner = $task['ID_USER'] ? intval($task['ID_USER']) : $user_id;
+      if (!$include && $task_owner === $user_id) {
+        $include = true;
+      }
+    }
+
+    if (!$include) {
+      continue;
+    }
+
     $tasks_by_status[$status][] = [
       'id' => $task['ID_TASK'],
       'task_name' => $task['TASK_NAME'],
       'task_points' => $task['TASK_POINT']
     ];
   }
+
+  $progress_check->close();
+  $completion_check->close();
   $task_query->close();
 }
 ?>
@@ -173,13 +211,13 @@ if (!empty($household_ids)) {
 
     <script>
       (function () {
-        const DETAIL_PAGE = 'task_list_detail.html';
-        const OWNER_PENDING_PAGE = 'when_owner_clicks_on_pending.html';
+        const DETAIL_PAGE = 'task_list_detail.php';
+        const OWNER_PENDING_PAGE = 'task_list_detail.php';
 
         // Tasks passed from PHP server-side
         const serverTasks = {
           todo: <?php echo json_encode($tasks_by_status['todo']); ?>,
-          in_progress: <?php echo json_encode($tasks_by_status['in-progress']); ?>,
+          in_progress: <?php echo json_encode($tasks_by_status['in_progress']); ?>,
           pending: <?php echo json_encode($tasks_by_status['pending']); ?>,
           completed: <?php echo json_encode($tasks_by_status['completed']); ?>
         };
@@ -191,12 +229,7 @@ if (!empty($household_ids)) {
 
         const handleNavigateToPending = (taskId) => {
           if (!taskId) return;
-          try {
-            window.localStorage.setItem('taskomania_selected_task', taskId);
-          } catch (error) {
-            console.warn('Unable to persist the selected task', error);
-          }
-          window.location.href = OWNER_PENDING_PAGE;
+          window.location.href = `${OWNER_PENDING_PAGE}?task_id=${taskId}`;
         };
 
         const columns = ['todo', 'in_progress', 'pending', 'completed'];

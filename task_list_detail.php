@@ -36,19 +36,129 @@ if (!$task) {
   exit;
 }
 
-// Check if current user is the task creator
 $is_creator = ($task['ID_USER'] == $user_id);
+
+// Normalize task status (spaces and hyphens -> underscores)
+$raw_status = $task['TASK_STATUS'] ?? '';
+$normalized_status = strtolower(str_replace([' ', '-'], '_', $raw_status));
 
 // Check if user is already in progress on this task
 $progress_stmt = $conn->prepare("
   SELECT ID_PROGRESS FROM PROGRESS 
   WHERE ID_TASK = ? AND ID_USER = ?
-");
-$progress_stmt->bind_param('ii', $task_id, $user_id);
+");$progress_stmt->bind_param('ii', $task_id, $user_id);
 $progress_stmt->execute();
 $progress_result = $progress_stmt->get_result();
 $already_joined = $progress_result->num_rows > 0;
-$progress_stmt->close();
+  $progress_stmt->close();
+
+// Flash helpers
+$error_message = '';
+$success_message = '';
+if (isset($_SESSION['error'])) {
+  $error_message = $_SESSION['error'];
+  unset($_SESSION['error']);
+}
+if (isset($_SESSION['success'])) {
+  $success_message = $_SESSION['success'];
+  unset($_SESSION['success']);
+}
+
+// Handle submission / approval from this page
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  if (isset($_POST['submit_completion'])) {
+    if (!$already_joined) {
+      $_SESSION['error'] = 'You must be working on this task before submitting proof.';
+      header('Location: task_list_detail.php?task_id=' . $task_id);
+      exit;
+    }
+
+    if (!empty($_FILES['completion_image']['name']) && $_FILES['completion_image']['error'] === UPLOAD_ERR_OK) {
+      $uploadsDir = __DIR__ . '/uploads';
+      if (!is_dir($uploadsDir)) {
+        @mkdir($uploadsDir, 0775, true);
+      }
+      $ext = pathinfo($_FILES['completion_image']['name'], PATHINFO_EXTENSION);
+      $safeExt = $ext ? preg_replace('/[^a-zA-Z0-9]/', '', $ext) : 'jpg';
+      if ($safeExt === '') {
+        $safeExt = 'jpg';
+      }
+      $filename = sprintf('task_%d_user_%d_%d.%s', $task_id, $user_id, time(), $safeExt);
+      move_uploaded_file($_FILES['completion_image']['tmp_name'], $uploadsDir . '/' . $filename);
+    }
+
+    $status = 'pending';
+    $update_stmt = $conn->prepare(" 
+      UPDATE TASK
+      SET TASK_STATUS = ?
+      WHERE ID_TASK = ? AND ID_HOUSEHOLD = ?
+    ");
+    $update_stmt->bind_param('sii', $status, $task_id, $household_id);
+    if ($update_stmt->execute()) {
+      $_SESSION['success'] = 'Task submitted successfully and is pending approval.';
+    } else {
+      $_SESSION['error'] = 'Failed to submit the task.';
+    }
+
+    $update_stmt->close();
+  }
+
+  if (isset($_POST['approve_task']) || isset($_POST['reject_task'])) {
+    if (!$is_creator) {
+      $_SESSION['error'] = 'Only the creator can verify this task.';
+      header('Location: task_list_detail.php?task_id=' . $task_id);
+      exit;
+    }
+
+    $new_status = isset($_POST['approve_task']) ? 'completed' : 'todo';
+
+    // When approving, optionally split points among selected assignees
+    if ($new_status === 'completed') {
+      $selected_assignees = isset($_POST['assignees']) && is_array($_POST['assignees'])
+        ? array_map('intval', $_POST['assignees'])
+        : [];
+
+      if (!empty($selected_assignees)) {
+        $total_points = (int)($task['TASK_POINT'] ?? 0);
+        $share = $total_points > 0 ? intdiv($total_points, count($selected_assignees)) : 0;
+
+        if ($share > 0) {
+          $points_stmt = $conn->prepare("
+            INSERT INTO POINTS (ID_USER, ID_HOUSEHOLD, TOTAL_POINTS)
+            VALUES (?, ?, ?)
+            ON DUPLICATE KEY UPDATE TOTAL_POINTS = TOTAL_POINTS + VALUES(TOTAL_POINTS)
+          ");
+
+          foreach ($selected_assignees as $assignee_id) {
+            $points_stmt->bind_param('iii', $assignee_id, $household_id, $share);
+            $points_stmt->execute();
+          }
+
+          $points_stmt->close();
+        }
+      }
+    }
+
+    $verify_stmt = $conn->prepare(" 
+      UPDATE TASK
+      SET TASK_STATUS = ?
+      WHERE ID_TASK = ? AND ID_HOUSEHOLD = ?
+    ");
+    $verify_stmt->bind_param('sii', $new_status, $task_id, $household_id);
+    if ($verify_stmt->execute()) {
+      $_SESSION['success'] = $new_status === 'completed'
+        ? 'Task marked as completed and points awarded.'
+        : 'Task rejected and returned to To Do.';
+    } else {
+      $_SESSION['error'] = 'Failed to update task status.';
+    }
+
+    $verify_stmt->close();
+  }
+
+  header('Location: task_list_detail.php?task_id=' . $task_id);
+  exit;
+}
 
 // Fetch task creator's name
 $creator_stmt = $conn->prepare("SELECT USER_NAME FROM USER WHERE ID_USER = ?");
@@ -59,9 +169,64 @@ $creator = $creator_result->fetch_assoc();
 $creator_name = $creator['USER_NAME'] ?? 'Unknown';
 $creator_stmt->close();
 
-// Fetch people working on this task (if status is in_progress)
+// Flash state for join/submission flows + submission handling
+
+if (isset($_SESSION['error'])) {
+  $error_message = $_SESSION['error'];
+  unset($_SESSION['error']);
+}
+
+if (isset($_SESSION['success'])) {
+  $success_message = $_SESSION['success'];
+  unset($_SESSION['success']);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_completion'])) {
+  if (!$already_joined) {
+    $_SESSION['error'] = 'Join the task before submitting proof.';
+    header('Location: task_list_detail.php?task_id=' . $task_id);
+    exit;
+  }
+
+  if (!empty($_FILES['completion_image']['name']) && $_FILES['completion_image']['error'] === UPLOAD_ERR_OK) {
+    $uploadsDir = __DIR__ . '/uploads';
+    if (!is_dir($uploadsDir)) {
+      @mkdir($uploadsDir, 0775, true);
+    }
+
+    $ext = pathinfo($_FILES['completion_image']['name'], PATHINFO_EXTENSION);
+    $safeExt = $ext ? preg_replace('/[^a-zA-Z0-9]/', '', $ext) : 'jpg';
+    if ($safeExt === '') {
+      $safeExt = 'jpg';
+    }
+
+    $filename = sprintf('task_%d_user_%d_%d.%s', $task_id, $user_id, time(), $safeExt);
+    $targetPath = $uploadsDir . '/' . $filename;
+    move_uploaded_file($_FILES['completion_image']['tmp_name'], $targetPath);
+  }
+
+  $update_stmt = $conn->prepare("
+    UPDATE TASK
+    SET TASK_STATUS = 'pending'
+    WHERE ID_TASK = ? AND ID_HOUSEHOLD = ?
+  ");
+  $update_stmt->bind_param('ii', $task_id, $household_id);
+
+  if ($update_stmt->execute()) {
+    $_SESSION['success'] = 'Task submitted successfully and marked as pending.';
+  } else {
+    $_SESSION['error'] = 'Failed to submit the task.';
+  }
+
+  $update_stmt->close();
+
+  header('Location: task_list_detail.php?task_id=' . $task_id);
+  exit;
+}
+
+// Fetch people working on this task (for in-progress or pending review)
 $workers = [];
-if ($task['TASK_STATUS'] === 'in_progress') {
+if (in_array($normalized_status, ['in_progress', 'pending'], true)) {
   $workers_stmt = $conn->prepare("
     SELECT u.ID_USER, u.USER_NAME 
     FROM PROGRESS p
@@ -272,12 +437,27 @@ $success_message = '';
               </div>
             </div>
 
-            <?php if ($task['TASK_STATUS'] === 'in_progress' && !empty($workers)): ?>
+            <?php if (in_array($normalized_status, ['in_progress', 'pending'], true) && !empty($workers)): ?>
               <div class="task-detail__section">
-                <div class="task-detail__label">People working on this</div>
+                <div class="task-detail__label">
+                  <?php echo $normalized_status === 'pending' ? 'Submitted by' : 'People working on this'; ?>
+                </div>
                 <div class="workers">
                   <?php foreach ($workers as $worker): ?>
-                    <div class="worker-tag"><?php echo htmlspecialchars($worker['USER_NAME']); ?></div>
+                    <?php if ($normalized_status === 'pending' && $is_creator): ?>
+                      <label class="worker-tag">
+                        <input
+                          type="checkbox"
+                          name="assignees[]"
+                          value="<?php echo intval($worker['ID_USER']); ?>"
+                          checked
+                          style="margin-right: 6px;"
+                        />
+                        <?php echo htmlspecialchars($worker['USER_NAME']); ?>
+                      </label>
+                    <?php else: ?>
+                      <div class="worker-tag"><?php echo htmlspecialchars($worker['USER_NAME']); ?></div>
+                    <?php endif; ?>
                   <?php endforeach; ?>
                 </div>
               </div>
@@ -287,27 +467,38 @@ $success_message = '';
               <a href="total_task_list_bt_columns.php" class="btn btn-secondary">← Back</a>
 
               <?php if ($is_creator): ?>
-                <!-- Task creator view: Show delete button -->
-                <form method="POST" action="api/task/delete.php" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this task?');">
-                  <input type="hidden" name="task_id" value="<?php echo intval($task_id); ?>" />
-                  <button type="submit" class="btn btn-danger">Delete Task</button>
-                </form>
+                <?php if ($normalized_status === 'pending'): ?>
+                  <form method="POST" action="task_list_detail.php?task_id=<?php echo intval($task_id); ?>" style="display: flex; gap: 8px;">
+                    <button type="submit" name="approve_task" class="btn btn-primary">Approve</button>
+                    <button type="submit" name="reject_task" class="btn btn-secondary">Reject</button>
+                  </form>
+                <?php else: ?>
+                  <!-- Task creator view: Show delete button for non-pending tasks -->
+                  <form method="POST" action="api/task/delete.php" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this task?');">
+                    <input type="hidden" name="task_id" value="<?php echo intval($task_id); ?>" />
+                    <button type="submit" class="btn btn-danger">Delete Task</button>
+                  </form>
+                <?php endif; ?>
               <?php else: ?>
                 <!-- Other users view: Show "Do this task" button if in todo status and not already joined -->
-                <?php if ($task['TASK_STATUS'] === 'todo' && !$already_joined): ?>
+                <?php if ($normalized_status === 'todo' && !$already_joined): ?>
                   <form method="POST" action="api/task/join.php" style="display: inline;">
                     <input type="hidden" name="task_id" value="<?php echo intval($task_id); ?>" />
                     <button type="submit" class="btn btn-primary">Do this task</button>
                   </form>
-                <?php elseif ($task['TASK_STATUS'] === 'todo' && $already_joined): ?>
+                <?php elseif ($normalized_status === 'todo' && $already_joined): ?>
                   <button class="btn btn-secondary" disabled>Already in progress</button>
-                <?php elseif ($task['TASK_STATUS'] === 'in_progress' && !$already_joined): ?>
+                <?php elseif ($normalized_status === 'in_progress' && !$already_joined): ?>
                   <form method="POST" action="api/task/join.php" style="display: inline;">
                     <input type="hidden" name="task_id" value="<?php echo intval($task_id); ?>" />
                     <button type="submit" class="btn btn-primary">Join this task</button>
                   </form>
-                <?php elseif ($task['TASK_STATUS'] === 'in_progress' && $already_joined): ?>
-                  <button class="btn btn-secondary" disabled>You're working on this</button>
+                <?php elseif ($normalized_status === 'in_progress' && $already_joined): ?>
+                  <form method="POST" enctype="multipart/form-data" action="task_list_detail.php?task_id=<?php echo intval($task_id); ?>" style="display: inline;">
+                    <label class="btn btn-secondary" for="completion-image">Submit proof</label>
+                    <input type="file" name="completion_image" id="completion-image" accept="image/*" style="display:none;" />
+                    <button type="submit" name="submit_completion" class="btn btn-primary">Submit task</button>
+                  </form>
                 <?php endif; ?>
               <?php endif; ?>
             </div>
