@@ -5,12 +5,12 @@ session_start();
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../../sign-in.php");
     exit;
-} elseif (!isset($_SESSION['household'])) {
+} elseif (!isset($_SESSION['household_id'])) {
     header("Location: households.php");
 }
 
 $user_id = $_SESSION['user_id'];
-$household_id = $_SESSION['household'];
+$household_id = $_SESSION['household_id'];
 ?>
 
 <!doctype html>

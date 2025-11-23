@@ -178,6 +178,9 @@ function getHouseholdColor($index) {
                   <p class="household-card__name">Add household</p>
                 </a>
               </div>
+              <div style="margin-top: 40px; padding: 24px; background: rgba(124, 110, 255, 0.08); border-radius: 18px; text-align: center;">
+                <a href="invitations.php" class="btn-primary">Join household</a>
+              </div>
             </section>
           <?php else: ?>
             <!-- User has NO household - show empty state and create button -->
@@ -196,11 +199,13 @@ function getHouseholdColor($index) {
                   </div>
                   <p class="household-card__name">Create household</p>
                 </a>
+                
               </div>
 
               <div style="margin-top: 40px; padding: 24px; background: rgba(124, 110, 255, 0.08); border-radius: 18px; text-align: center;">
                 <h3 style="margin: 0 0 12px 0; color: #4b2dbd; font-size: 18px;">Join an existing household?</h3>
                 <p style="margin: 0 0 16px 0; color: #666; font-size: 14px;">If someone has invited you to their household, ask them for an invite link or check your email for an invitation.</p>
+                <a href="invitations.php" class="btn-primary">Join household</a>
               </div>
             </section>
           <?php endif; ?>

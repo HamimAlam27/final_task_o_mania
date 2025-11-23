@@ -1,5 +1,104 @@
-<?php
-header('Content-Type: text/html; charset=utf-8');
-readfile(__DIR__ . DIRECTORY_SEPARATOR . 'settings.html');
-?>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Settings - Task-o-Mania</title>
+    <meta name="description" content="Manage Task-o-Mania preferences and controls." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_settings.css" />
+    <link rel="stylesheet" href="style_user_chrome.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    lucide.createIcons();
+  });
+</script>
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+        <?php include 'sidebar.php'; ?>
+
+      <div class="content">
+        <header class="topbar">
+          <div class="topbar__greeting">
+            <p class="subtitle">Hello!</p>
+            <h1>Settings</h1>
+          </div>
+
+          <div class="topbar__actions">
+            <div class="user-actions">
+              <a class="notification-button" data-tooltip="Notifications" href="notifications.html" aria-label="Go to notifications">
+                <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z" stroke-linecap="round" />
+                  <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke-linecap="round" />
+                </svg>
+              </a>
+              <a class="avatar" data-tooltip="Profile" href="profile.html" aria-label="Your profile">
+                <img src="IMAGES/avatar.png" alt="User avatar" />
+              </a>
+            </div>
+          </div>
+        </header>
+
+        <main class="page" role="main">
+          <section class="grid" aria-label="Settings sections">
+            <a class="tile" href="settings/household_management.html"><div class="icon"><i data-lucide="users"></i></div><div><h2>Household Management</h2><p>Organize members and roles.</p></div></a>
+            <a class="tile" href="settings/ai_validation.html">
+              <div class="icon"><i data-lucide="cpu"></i></div>
+              <div>
+                <h2>AI Validation</h2>
+                <p>Control how AI reviews or approves.</p>
+              </div>
+            </a>
+            <a class="tile" href="faq.html">
+              <div class="icon"><i data-lucide="help-circle"></i></div>
+              <div>
+                <h2>FAQ</h2>
+                <p>Find quick answers to common Task-O-Mania questions.</p>
+              </div>
+            </a>
+            <a class="tile" href="settings/all_your_data.html">
+              <div class="icon"><i data-lucide="database"></i></div>
+              <div>
+                <h2>All your data</h2>
+                <p>View or delete your personal and household data securely.</p>
+              </div>
+            </a>
+            <a class="tile" href="settings/privacy_and_sharing.html">
+              <div class="icon"><i data-lucide="shield"></i></div>
+              <div>
+                <h2>Privacy & sharing</h2>
+                <p>Manage visibility, sharing preferences, and privacy controls.</p>
+              </div>
+            </a>
+          </section>
+
+          <p class="cta-text">
+            Need to deactivate your account? <a href="deactivate-account.html">Take care of that now</a>
+          </p>
+        </main>
+
+      </div>
+    </div>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

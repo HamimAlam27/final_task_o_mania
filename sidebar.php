@@ -13,7 +13,7 @@
           <a class="sidebar__link" href="reward-store.php" data-tooltip="Reward Store">
             <span aria-hidden="true"><i data-lucide="gift"></i></span>
           </a>
-          <a class="sidebar__link" href="task-list-total-tasks.php" data-tooltip="Task List">
+          <a class="sidebar__link" href="total_task_list_bt_columns.php" data-tooltip="Task List">
             <span aria-hidden="true"><i data-lucide="check-square"></i></span>
           </a>
           <a class="sidebar__link" href="choose_between_buttons.php" data-tooltip="New">

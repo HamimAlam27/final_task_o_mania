@@ -2,11 +2,11 @@
 session_start();
 require "../../src/config/db.php";
 
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['household'])) {
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['household_id'])) {
     die("Unauthorized");
 }
 
-$household_id = $_SESSION['household'];
+$household_id = $_SESSION['household_id'];
 $invited_by = $_SESSION['user_id'];
 
 // Form sends invited_emails[] array
@@ -76,6 +76,6 @@ foreach ($emails as $email) {
 }
 
 // Redirect after processing all emails
-header("Location: ../../household_members.php");
+header("Location: ../../dashboard.php");
 exit;
 
