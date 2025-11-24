@@ -112,9 +112,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($share > 0) {
           $points_stmt = $conn->prepare("
-            INSERT INTO POINTS (ID_USER, ID_HOUSEHOLD, TOTAL_POINTS)
-            VALUES (?, ?, ?)
-            ON DUPLICATE KEY UPDATE TOTAL_POINTS = TOTAL_POINTS + VALUES(TOTAL_POINTS)
+                UPDATE POINTS 
+    SET TOTAL_POINTS = TOTAL_POINTS + ? 
+    WHERE ID_USER = ? AND ID_HOUSEHOLD = ?
           ");
 
           foreach ($selected_assignees as $assignee_id) {

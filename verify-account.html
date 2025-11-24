@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Verify - Task-o-Mania</title>
+    <meta name="description" content="Access your Task-o-Mania account." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_sign_in.css" />
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <main class="page" role="main">
+      <a class="back-button" href="index.html" aria-label="Back">
+        <span aria-hidden="true">&#x2039;</span>
+      </a>
+
+  
+      <section class="card">
+        <header class="card-header">
+          <h1>Verify Your Account</h1>
+        </header>
+
+        <form class="form" action="api/account/signup_mail.php?mode=verify" method="post">
+          <div class="form-field">
+            <label for="username">Code</label>
+            <div class="input-wrapper">
+              <input id="username" name="code" type="text" placeholder="12345" required />
+            </div>
+          </div>
+
+
+          <div class="actions">
+            <button class="btn-primary" type="submit">Verify</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
+
+
