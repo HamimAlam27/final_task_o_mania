@@ -2,7 +2,6 @@
 session_start();
 require 'src/config/db.php';
 
-// Validate user session
 if (!isset($_SESSION['user_id'])) {
   header('Location: sign-in.php');
   exit;
@@ -10,31 +9,27 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Validate household session
 if (!isset($_SESSION['household_id'])) {
   header('Location: households.php');
   exit;
 }
 $household_id = $_SESSION['household_id'];
 
-// Fetch rewards belonging to this household
 $stmt = $conn->prepare("
-        SELECT ID_REWARD, REWARD_NAME, REWARD_DESCRIPTION, POINTS_TO_DISCOUNT AS REWARD_POINTS
-        FROM REWARDS_CATALOGUE
-        WHERE ID_HOUSEHOLD = ?
-        ORDER BY ID_REWARD DESC
-    ");
+    SELECT ID_REWARD, REWARD_NAME, REWARD_DESCRIPTION, POINTS_TO_DISCOUNT AS REWARD_POINTS, ID_USER
+    FROM REWARDS_CATALOGUE
+    WHERE ID_HOUSEHOLD = ?
+    ORDER BY ID_REWARD DESC
+");
 $stmt->bind_param("i", $household_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Total rewards in this household
 $stmt_total = $conn->prepare("SELECT COUNT(*) AS total FROM REWARDS_CATALOGUE WHERE ID_HOUSEHOLD = ?");
 $stmt_total->bind_param("i", $household_id);
 $stmt_total->execute();
 $total = $stmt_total->get_result()->fetch_assoc()['total'];
 
-// Available rewards in this household
 $stmt_available = $conn->prepare("SELECT COUNT(*) AS available FROM REWARDS_CATALOGUE WHERE ID_HOUSEHOLD = ? AND IS_ACTIVE = 1");
 $stmt_available->bind_param("i", $household_id);
 $stmt_available->execute();
@@ -53,6 +48,62 @@ $available = $stmt_available->get_result()->fetch_assoc()['available'];
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style_reward_store.css" />
   <link rel="stylesheet" href="style_user_chrome.css" />
+  <style>
+    .creator-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .btn-edit {
+        background: #4f46e5;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.2s;
+        flex: 1;
+    }
+
+    .btn-edit:hover {
+        background: #4338ca;
+    }
+
+    .btn-delete {
+        background: #dc2626;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.2s;
+        flex: 1;
+    }
+
+    .btn-delete:hover {
+        background: #b91c1c;
+    }
+
+    .btn-redeem {
+        background: #10b981;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.2s;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .btn-redeem:hover {
+        background: #059669;
+    }
+  </style>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -75,7 +126,6 @@ $available = $stmt_available->get_result()->fetch_assoc()['available'];
           <h1>Reward Store</h1>
         </div>
         <?php include 'header.php'; ?>
-
       </header>
 
       <main class="page" role="main">
@@ -83,7 +133,6 @@ $available = $stmt_available->get_result()->fetch_assoc()['available'];
           <span><a href="create-reward.html" style="text-decoration: none; color:white;">Add New Reward</a></span>
           <small></small>
         </div>
-
 
         <section class="stats">
           <article class="stat-card">
@@ -97,31 +146,41 @@ $available = $stmt_available->get_result()->fetch_assoc()['available'];
         </section>
 
         <section class="reward-grid" aria-label="Available rewards">
-          <?php
-
-          if ($result->num_rows === 0): ?>
+          <?php if ($result->num_rows === 0): ?>
             <p>No rewards available yet.</p>
-            <?php else:
-            while ($row = $result->fetch_assoc()): ?>
+          <?php else:
+            while ($row = $result->fetch_assoc()): 
+              $is_creator = ($row['ID_USER'] == $user_id); ?>
               <article class="reward-card">
                 <h2><?= htmlspecialchars($row['REWARD_NAME']) ?></h2>
                 <p><?= htmlspecialchars($row['REWARD_DESCRIPTION']) ?></p>
                 <p class="points"><?= htmlspecialchars($row['REWARD_POINTS']) ?> Points</p>
-                <button type="button" class="redeem-btn"><a href="reward.html">redeem</a></button>
-                <!-- Redeem Button Form -->
-                <form action="redeem_reward.php" method="POST">
-                  <input type="hidden" name="reward_id" value="<?= $row['ID_REWARD'] ?>">
-                  <button type="submit" class="redeem-btn">Redeem Now</button>
-                </form>
+                
+                <?php if ($is_creator): ?>
+                  <div class="creator-actions">
+
+                    <form action="api/reward/edit_reward.php" method="POST">
+                      <input type="hidden" name="reward_id" value="<?= $row['ID_REWARD'] ?>">
+                    <button type="submit" class="btn-edit">Edit</button>
+                    </form>
+
+                    <form action="api/reward/edit_reward.php" method="POST">
+                      <input type="hidden" name="reward_id" value="<?= $row['ID_REWARD'] ?>">
+                      <button type="submit" class="btn-delete">Delete</button>
+                    </form>
+                  </div>
+                <?php else: ?>
+                  <form action="redeem_reward.php" method="POST">
+                    <input type="hidden" name="reward_id" value="<?= $row['ID_REWARD'] ?>">
+                    <button type="submit" class="btn-redeem">Redeem Now</button>
+                  </form>
+                <?php endif; ?>
               </article>
           <?php endwhile;
           endif;
-
           $stmt->close();
           ?>
         </section>
-
-
       </main>
 
       <div class="reward-modal" role="alertdialog" aria-modal="true" aria-hidden="true">
@@ -136,11 +195,9 @@ $available = $stmt_available->get_result()->fetch_assoc()['available'];
 
   <script>
     (function() {
-      const buttons = document.querySelectorAll('.redeem-btn');
+      const buttons = document.querySelectorAll('.btn-redeem');
       const modal = document.querySelector('.reward-modal');
       const closeBtn = document.querySelector('.reward-modal__close');
-      const newRewardForm = document.querySelector('.new-reward__form');
-      const rewardGrid = document.querySelector('.reward-grid');
 
       if (!buttons.length || !modal || !closeBtn) return;
 
@@ -166,3 +223,4 @@ $available = $stmt_available->get_result()->fetch_assoc()['available'];
 </body>
 
 </html>
+

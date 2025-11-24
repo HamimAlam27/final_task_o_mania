@@ -15,9 +15,9 @@ $reward_description = trim($_POST['reward_description'] ?? '');
 $reward_points = intval($_POST['reward_points'] ?? 0);
 
 // Validate inputs
-$reward_query = "INSERT INTO REWARDS_CATALOGUE (ID_HOUSEHOLD, REWARD_NAME, REWARD_DESCRIPTION, POINTS_TO_DISCOUNT, IS_ACTIVE) VALUES (?, ?, ?, ?, 1)";
+$reward_query = "INSERT INTO REWARDS_CATALOGUE (ID_USER, ID_HOUSEHOLD, REWARD_NAME, REWARD_DESCRIPTION, POINTS_TO_DISCOUNT, IS_ACTIVE) VALUES (?, ?, ?, ?, ?, 1)";
 $reward_stmt = $conn->prepare($reward_query);
-$reward_stmt->bind_param('isss', $household_id, $reward_name, $reward_description, $reward_points);
+$reward_stmt->bind_param('iisss',$user_id, $household_id, $reward_name, $reward_description, $reward_points);
 if ($reward_stmt->execute()) {
   $_SESSION['success'] = 'Reward created successfully';
     header('Location: ../../reward-store.php');
