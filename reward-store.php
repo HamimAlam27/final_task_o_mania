@@ -209,6 +209,7 @@ $available = $stmt_available->get_result()->fetch_assoc()['available'];
       buttons.forEach((button) => {
         button.addEventListener('click', (event) => {
           event.preventDefault();
+          window.location.href = "api/reward/get_reward.php?reward_id=" + button.previousElementSibling.value;
           showModal();
         });
       });

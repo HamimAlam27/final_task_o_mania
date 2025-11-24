@@ -11,6 +11,8 @@ if(!$name || !$email || !$password) {
     jsonResponse("error", "Missing fields");
 }
 
+$invite_link = bin2hex(random_bytes(16)); // simple unique token, can use more complex
+
 $hashed = password_hash($password, PASSWORD_BCRYPT);
 
 $stmt = $conn->prepare("INSERT INTO USER (USER_NAME, USER_EMAIL, USER_PASSWORD) VALUES (?, ?, ?)");
