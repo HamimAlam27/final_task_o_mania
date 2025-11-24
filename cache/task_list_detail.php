@@ -417,14 +417,14 @@ if (in_array($normalized_status, ['in_progress', 'pending'], true)) {
                     </label>
                   <?php else: ?>
                     <div class="worker-tag"><?php echo htmlspecialchars($worker['USER_NAME']); ?></div>
-                    <?php endif; ?>
-                    <?php endforeach; ?>
-                  </div>
+                  <?php endif; ?>
+                <?php endforeach; ?>
               </div>
-              <?php endif; ?>
-              <button type="submit" name="approve_task" class="btn btn-primary">Approve</button>
-              <button type="submit" name="reject_task" class="btn btn-secondary">Reject</button>
-            </form>
+            </div>
+          <?php endif; ?>
+                  <button type="submit" name="approve_task" class="btn btn-primary">Approve</button>
+                  <button type="submit" name="reject_task" class="btn btn-secondary">Reject</button>
+                </form>
               <?php else: ?>
                 <!-- Task creator view: Show delete button for non-pending tasks -->
                 <form method="POST" action="api/task/delete.php" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this task?');">
