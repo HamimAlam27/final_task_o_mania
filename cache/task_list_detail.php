@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           ");
 
           foreach ($selected_assignees as $assignee_id) {
-            $points_stmt->bind_param('iii', $share, $assignee_id, $household_id);
+            $points_stmt->bind_param('iii', $assignee_id, $household_id, $share);
             $points_stmt->execute();
           }
 
@@ -390,15 +390,7 @@ if (in_array($normalized_status, ['in_progress', 'pending'], true)) {
             </div>
           </div>
 
-          
-
-          <div class="task-detail__actions">
-            <a href="total_task_list_bt_columns.php" class="btn btn-secondary">← Back</a>
-
-            <?php if ($is_creator): ?>
-              <?php if ($normalized_status === 'pending'): ?>
-                <form method="POST" action="task_list_detail.php?task_id=<?php echo intval($task_id); ?>" style="display: flex; gap: 8px;">
-                  <?php if (in_array($normalized_status, ['in_progress', 'pending'], true) && !empty($workers)): ?>
+          <?php if (in_array($normalized_status, ['in_progress', 'pending'], true) && !empty($workers)): ?>
             <div class="task-detail__section">
               <div class="task-detail__label">
                 <?php echo $normalized_status === 'pending' ? 'Submitted by' : 'People working on this'; ?>
@@ -422,6 +414,13 @@ if (in_array($normalized_status, ['in_progress', 'pending'], true)) {
               </div>
             </div>
           <?php endif; ?>
+
+          <div class="task-detail__actions">
+            <a href="total_task_list_bt_columns.php" class="btn btn-secondary">← Back</a>
+
+            <?php if ($is_creator): ?>
+              <?php if ($normalized_status === 'pending'): ?>
+                <form method="POST" action="task_list_detail.php?task_id=<?php echo intval($task_id); ?>" style="display: flex; gap: 8px;">
                   <button type="submit" name="approve_task" class="btn btn-primary">Approve</button>
                   <button type="submit" name="reject_task" class="btn btn-secondary">Reject</button>
                 </form>
