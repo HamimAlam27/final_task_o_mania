@@ -1,3 +1,54 @@
+<?php
+session_start();
+require 'src/config/db.php';
+
+// Validate user session
+if (!isset($_SESSION['user_id'])) {
+  header('Location: sign-in.php');
+  exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$household_id = $_SESSION['household_id'] ?? null;
+if (!$household_id) {
+  header('Location: households.php');
+  exit;
+}
+
+// Get completed tasks and points for this week/month
+$week_start = date('Y-m-d', strtotime('monday this week'));
+$month_start = date('Y-m-01');
+
+// Weekly completions
+$stmt = $conn->prepare("SELECT COUNT(*) AS completed, COALESCE(SUM(POINTS),0) AS points FROM COMPLETION c JOIN TASK t ON t.ID_TASK = c.ID_TASK WHERE c.STATUS='approved' AND c.SUBMITTED_BY=? AND t.ID_HOUSEHOLD=? AND c.SUBMITTED_AT >= ?");
+$stmt->bind_param('iis', $user_id, $household_id, $week_start);
+$stmt->execute();
+$stmt->bind_result($tasks_week, $points_week);
+$stmt->fetch();
+$stmt->close();
+
+// Monthly completions (for chart)
+$stmt = $conn->prepare("SELECT DAY(c.SUBMITTED_AT) AS day, COUNT(*) AS completed FROM COMPLETION c JOIN TASK t ON t.ID_TASK = c.ID_TASK WHERE c.STATUS='approved' AND c.SUBMITTED_BY=? AND t.ID_HOUSEHOLD=? AND c.SUBMITTED_AT >= ? GROUP BY day ORDER BY day ASC");
+$stmt->bind_param('iis', $user_id, $household_id, $month_start);
+$stmt->execute();
+$chart_days = [];
+$chart_counts = [];
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+  $chart_days[] = $row['day'];
+  $chart_counts[] = $row['completed'];
+}
+$stmt->close();
+
+// Inactivity warnings (tasks not completed in last 7 days)
+$stmt = $conn->prepare("SELECT COUNT(*) FROM TASK t LEFT JOIN COMPLETION c ON c.ID_TASK = t.ID_TASK AND c.SUBMITTED_BY=? AND c.STATUS='approved' WHERE t.ID_HOUSEHOLD=? AND (c.SUBMITTED_AT IS NULL OR c.SUBMITTED_AT < ?)");
+$seven_days_ago = date('Y-m-d', strtotime('-7 days'));
+$stmt->bind_param('iis', $user_id, $household_id, $seven_days_ago);
+$stmt->execute();
+$stmt->bind_result($inactivity_warnings);
+$stmt->fetch();
+$stmt->close();
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -50,53 +101,68 @@
           <section class="metrics">
             <article class="metric-card">
               <p class="metric-card__label">Tasks completed this week</p>
-              <div class="metric-card__value">5</div>
+              <div class="metric-card__value"><?php echo $tasks_week; ?></div>
             </article>
 
             <article class="metric-card metric-card--accent">
-              <p class="metric-card__label">200 accumulated points this week!</p>
-              <div class="metric-card__value">200</div>
-            </article>
-
-            <article class="metric-card">
-              <p class="metric-card__label">Tasks completed this week</p>
-              <div class="metric-card__value">5</div>
+              <p class="metric-card__label">Accumulated points this week!</p>
+              <div class="metric-card__value"><?php echo $points_week; ?></div>
             </article>
           </section>
 
-          <p class="warnings">Inactivity warnings this week: <strong>0</strong></p>
+          <p class="warnings">Inactivity warnings this week: <strong><?php echo $inactivity_warnings; ?></strong></p>
 
           <section class="chart-panel" aria-labelledby="chart-title">
             <div class="chart-panel__header">
-              <h2 id="chart-title">Task Done</h2>
+              <h2 id="chart-title">Tasks Completed (Monthly)</h2>
               <nav aria-label="Chart intervals">
                 <ul>
-                  <li><a href="#">Daily</a></li>
-                  <li><a href="#">Weekly</a></li>
-                  <li><a class="active" href="#">Monthly</a></li>
+                  <li><a href="#" onclick="setChart('daily')">Daily</a></li>
+                  <li><a href="#" onclick="setChart('weekly')">Weekly</a></li>
+                  <li><a class="active" href="#" onclick="setChart('monthly')">Monthly</a></li>
                 </ul>
-              </nav></div>
-
+              </nav>
+            </div>
             <figure class="chart">
-              <svg viewBox="0 0 600 220" role="img" aria-label="Monthly task completion trend">
-                <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="rgba(125, 117, 255, 0.28)" />
-                  <stop offset="90%" stop-color="rgba(125, 117, 255, 0.02)" />
-                </linearGradient>
-                <path d="M10 180 C60 140, 110 160, 160 120 C210 80, 260 60, 310 100 C360 140, 410 90, 460 70 C510 50, 560 80, 590 120 L590 210 L10 210 Z" fill="url(#area)" />
-                <path d="M10 180 C60 140, 110 160, 160 120 C210 80, 260 60, 310 100 C360 140, 410 90, 460 70 C510 50, 560 80, 590 120" stroke="#6b63ff" stroke-width="6" fill="none" stroke-linecap="round" />
-                <path d="M10 200 C60 160, 110 140, 160 150 C210 160, 260 120, 310 160 C360 200, 410 160, 460 150 C510 140, 560 180, 590 190" stroke="#5fb3ff" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="10 12" />
-                <g fill="#fff" stroke="#6b63ff" stroke-width="4">
-                  <circle cx="60" cy="150" r="7" />
-                  <circle cx="160" cy="120" r="7" />
-                  <circle cx="260" cy="65" r="7" />
-                  <circle cx="360" cy="135" r="7" />
-                  <circle cx="460" cy="78" r="7" />
-                  <circle cx="560" cy="88" r="7" />
-                </g>
-              </svg>
+              <canvas id="activityChart" width="600" height="220"></canvas>
             </figure>
           </section>
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          <script>
+            const chartDays = <?php echo json_encode($chart_days); ?>;
+            const chartCounts = <?php echo json_encode($chart_counts); ?>;
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            const activityChart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                labels: chartDays,
+                datasets: [{
+                  label: 'Tasks Completed',
+                  data: chartCounts,
+                  backgroundColor: 'rgba(125, 117, 255, 0.28)',
+                  borderColor: '#6b63ff',
+                  borderWidth: 4,
+                  pointBackgroundColor: '#fff',
+                  pointBorderColor: '#6b63ff',
+                  pointRadius: 6,
+                  fill: true,
+                  tension: 0.4
+                }]
+              },
+              options: {
+                responsive: true,
+                plugins: {
+                  legend: { display: false },
+                  title: { display: false }
+                },
+                scales: {
+                  x: { title: { display: true, text: 'Day of Month' } },
+                  y: { title: { display: true, text: 'Tasks Completed' }, beginAtZero: true }
+                }
+              }
+            });
+            // You can add setChart() for interval switching if you add more data
+          </script>
 
           <section class="activity-scroll" role="list">
             <article class="activity-card" role="listitem">

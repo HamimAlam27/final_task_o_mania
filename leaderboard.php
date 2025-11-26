@@ -1,3 +1,42 @@
+<?php
+session_start();
+require 'src/config/db.php';
+
+// Validate user session
+if (!isset($_SESSION['user_id'])) {
+    header('Location: sign-in.php');
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$household_id = $_SESSION['household_id'] ?? null;
+
+// If no household selected, redirect to households page
+if (!$household_id) {
+    header('Location: households.php');
+    exit;
+}
+
+
+
+// Leaderboard: get points from POINTS table (not computed from COMPLETION)
+$stmt = $conn->prepare(
+    "SELECT u.ID_USER, u.USER_NAME, u.AVATAR, COALESCE(p.TOTAL_POINTS,0) AS TOTAL_POINTS
+     FROM USER u
+     JOIN HOUSEHOLD_MEMBER hm ON u.ID_USER = hm.ID_USER AND hm.ID_HOUSEHOLD = ?
+     LEFT JOIN POINTS p ON p.ID_USER = u.ID_USER AND p.ID_HOUSEHOLD = ?
+     ORDER BY TOTAL_POINTS DESC, u.USER_NAME ASC"
+);
+$stmt->bind_param('ii', $household_id, $household_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$members = [];
+while ($row = $result->fetch_assoc()) {
+    $members[] = $row;
+}
+$stmt->close();
+
+?>
 <!doctype html>
 <html lang="en">
 
@@ -37,63 +76,62 @@
 
             <main class="page" role="main">
                 <section class="podium" aria-label="All-time podium">
-                    <article class="podium-card podium-card--second">
-                        <img src="IMAGES/avatar.png" alt="Livia Vaccaro" />
-                        <h2>Livia Vaccaro</h2>
-                        <p>1.8k</p>
-                        <span class="rank">#2</span>
-                    </article>
-
-                    <article class="podium-card podium-card--first">
-                        <img src="IMAGES/avatar.png" alt="Livia Vaccaro" />
-                        <h2>Livia Vaccaro</h2>
-                        <p>2.5k points!</p>
-                        <span class="rank">#1</span>
-                    </article>
-
-                    <article class="podium-card podium-card--third">
-                        <img src="IMAGES/avatar.png" alt="Livia Vaccaro" />
-                        <h2>Livia Vaccaro</h2>
-                        <p>1.4k</p>
-                        <span class="rank">#3</span>
-                    </article>
+                    <?php
+                    $top = array_slice($members, 0, 3);
+                    // Uniform cards, all same style and level
+                    for ($i = 0; $i < 3; $i++) {
+                        $slot = $top[$i] ?? null;
+                        $rank = $i + 1;
+                        if ($slot) {
+                            $name = htmlspecialchars($slot['USER_NAME']);
+                            $points = htmlspecialchars($slot['TOTAL_POINTS']);
+                            $avatar = $slot['AVATAR'];
+                        } else {
+                            $name = '—';
+                            $points = '0';
+                            $avatar = null;
+                        }
+                        echo "<article class=\"podium-card\">";
+                        if (!empty($avatar)) {
+                            $b64 = base64_encode($avatar);
+                            echo "<img src=\"data:image/png;base64,$b64\" alt=\"$name\" />";
+                        } else {
+                            echo "<img src=\"IMAGES/avatar.png\" alt=\"$name\" />";
+                        }
+                        echo "<h2>$name</h2>";
+                        echo "<p>{$points} pts</p>";
+                        echo "<span class=\"rank\">#$rank</span>";
+                        echo "</article>";
+                    }
+                    ?>
                 </section>
 
                 <section class="board" aria-label="This week standings">
-
                     <ol>
-                        <li>
-                            <span class="position">1</span>
-                            <span class="member">
-                                <img src="IMAGES/avatar.png" alt="Livia Vaccaro" />
-                                Livia Vaccaro
-                            </span>
-                            <span class="points">50 pts</span>
-                        </li>
-                        <li>
-                            <span class="position">2</span>
-                            <span class="member">
-                                <img src="IMAGES/avatar.png" alt="Livia Vaccaro" />
-                                Livia Vaccaro
-                            </span>
-                            <span class="points">45 pts</span>
-                        </li>
-                        <li>
-                            <span class="position">3</span>
-                            <span class="member">
-                                <img src="IMAGES/avatar.png" alt="Livia Vaccaro" />
-                                Livia Vaccaro
-                            </span>
-                            <span class="points">30 pts</span>
-                        </li>
-                        <li>
-                            <span class="position">4</span>
-                            <span class="member">
-                                <img src="IMAGES/avatar.png" alt="Livia Vaccaro" />
-                                Livia Vaccaro
-                            </span>
-                            <span class="points">10 pts</span>
-                        </li>
+                        <?php
+                        $pos = 1;
+                        foreach ($members as $m) {
+                            $name = htmlspecialchars($m['USER_NAME']);
+                            $points = htmlspecialchars($m['TOTAL_POINTS']);
+                            $avatar = $m['AVATAR'];
+                            echo '<li>';
+                            echo '<span class="position">' . $pos . '</span>';
+                            echo '<span class="member">';
+                            if (!empty($avatar)) {
+                                $b64 = base64_encode($avatar);
+                                echo '<img src="data:image/png;base64,' . $b64 . '" alt="' . $name . '" /> ' . $name;
+                            } else {
+                                echo '<img src="IMAGES/avatar.png" alt="' . $name . '" /> ' . $name;
+                            }
+                            echo '</span>';
+                            echo '<span class="points">' . $points . ' pts</span>';
+                            echo '</li>';
+                            $pos++;
+                        }
+                        if (count($members) === 0) {
+                            echo '<li>No members found.</li>';
+                        }
+                        ?>
                     </ol>
                 </section>
             </main>

@@ -59,7 +59,6 @@ $completion_check = $conn->prepare("
   FROM COMPLETION 
   WHERE ID_TASK = ? 
     AND SUBMITTED_BY = ? 
-    AND STATUS = 'approved'
   LIMIT 1
 ");
 
