@@ -112,17 +112,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($share > 0) {
           $points_stmt = $conn->prepare("
-                UPDATE POINTS 
-    SET TOTAL_POINTS = TOTAL_POINTS + ? 
-    WHERE ID_USER = ? AND ID_HOUSEHOLD = ?
+            UPDATE POINTS 
+            SET TOTAL_POINTS = TOTAL_POINTS + ? 
+            WHERE ID_USER = ? AND ID_HOUSEHOLD = ?
           ");
-
+          $completion_stmt = $conn->prepare("
+            INSERT INTO COMPLETION (ID_TASK, SUBMITTED_BY, APPROVED_BY, ID_HOUSEHOLD, STATUS, POINTS, SUBMITTED_AT)
+            VALUES (?, ?, ?, ?, 'approved', ?, NOW())
+          ");
           foreach ($selected_assignees as $assignee_id) {
             $points_stmt->bind_param('iii', $share, $assignee_id, $household_id );
             $points_stmt->execute();
-          }
 
+            $completion_stmt->bind_param('iiiii', $task_id, $assignee_id, $user_id, $household_id, $share);
+            $completion_stmt->execute();
+          }
           $points_stmt->close();
+          $completion_stmt->close();
         }
       }
     }

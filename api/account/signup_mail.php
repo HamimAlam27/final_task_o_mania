@@ -34,12 +34,6 @@ if ($mode === "new") {
         jsonResponse("error", "Missing fields");
     }
 
-
-
-
-
-
-
     try {
         // SERVER SETTINGS
         $mail->isSMTP();

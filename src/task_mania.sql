@@ -1,3 +1,4 @@
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
@@ -8,56 +9,71 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 
+DROP TABLE IF EXISTS `COMPLETION`;
 CREATE TABLE `COMPLETION` (
   `ID_COMPLETION` int(11) NOT NULL,
   `ID_TASK` int(11) NOT NULL,
+  `ID_HOUSEHOLD` int(11) NOT NULL,
   `SUBMITTED_BY` int(11) NOT NULL,
   `APPROVED_BY` int(11) DEFAULT NULL,
-  `STATUS` enum('pending','approved','rejected') DEFAULT 'pending',
   `POINTS` int(11) NOT NULL,
-  `AI_CONFIDENCE` int(11) DEFAULT NULL,
-  `SUBMITTED_AT` datetime DEFAULT current_timestamp()
+  `COMPLETED_AT` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+DROP TABLE IF EXISTS `HOUSEHOLD`;
 CREATE TABLE `HOUSEHOLD` (
   `ID_HOUSEHOLD` int(11) NOT NULL,
   `HOUSEHOLD_NAME` varchar(255) NOT NULL,
   `INVITE_LINK` varchar(1000) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `HOUSEHOLD` (`ID_HOUSEHOLD`, `HOUSEHOLD_NAME`, `INVITE_LINK`) VALUES
-(4, 'user1 household', 'b9591528b78b3e0192144ad38c414c1c'),
-(5, 'user1 household', 'f3ec9f48e09adbc6c724bfe74afbc004'),
-(6, 'household 1', '3667034d261e2d0d370b9ae69e901a88'),
-(7, 'household 2', '9302aea6e3b00a9d9158d4338eae0067'),
-(8, 'house 3', 'b73411c4ba8010448e5b915882767c7a'),
-(9, 'house 5', '62cc9496323c8b51d88d44c7d6ddb7a6'),
-(10, 'user10', 'a16de808724f9dfddf6388e7a9070512'),
-(11, 'user10', '24c143ff41ac577e87ef97e77965a5ff'),
-(12, 'house100', 'd762f0ad826c4dd1bae4089edcfde96a'),
-(13, 'house200', '22f9aceeb18484317352dfb73fb1c8bf'),
-(14, 'house of user2', 'b9b621ab175fa9b0fda528e9e2ad692d');
 
+DROP TABLE IF EXISTS `HOUSEHOLD_MEMBER`;
 CREATE TABLE `HOUSEHOLD_MEMBER` (
   `ID_USER` int(11) NOT NULL,
   `ID_HOUSEHOLD` int(11) NOT NULL,
   `ROLE` enum('admin','member') NOT NULL DEFAULT 'member'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `HOUSEHOLD_MEMBER` (`ID_USER`, `ID_HOUSEHOLD`, `ROLE`) VALUES
-(9, 4, 'admin'),
-(9, 5, 'admin'),
-(9, 6, 'admin'),
-(9, 7, 'admin'),
-(9, 8, 'admin'),
-(9, 9, 'admin'),
-(9, 10, 'admin'),
-(9, 11, 'admin'),
-(9, 12, 'admin'),
-(9, 13, 'admin'),
-(10, 12, 'member'),
-(10, 14, 'admin');
 
+-- Trigger: Create points record when a user joins a household
+DROP TRIGGER IF EXISTS `tr_create_points_on_household_join`;
+DELIMITER $$
+CREATE TRIGGER `tr_create_points_on_household_join` AFTER INSERT ON `HOUSEHOLD_MEMBER` FOR EACH ROW BEGIN
+  INSERT INTO `POINTS` (`ID_USER`, `ID_HOUSEHOLD`, `TOTAL_POINTS`)
+  VALUES (NEW.`ID_USER`, NEW.`ID_HOUSEHOLD`, 0)
+  ON DUPLICATE KEY UPDATE `TOTAL_POINTS` = `TOTAL_POINTS`;
+END
+$$
+DELIMITER ;
+
+
+-- Trigger: Notify user when their task is approved (COMPLETION insert)
+DROP TRIGGER IF EXISTS `tr_notify_task_approved`;
+DELIMITER $$
+CREATE TRIGGER `tr_notify_task_approved` AFTER INSERT ON `COMPLETION` FOR EACH ROW
+BEGIN
+  INSERT INTO `NOTIFICATION` (
+    `ID_USER`,
+    `NOTIFICATION_TITLE`,
+    `NOTIFICATION_MESSAGE`,
+    `IS_READ`,
+    `NOTIFICATION_CREATED`,
+    `NOTIFICATION_TYPE`,
+    `REFERENCE_ID`
+  ) VALUES (
+    NEW.`SUBMITTED_BY`,
+    'Task Approved',
+    CONCAT('Your task (ID: ', NEW.`ID_TASK`, ') has been approved.'),
+    0,
+    NOW(),
+    'completion',
+    NEW.`ID_COMPLETION`
+  );
+END$$
+DELIMITER ;
+
+DROP TABLE IF EXISTS `INVITATION`;
 CREATE TABLE `INVITATION` (
   `ID_INVITATION` int(11) NOT NULL,
   `ID_HOUSEHOLD` int(11) NOT NULL,
@@ -66,12 +82,8 @@ CREATE TABLE `INVITATION` (
   `STATUS` varchar(20) DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `INVITATION` (`ID_INVITATION`, `ID_HOUSEHOLD`, `INVITED_EMAIL`, `INVITED_BY`, `STATUS`) VALUES
-(8, 12, 'user2@gmail.com', 9, 'accepted'),
-(9, 13, 'user2@gmail.com', 9, 'rejected'),
-(10, 13, 'user3@gmail.com', 9, 'pending'),
-(11, 14, 'user1@gmail.com', 10, 'rejected');
 
+DROP TABLE IF EXISTS `NOTIFICATION`;
 CREATE TABLE `NOTIFICATION` (
   `ID_NOTIFICATION` int(11) NOT NULL,
   `ID_USER` int(11) NOT NULL,
@@ -83,18 +95,16 @@ CREATE TABLE `NOTIFICATION` (
   `REFERENCE_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `NOTIFICATION` (`ID_NOTIFICATION`, `ID_USER`, `NOTIFICATION_TITLE`, `NOTIFICATION_MESSAGE`, `IS_READ`, `NOTIFICATION_CREATED`, `NOTIFICATION_TYPE`, `REFERENCE_ID`) VALUES
-(3, 10, 'Household Invitation', 'You have been invited to join a household.', 1, '2025-11-20 21:44:32', 'invitation', 8),
-(4, 10, 'Household Invitation', 'You have been invited to join a household.', 1, '2025-11-20 21:58:00', 'invitation', 9),
-(5, 11, 'Household Invitation', 'You have been invited to join a household.', 0, '2025-11-20 21:58:00', 'invitation', 10),
-(6, 9, 'Household Invitation', 'You have been invited to join a household.', 0, '2025-11-20 23:00:04', 'invitation', 11);
 
+DROP TABLE IF EXISTS `POINTS`;
 CREATE TABLE `POINTS` (
   `ID_USER` int(11) NOT NULL,
   `ID_HOUSEHOLD` int(11) NOT NULL,
   `TOTAL_POINTS` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
+DROP TABLE IF EXISTS `PROGRESS`;
 CREATE TABLE `PROGRESS` (
   `ID_PROGRESS` int(11) NOT NULL,
   `ID_TASK` int(11) NOT NULL,
@@ -102,6 +112,8 @@ CREATE TABLE `PROGRESS` (
   `JOINED_AT` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
+DROP TABLE IF EXISTS `REWARDS_CATALOGUE`;
 CREATE TABLE `REWARDS_CATALOGUE` (
   `ID_REWARD` int(11) NOT NULL,
   `ID_HOUSEHOLD` int(11) NOT NULL,
@@ -113,6 +125,8 @@ CREATE TABLE `REWARDS_CATALOGUE` (
   `IS_ACTIVE` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
+DROP TABLE IF EXISTS `TASK`;
 CREATE TABLE `TASK` (
   `ID_TASK` int(11) NOT NULL,
   `ID_HOUSEHOLD` int(11) NOT NULL,
@@ -120,11 +134,43 @@ CREATE TABLE `TASK` (
   `TASK_NAME` varchar(255) NOT NULL,
   `TASK_DESCRIPTION` text DEFAULT NULL,
   `TASK_POINT` int(11) NOT NULL,
-  `TASK_IMAGE` longblob DEFAULT NULL,
+  `IMAGE_BEFORE` varchar(1000) DEFAULT NULL,
+  `IMAGE_AFTER` varchar(1000) DEFAULT NULL,
   `TASK_CREATED` datetime DEFAULT current_timestamp(),
-  `TASK_STATUS` varchar(100) NOT NULL
+  `TASK_STATUS` varchar(100) NOT NULL,
+  `AI_VALIDATION` tinyint(1) NULL DEFAULT 0
+
+
+-- Trigger: Notify creator when a task with AI_VALIDATION=1 changes to 'pending'
+DROP TRIGGER IF EXISTS `tr_notify_ai_pending_task`;
+DELIMITER $$
+CREATE TRIGGER `tr_notify_ai_pending_task` AFTER UPDATE ON `TASK` FOR EACH ROW
+BEGIN
+  IF NEW.`TASK_STATUS` = 'pending' AND NEW.`AI_VALIDATION` = 0 AND OLD.`TASK_STATUS` <> 'pending' THEN
+    INSERT INTO `NOTIFICATION` (
+      `ID_USER`,
+      `NOTIFICATION_TITLE`,
+      `NOTIFICATION_MESSAGE`,
+      `IS_READ`,
+      `NOTIFICATION_CREATED`,
+      `NOTIFICATION_TYPE`,
+      `REFERENCE_ID`
+    ) VALUES (
+      NEW.`ID_USER`,
+      'Task Pending Approval',
+      CONCAT('Your task "', NEW.`TASK_NAME`, '" is pending AI approval.'),
+      0,
+      NOW(),
+      'ai_validation',
+      NEW.`ID_TASK`
+    );
+  END IF;
+END$$
+DELIMITER ;
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
+DROP TABLE IF EXISTS `USER`;
 CREATE TABLE `USER` (
   `ID_USER` int(11) NOT NULL,
   `USER_NAME` varchar(255) NOT NULL,
@@ -133,17 +179,11 @@ CREATE TABLE `USER` (
   `AVATAR` longblob DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `USER` (`ID_USER`, `USER_NAME`, `USER_EMAIL`, `USER_PASSWORD`, `AVATAR`) VALUES
-(9, 'user1', 'user1@gmail.com', '$2y$10$YHJh0eEw5rJCNFfe7/APxeTPOLFmCv0g1DZgCAa1.5zJIBFen01yy', NULL),
-(10, 'user2', 'user2@gmail.com', '$2y$10$G.TfPLO/k9aQErJ3g9ti6.A3SNGvASl7v7eveAGD63dhHG4ilyS5W', NULL),
-(11, 'user3', 'user3@gmail.com', '$2y$10$HBLvBe5rpxutyCNJVWiZ1ug7Riy9ZEetCalNC9xyxoWKMJleSh/9i', NULL);
-
 
 ALTER TABLE `COMPLETION`
   ADD PRIMARY KEY (`ID_COMPLETION`),
   ADD KEY `ID_TASK` (`ID_TASK`),
-  ADD KEY `SUBMITTED_BY` (`SUBMITTED_BY`),
-  ADD KEY `APPROVED_BY` (`APPROVED_BY`);
+  ADD KEY `SUBMITTED_BY` (`SUBMITTED_BY`);
 
 ALTER TABLE `HOUSEHOLD`
   ADD PRIMARY KEY (`ID_HOUSEHOLD`);
@@ -191,25 +231,25 @@ ALTER TABLE `COMPLETION`
   MODIFY `ID_COMPLETION` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `HOUSEHOLD`
-  MODIFY `ID_HOUSEHOLD` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `ID_HOUSEHOLD` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 ALTER TABLE `INVITATION`
-  MODIFY `ID_INVITATION` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `ID_INVITATION` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 ALTER TABLE `NOTIFICATION`
-  MODIFY `ID_NOTIFICATION` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `ID_NOTIFICATION` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 ALTER TABLE `PROGRESS`
-  MODIFY `ID_PROGRESS` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ID_PROGRESS` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 ALTER TABLE `REWARDS_CATALOGUE`
-  MODIFY `ID_REWARD` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ID_REWARD` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 ALTER TABLE `TASK`
-  MODIFY `ID_TASK` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `ID_TASK` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 ALTER TABLE `USER`
-  MODIFY `ID_USER` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `ID_USER` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 
 ALTER TABLE `COMPLETION`
@@ -244,118 +284,6 @@ ALTER TABLE `REWARDS_CATALOGUE`
 ALTER TABLE `TASK`
   ADD CONSTRAINT `task_ibfk_1` FOREIGN KEY (`ID_HOUSEHOLD`) REFERENCES `HOUSEHOLD` (`ID_HOUSEHOLD`) ON DELETE CASCADE,
   ADD CONSTRAINT `task_ibfk_2` FOREIGN KEY (`ID_USER`) REFERENCES `USER` (`ID_USER`);
-
--- TRIGGERS
-
--- Trigger 1: Auto-create POINTS entry when user joins household via invitation acceptance
-DELIMITER $$
-CREATE TRIGGER `tr_create_points_on_household_join` AFTER INSERT ON `HOUSEHOLD_MEMBER`
-FOR EACH ROW
-BEGIN
-  INSERT INTO `POINTS` (`ID_USER`, `ID_HOUSEHOLD`, `TOTAL_POINTS`)
-  VALUES (NEW.`ID_USER`, NEW.`ID_HOUSEHOLD`, 0)
-  ON DUPLICATE KEY UPDATE `TOTAL_POINTS` = `TOTAL_POINTS`;
-END$$
-DELIMITER ;
-
--- Trigger 2: Auto-award points when COMPLETION status changes to 'approved'
-DELIMITER $$
-CREATE TRIGGER `tr_award_points_on_completion` AFTER UPDATE ON `COMPLETION`
-FOR EACH ROW
-BEGIN
-  IF NEW.`STATUS` = 'approved' AND OLD.`STATUS` != 'approved' THEN
-    UPDATE `POINTS`
-    SET `TOTAL_POINTS` = `TOTAL_POINTS` + NEW.`POINTS`
-    WHERE `ID_USER` = NEW.`SUBMITTED_BY`
-    AND `ID_HOUSEHOLD` = (SELECT `ID_HOUSEHOLD` FROM `TASK` WHERE `ID_TASK` = NEW.`ID_TASK`);
-  END IF;
-END$$
-DELIMITER ;
-
--- Trigger 3: Auto-create NOTIFICATION when COMPLETION is submitted (for task owner to review)
-DELIMITER $$
-CREATE TRIGGER `tr_notify_on_completion_submission` AFTER INSERT ON `COMPLETION`
-FOR EACH ROW
-BEGIN
-  DECLARE task_owner_id INT;
-  DECLARE task_household_id INT;
-  
-  SELECT `ID_USER`, `ID_HOUSEHOLD` INTO task_owner_id, task_household_id
-  FROM `TASK` WHERE `ID_TASK` = NEW.`ID_TASK`;
-  
-  IF task_owner_id IS NOT NULL THEN
-    INSERT INTO `NOTIFICATION` (`ID_USER`, `NOTIFICATION_TITLE`, `NOTIFICATION_MESSAGE`, `NOTIFICATION_TYPE`, `REFERENCE_ID`)
-    VALUES (task_owner_id, 'Task Submission Pending Review', 'A task completion is waiting for your approval.', 'completion', NEW.`ID_COMPLETION`);
-  END IF;
-END$$
-DELIMITER ;
-
--- Trigger 4: Auto-update task status when first user joins (todo -> in_progress)
-DELIMITER $$
-CREATE TRIGGER `tr_update_task_status_on_first_join` AFTER INSERT ON `PROGRESS`
-FOR EACH ROW
-BEGIN
-  DECLARE current_status VARCHAR(100);
-  DECLARE user_count INT;
-  
-  SELECT `TASK_STATUS` INTO current_status FROM `TASK` WHERE `ID_TASK` = NEW.`ID_TASK`;
-  
-  IF current_status = 'todo' THEN
-    UPDATE `TASK`
-    SET `TASK_STATUS` = 'in_progress'
-    WHERE `ID_TASK` = NEW.`ID_TASK`;
-  END IF;
-END$$
-DELIMITER ;
-
--- Trigger 5: Auto-create NOTIFICATION when user receives household invitation
-DELIMITER $$
-CREATE TRIGGER `tr_notify_on_household_invitation` AFTER INSERT ON `INVITATION`
-FOR EACH ROW
-BEGIN
-  DECLARE invited_user_id INT;
-  DECLARE household_name VARCHAR(255);
-  
-  SELECT `ID_USER` INTO invited_user_id FROM `USER` WHERE `USER_EMAIL` = NEW.`INVITED_EMAIL`;
-  SELECT `HOUSEHOLD_NAME` INTO household_name FROM `HOUSEHOLD` WHERE `ID_HOUSEHOLD` = NEW.`ID_HOUSEHOLD`;
-  
-  IF invited_user_id IS NOT NULL THEN
-    INSERT INTO `NOTIFICATION` (`ID_USER`, `NOTIFICATION_TITLE`, `NOTIFICATION_MESSAGE`, `NOTIFICATION_TYPE`, `REFERENCE_ID`)
-    VALUES (invited_user_id, 'Household Invitation', CONCAT('You have been invited to join ', household_name, '.'), 'invitation', NEW.`ID_INVITATION`);
-  END IF;
-END$$
-DELIMITER ;
-
--- Trigger 6: Prevent duplicate PROGRESS entries (user can't join same task twice)
-DELIMITER $$
-CREATE TRIGGER `tr_prevent_duplicate_progress` BEFORE INSERT ON `PROGRESS`
-FOR EACH ROW
-BEGIN
-  DECLARE count_existing INT;
-  
-  SELECT COUNT(*) INTO count_existing FROM `PROGRESS`
-  WHERE `ID_TASK` = NEW.`ID_TASK` AND `ID_USER` = NEW.`ID_USER`;
-  
-  IF count_existing > 0 THEN
-    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'User has already joined this task';
-  END IF;
-END$$
-DELIMITER ;
-
--- Trigger 7: Auto-deduct points when reward is redeemed
-DELIMITER $$
-CREATE TRIGGER `tr_deduct_points_on_reward_redeem` AFTER UPDATE ON `REWARDS_CATALOGUE`
-FOR EACH ROW
-BEGIN
-  IF NEW.`ID_USER` IS NOT NULL AND OLD.`ID_USER` IS NULL THEN
-    UPDATE `POINTS`
-    SET `TOTAL_POINTS` = `TOTAL_POINTS` - NEW.`POINTS_TO_DISCOUNT`
-    WHERE `ID_USER` = NEW.`ID_USER`
-    AND `ID_HOUSEHOLD` = NEW.`ID_HOUSEHOLD`;
-  END IF;
-END$$
-DELIMITER ;
-
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
