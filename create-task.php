@@ -22,8 +22,44 @@ $task_name = '';
 $task_points = '150';
 $task_description = '';
 $ai_validation = 0;
+$image_needed = 0;
 $success_message = '';
 $error_message = '';
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $task_name = $_POST['task_name'] ?? '';
+  $task_points = $_POST['task_points'] ?? '150';
+  $task_description = $_POST['task_description'] ?? '';
+  $ai_validation = isset($_POST['ai_validation']) ? 1 : 0;
+  $image_needed = isset($_POST['image_needed']) ? 1 : 0;
+  $image_before = null;
+  $task_status = 'todo';
+
+  // Handle image upload
+  if (isset($_FILES['task_photo']) && $_FILES['task_photo']['error'] === UPLOAD_ERR_OK) {
+    $upload_dir = 'images/tasks/';
+    if (!is_dir($upload_dir)) {
+      mkdir($upload_dir, 0777, true);
+    }
+    $ext = pathinfo($_FILES['task_photo']['name'], PATHINFO_EXTENSION);
+    $filename = uniqid('task_') . '.' . $ext;
+    $target = $upload_dir . $filename;
+    if (move_uploaded_file($_FILES['task_photo']['tmp_name'], $target)) {
+      $image_before = $filename;
+    }
+  }
+
+  // Insert into TASK table
+  $stmt = $conn->prepare("INSERT INTO TASK (ID_HOUSEHOLD, ID_USER, TASK_NAME, TASK_DESCRIPTION, TASK_POINT, IMAGE_NEEDED, AI_VALIDATION, IMAGE_BEFORE, TASK_STATUS) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+  $stmt->bind_param('iissiiiss', $household_id, $user_id, $task_name, $task_description, $task_points, $image_needed, $ai_validation, $image_before, $task_status);
+  if ($stmt->execute()) {
+    $success_message = 'Task created successfully!';
+  } else {
+    $error_message = 'Failed to create task.';
+  }
+  $stmt->close();
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -59,24 +95,23 @@ $error_message = '';
 
           <h1 class="page-title">Create Task</h1>
 
-          <div class="user-actions">
-            <a class="notification-button" data-tooltip="Notifications" href="notifications.php" aria-label="Go to notifications">
-              <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z" stroke-linecap="round" />
-                <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke-linecap="round" />
-              </svg>
-            </a>
-            <a class="avatar" data-tooltip="Profile" href="profile.php" aria-label="Your profile">
-              <img src="IMAGES/avatar.png" alt="User avatar" />
-            </a>
-          </div>
+          <?php include 'header.php'; ?>
         </header>
 
         <main class="page" role="main">
-          <div id="error-message" style="display:none; margin-bottom: 20px; padding: 15px; background-color: #fee; border: 1px solid #fcc; border-radius: 8px; color: #c00;"></div>
-          <div id="success-message" style="display:none; margin-top: 20px; padding: 15px; background-color: #efe; border: 1px solid #cfc; border-radius: 8px; color: #060; text-align: center;"></div>
+          <?php if (!empty($error_message)): ?>
+            <div id="error-message" style="margin-bottom: 20px; padding: 15px; background-color: #fee; border: 1px solid #fcc; border-radius: 8px; color: #c00;">
+              <?php echo htmlspecialchars($error_message); ?>
+            </div>
+          <?php endif; ?>
+          <?php if (!empty($success_message)): ?>
+            <div id="success-message" style="margin-top: 20px; padding: 15px; background-color: #efe; border: 1px solid #cfc; border-radius: 8px; color: #060; text-align: center;">
+              <?php echo htmlspecialchars($success_message); ?>
+              <br><a href="total_task_list_bt_columns.php" style="color: #060; text-decoration: underline;">View all tasks ➜</a>
+            </div>
+          <?php endif; ?>
 
-          <form class="form" id="task-form" enctype="multipart/form-data">
+          <form class="form" id="task-form" enctype="multipart/form-data" method="POST">
             <section class="form-section">
               <div class="form-section__header">
                 <h2>Task basics</h2>
@@ -122,14 +157,16 @@ $error_message = '';
             </section>
 
             <section class="form-section form-section--options">
-              <div class="form-section__header">
-                <h2>Validation</h2>
-                <p>Review how this task will be approved.</p>
-              </div>
+
               <label class="toggle">
                 <input type="checkbox" name="ai_validation" />
                 <span class="slider" aria-hidden="true"></span>
                 <span class="toggle__label">Apply the AI Validation</span>
+</label>
+<label class="toggle">
+                <input type="checkbox" name="image_needed" />
+                <span class="slider" aria-hidden="true"></span>
+                <span class="toggle__label">Image Needed</span>
               </label>
 
               <div class="actions">
@@ -143,50 +180,9 @@ $error_message = '';
 
     <script>
       (function () {
-        const form = document.getElementById('task-form');
-        const errorMsg = document.getElementById('error-message');
-        const successMsg = document.getElementById('success-message');
         const splitToggle = document.getElementById('split-points-toggle');
         const splitChoices = document.querySelectorAll('.split-list input[type="checkbox"]');
         const splitContainer = document.querySelector('.split-points');
-
-        if (!form) return;
-
-        // Handle form submission via API
-        form.addEventListener('submit', async function (event) {
-          event.preventDefault();
-          
-          // Reset messages
-          errorMsg.style.display = 'none';
-          successMsg.style.display = 'none';
-
-          try {
-            const formData = new FormData(form);
-            const response = await fetch('api/task/create.php', {
-              method: 'POST',
-              body: formData
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-              successMsg.innerHTML = `
-                <p>${data.message}</p>
-                <p><a href="total_task_list_bt_columns.php" style="color: #060; text-decoration: underline;">View all tasks ➜</a></p>
-              `;
-              successMsg.style.display = 'block';
-              form.reset();
-              syncSplitState();
-            } else {
-              errorMsg.textContent = data.message || 'Failed to create task';
-              errorMsg.style.display = 'block';
-            }
-          } catch (error) {
-            console.error('Error:', error);
-            errorMsg.textContent = 'An error occurred. Please try again.';
-            errorMsg.style.display = 'block';
-          }
-        });
 
         // Split points toggle functionality (kept for UI consistency)
         const syncSplitState = () => {

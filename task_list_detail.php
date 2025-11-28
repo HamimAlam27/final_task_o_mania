@@ -19,8 +19,9 @@ if (!$household_id || !$task_id) {
 }
 
 // Fetch task details
+
 $task_stmt = $conn->prepare("
-  SELECT ID_TASK, TASK_NAME, TASK_DESCRIPTION, TASK_POINT, TASK_IMAGE, TASK_STATUS, ID_USER, TASK_CREATED
+  SELECT ID_TASK, TASK_NAME, TASK_DESCRIPTION, AI_VALIDATION, IMAGE_NEEDED, TASK_POINT, IMAGE_BEFORE, IMAGE_AFTER, TASK_STATUS, ID_USER, TASK_CREATED
   FROM TASK 
   WHERE ID_TASK = ? AND ID_HOUSEHOLD = ?
 ");
@@ -29,6 +30,11 @@ $task_stmt->execute();
 $task_result = $task_stmt->get_result();
 $task = $task_result->fetch_assoc();
 $task_stmt->close();
+
+$image_needed = "";
+if ($task['IMAGE_NEEDED'] === 1) {
+  $image_needed = "required";
+}
 
 // If task not found, redirect
 if (!$task) {
@@ -61,8 +67,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       exit;
     }
 
+    $filename = null;
     if (!empty($_FILES['completion_image']['name']) && $_FILES['completion_image']['error'] === UPLOAD_ERR_OK) {
-      $uploadsDir = __DIR__ . '/uploads';
+      $uploadsDir = __DIR__ . '/images/tasks';
       if (!is_dir($uploadsDir)) {
         @mkdir($uploadsDir, 0775, true);
       }
@@ -76,18 +83,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $status = 'pending';
+    // Update TASK: set status and IMAGE_AFTER
     $update_stmt = $conn->prepare(" 
       UPDATE TASK
-      SET TASK_STATUS = ?
+      SET TASK_STATUS = ?, IMAGE_AFTER = ?
       WHERE ID_TASK = ? AND ID_HOUSEHOLD = ?
     ");
-    $update_stmt->bind_param('sii', $status, $task_id, $household_id);
+    $update_stmt->bind_param('ssii', $status, $filename, $task_id, $household_id);
     if ($update_stmt->execute()) {
       $_SESSION['success'] = 'Task submitted successfully and is pending approval.';
     } else {
       $_SESSION['error'] = 'Failed to submit the task.';
     }
-
     $update_stmt->close();
   }
 
@@ -97,6 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       header('Location: task_list_detail.php?task_id=' . $task_id);
       exit;
     }
+
 
     $new_status = isset($_POST['approve_task']) ? 'completed' : 'todo';
 
@@ -117,14 +125,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             WHERE ID_USER = ? AND ID_HOUSEHOLD = ?
           ");
           $completion_stmt = $conn->prepare("
-            INSERT INTO COMPLETION (ID_TASK, SUBMITTED_BY, APPROVED_BY, ID_HOUSEHOLD, STATUS, POINTS, SUBMITTED_AT)
-            VALUES (?, ?, ?, ?, 'approved', ?, NOW())
+            INSERT INTO COMPLETION (ID_TASK, ID_HOUSEHOLD, SUBMITTED_BY, APPROVED_BY, POINTS, COMPLETED_AT)
+            VALUES (?, ?, ?, ?, ?, NOW())
           ");
           foreach ($selected_assignees as $assignee_id) {
-            $points_stmt->bind_param('iii', $share, $assignee_id, $household_id );
+            $points_stmt->bind_param('iii', $share, $assignee_id, $household_id);
             $points_stmt->execute();
 
-            $completion_stmt->bind_param('iiiii', $task_id, $assignee_id, $user_id, $household_id, $share);
+            $completion_stmt->bind_param('iiiii', $task_id, $household_id, $assignee_id, $user_id, $share);
             $completion_stmt->execute();
           }
           $points_stmt->close();
@@ -383,9 +391,14 @@ if (in_array($normalized_status, ['in_progress', 'pending'], true)) {
             </div>
           </div>
 
-          <?php if ($task['TASK_IMAGE']): ?>
+          <?php if (!empty($task['IMAGE_BEFORE'])): ?>
             <div class="task-detail__section">
-              <img src="data:image/jpeg;base64,<?php echo base64_encode($task['TASK_IMAGE']); ?>" alt="Task image" class="task-detail__image" />
+              <img src="images/tasks/<?php echo htmlspecialchars($task['IMAGE_BEFORE']); ?>" alt="Task image before" class="task-detail__image" />
+            </div>
+          <?php endif; ?>
+          <?php if (!empty($task['IMAGE_AFTER'])): ?>
+            <div class="task-detail__section">
+              <img src="images/tasks/<?php echo htmlspecialchars($task['IMAGE_AFTER']); ?>" alt="Task image after" class="task-detail__image" />
             </div>
           <?php endif; ?>
 
@@ -403,23 +416,23 @@ if (in_array($normalized_status, ['in_progress', 'pending'], true)) {
               </div>
               <form method="POST" action="task_list_detail.php?task_id=<?php echo intval($task_id); ?>" style="display: flex; gap: 8px;">
 
-              <div class="workers">
-                <?php foreach ($workers as $worker): ?>
-                  <?php if ($normalized_status === 'pending' && $is_creator): ?>
-                    <label class="worker-tag">
-                      <input
-                        type="checkbox"
-                        name="assignees[]"
-                        value="<?php echo intval($worker['ID_USER']); ?>"
-                        checked
-                        style="margin-right: 6px;" />
-                      <?php echo htmlspecialchars($worker['USER_NAME']); ?>
-                    </label>
-                  <?php else: ?>
-                    <div class="worker-tag"><?php echo htmlspecialchars($worker['USER_NAME']); ?></div>
-                  <?php endif; ?>
-                <?php endforeach; ?>
-              </div>
+                <div class="workers">
+                  <?php foreach ($workers as $worker): ?>
+                    <?php if ($normalized_status === 'pending' && $is_creator): ?>
+                      <label class="worker-tag">
+                        <input
+                          type="checkbox"
+                          name="assignees[]"
+                          value="<?php echo intval($worker['ID_USER']); ?>"
+                          checked
+                          style="margin-right: 6px;" />
+                        <?php echo htmlspecialchars($worker['USER_NAME']); ?>
+                      </label>
+                    <?php else: ?>
+                      <div class="worker-tag"><?php echo htmlspecialchars($worker['USER_NAME']); ?></div>
+                    <?php endif; ?>
+                  <?php endforeach; ?>
+                </div>
             </div>
           <?php endif; ?>
 
@@ -428,8 +441,8 @@ if (in_array($normalized_status, ['in_progress', 'pending'], true)) {
 
             <?php if ($is_creator): ?>
               <?php if ($normalized_status === 'pending'): ?>
-                  <button type="submit" name="approve_task" class="btn btn-primary">Approve</button>
-                  <button type="submit" name="reject_task" class="btn btn-secondary">Reject</button>
+                <button type="submit" name="approve_task" class="btn btn-primary">Approve</button>
+                <button type="submit" name="reject_task" class="btn btn-secondary">Reject</button>
                 </form>
               <?php else: ?>
                 <!-- Task creator view: Show delete button for non-pending tasks -->

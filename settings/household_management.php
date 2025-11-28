@@ -18,7 +18,7 @@ if (!$household_id) {
 }
 
 // Fetch household info
-$household_stmt = $conn->prepare("SELECT HOUSEHOLD_NAME, INVITE_LINK FROM HOUSEHOLD WHERE ID_HOUSEHOLD = ?");
+$household_stmt = $conn->prepare("SELECT HOUSEHOLD_NAME, INVITE_LINK, AI_CONFIDENCE FROM HOUSEHOLD WHERE ID_HOUSEHOLD = ?");
 $household_stmt->bind_param('i', $household_id);
 $household_stmt->execute();
 $household_result = $household_stmt->get_result();
@@ -27,7 +27,7 @@ $household_stmt->close();
 
 // Fetch household members
 $members_stmt = $conn->prepare("
-  SELECT u.ID_USER, u.USER_NAME, hm.ROLE
+  SELECT u.ID_USER, u.USER_NAME, u.AVATAR, hm.ROLE
   FROM USER u
   JOIN HOUSEHOLD_MEMBER hm ON u.ID_USER = hm.ID_USER
   WHERE hm.ID_HOUSEHOLD = ?
@@ -78,6 +78,7 @@ if ($user_role !== 'admin' && $user_role !== 'admin') {
   });
 </script>
   </head>
+  
   <body>
     <div class="background" aria-hidden="true"></div>
 
@@ -131,7 +132,7 @@ if ($user_role !== 'admin' && $user_role !== 'admin') {
               <?php foreach ($members as $member): ?>
               <article class="member-card" data-member="<?php echo htmlspecialchars($member['USER_NAME']); ?>" data-user-id="<?php echo $member['ID_USER']; ?>">
                 <div class="member-card__info">
-                  <img src="../IMAGES/avatar.png" alt="" />
+                  <img src="/final_task_o_mania-1/images/profiles/<?php echo htmlspecialchars($member['AVATAR'] ?? 'avatar.png'); ?>" alt="" />
                   <div>
                     <p><?php echo htmlspecialchars($member['USER_NAME']); ?></p>
                     <span><?php echo ucfirst(htmlspecialchars($member['ROLE'])); ?></span>
@@ -175,13 +176,12 @@ if ($user_role !== 'admin' && $user_role !== 'admin') {
           <section class="panel invite-link-panel">
             <header class="panel__header">
               <div>
-                <h2>Invite Link</h2>
-                <p>Create a link you can share anywhere.</p>
+                <h2>Invite Code</h2>
               </div>
             </header>
             <div class="invite-link-controls">
               <div class="input-wrapper">
-                <input type="text" id="invite-link" readonly value="<?php echo $household['INVITE_LINK'] ? 'https://task-o-mania.local/households.php?invite=' . htmlspecialchars($household['INVITE_LINK']) : 'No link generated'; ?>" />
+                <input type="text" id="invite-link" readonly value="<?php echo $household['INVITE_LINK'] ? htmlspecialchars($household['INVITE_LINK']) : 'No link generated'; ?>" />
               </div>
               <button type="button" class="pill copy-link">Copy link</button>
             </div>
@@ -411,11 +411,6 @@ if ($user_role !== 'admin' && $user_role !== 'admin') {
           }
         });
 
-        generateBtn?.addEventListener('click', () => {
-          const random = Math.random().toString(36).slice(2, 10);
-          inviteInput.value = `https://task-o-mania.app/invite/${random}`;
-          showInfo('Invite link generated successfully.');
-        });
 
         copyBtn?.addEventListener('click', () => {
           inviteInput.select();

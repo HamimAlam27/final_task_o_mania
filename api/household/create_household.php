@@ -56,10 +56,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $household_id = $conn->insert_id;
         $_SESSION['household_id'] = $household_id;
         // Insert into HOUSEHOLD_MEMBER as owner
-        // Trigger tr_create_points_on_household_join automatically creates POINTS record when user is added
         $stmt2 = $conn->prepare("INSERT INTO HOUSEHOLD_MEMBER (ID_USER, ID_HOUSEHOLD, ROLE) VALUES (?, ?, 'admin')");
         $stmt2->bind_param("ii", $user_id, $household_id);
         $stmt2->execute();
+
+        // Also insert into POINTS for this user and household
+        $stmt3 = $conn->prepare("INSERT INTO POINTS (ID_USER, ID_HOUSEHOLD, TOTAL_POINTS) VALUES (?, ?, 0)");
+        $stmt3->bind_param("ii", $user_id, $household_id);
+        $stmt3->execute();
 
         // Redirect to second step and pass invite token and household id
         $invite_param = urlencode($invite_link);

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Validation - Task-o-Mania</title>
+    <meta name="description" content="Configure AI validation behaviour for completed tasks." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style_deactivate_account.css" />
+    <link rel="stylesheet" href="../style_user_chrome.css" />
+    <link rel="stylesheet" href="../style_ai_validation.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    lucide.createIcons();
+  });
+</script>
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="../index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true"><i data-lucide="sparkles"></i></span>
+        </a>
+
+                <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="../dashboard.html" data-tooltip="Home">
+            <span aria-hidden="true"><i data-lucide="home"></i></span>
+          </a>
+          <a class="sidebar__link" href="../households.html" data-tooltip="Households">
+            <span aria-hidden="true"><i data-lucide="users"></i></span>
+          </a>
+          <a class="sidebar__link" href="../reward-store.html" data-tooltip="Reward Store">
+            <span aria-hidden="true"><i data-lucide="gift"></i></span>
+          </a>
+          <a class="sidebar__link" href="../task-list-total-tasks.html" data-tooltip="Task List">
+            <span aria-hidden="true"><i data-lucide="check-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="../create-task.html" data-tooltip="Create Task">
+            <span aria-hidden="true"><i data-lucide="plus-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="../activity.html" data-tooltip="Activity">
+            <span aria-hidden="true"><i data-lucide="activity"></i></span>
+          </a>
+          <a class="sidebar__link" href="../leaderboard.html" data-tooltip="Leaderboard">
+            <span aria-hidden="true"><i data-lucide="trophy"></i></span>
+          </a>
+          <a class="sidebar__link" href="../settings.html" data-tooltip="Definitions">
+            <span aria-hidden="true"><i data-lucide="settings"></i></span>
+          </a>
+        </nav>
+
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <button class="back-btn" type="button" aria-label="Go back" onclick="history.back()">
+            <span aria-hidden="true">&#x2039;</span>
+          </button>
+
+          <div class="topbar__intro">
+            <h1 class="page-title">AI Validation</h1>
+            <p>Configure how the AI decides when tasks can be approved automatically.</p>
+          </div>
+
+          <div class="topbar__actions user-actions">
+            <a class="notification-button" data-tooltip="Notifications" href="../notifications.html" aria-label="Go to notifications">
+              <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z" stroke-linecap="round" />
+                <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke-linecap="round" />
+              </svg>
+            </a>
+            <a class="avatar" data-tooltip="Profile" href="../profile.html" aria-label="Your profile">
+              <img src="../IMAGES/avatar.png" alt="User avatar" />
+            </a>
+          </div>
+        </header>
+
+        <main class="page" role="main">
+          <section class="panel intro-panel">
+            <p>
+              AI Validation lets you choose between automatic approvals or manual reviews. Set the minimum AI confidence needed: results above the threshold are auto-approved, while lower scores require human review. Turn the feature off to review every task manually.
+            </p>
+          </section>
+
+          <section class="panel toggle-panel">
+            <div class="toggle-row">
+              <div>
+                <h2>AI Validation</h2>
+                <p>Automatically approve tasks based on AI confidence.</p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="ai-toggle" checked />
+                <span class="slider" aria-hidden="true"></span>
+                <span class="toggle-label" data-off="Off" data-on="On"></span>
+              </label>
+            </div>
+          </section>
+
+          <section class="panel ai-settings-panel">
+            <header class="panel__header">
+              <div>
+                <h2>Automatic approval threshold</h2>
+                <p>Minimum AI confidence required for automatic approval.</p>
+              </div>
+            </header>
+            <form class="form ai-settings-form" action="#" method="post">
+              <div class="range-field">
+                <input type="range" id="ai-confidence" min="50" max="100" value="85" />
+                <span id="confidence-value">85%</span>
+              </div>
+              <div class="actions">
+                <button type="submit" class="btn-primary">Save settings</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="panel manual-panel" aria-live="polite">
+            <p>All completed tasks will require manual approval.</p>
+          </section>
+
+          <section class="panel retention-panel">
+            <header class="panel__header">
+              <div>
+                <h2>Image Retention Duration</h2>
+                <p>Decide how long the submitted photos stay available for review.</p>
+              </div>
+            </header>
+            <form class="form retention-form" action="#" method="post">
+              <label class="radio-row">
+                <input type="radio" name="retention" value="1week" checked />
+                <span>1 week</span>
+              </label>
+              <label class="radio-row">
+                <input type="radio" name="retention" value="1month" />
+                <span>1 month</span>
+              </label>
+              <label class="radio-row">
+                <input type="radio" name="retention" value="forever" />
+                <span>Forever</span>
+              </label>
+              <div class="actions">
+                <button type="submit" class="btn-primary">Save changes</button>
+              </div>
+            </form>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="ai-modal" role="alertdialog" aria-modal="true" aria-labelledby="ai-modal-title" aria-hidden="true">
+      <div class="ai-modal__card">
+        <h2 id="ai-modal-title">Success</h2>
+        <p class="ai-modal__message">Settings updated.</p>
+        <button type="button" class="ai-modal__close">Close</button>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const toggle = document.getElementById('ai-toggle');
+        const aiPanel = document.querySelector('.ai-settings-panel');
+        const manualPanel = document.querySelector('.manual-panel');
+        const aiForm = document.querySelector('.ai-settings-form');
+        const retentionForm = document.querySelector('.retention-form');
+        const rangeInput = document.getElementById('ai-confidence');
+        const rangeValue = document.getElementById('confidence-value');
+        const modal = document.querySelector('.ai-modal');
+        const modalMessage = document.querySelector('.ai-modal__message');
+        const modalClose = document.querySelector('.ai-modal__close');
+
+        if (!toggle || !aiPanel || !manualPanel || !modal || !modalClose) return;
+
+        const showModal = (message) => {
+          modalMessage.textContent = message;
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('ai-modal--visible');
+        };
+
+        const hideModal = () => {
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('ai-modal--visible');
+        };
+
+        modalClose.addEventListener('click', hideModal);
+        modal.addEventListener('click', (event) => {
+          if (event.target === modal) hideModal();
+        });
+        window.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') hideModal();
+        });
+
+        const updatePanels = () => {
+          if (toggle.checked) {
+            aiPanel.removeAttribute('hidden');
+            manualPanel.setAttribute('hidden', 'hidden');
+          } else {
+            aiPanel.setAttribute('hidden', 'hidden');
+            manualPanel.removeAttribute('hidden');
+          }
+        };
+
+        updatePanels();
+        toggle.addEventListener('change', updatePanels);
+
+        rangeInput?.addEventListener('input', () => {
+          rangeValue.textContent = `${rangeInput.value}%`;
+        });
+
+        aiForm?.addEventListener('submit', (event) => {
+          event.preventDefault();
+          showModal('AI validation settings updated.');
+        });
+
+        retentionForm?.addEventListener('submit', (event) => {
+          event.preventDefault();
+          showModal('Image retention settings updated.');
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+
+
+

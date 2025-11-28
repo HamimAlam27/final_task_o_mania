@@ -1,4 +1,6 @@
 <?php
+require_once 'src/config/base_path.php';
+$folder_name = BASE_PATH;
 // Fetch user credits if not already set
 if (!isset($user_credits) && isset($_SESSION['user_id'])) {
   $cred_user_id = $_SESSION['user_id'];
@@ -15,6 +17,20 @@ if (!isset($user_credits) && isset($_SESSION['user_id'])) {
   } else {
     $user_credits = 0;
   }
+}
+
+// Fetch user avatar path
+$avatar_path = 'images/avatar.png';
+if (isset($_SESSION['user_id'])) {
+  $avatar_stmt = $conn->prepare("SELECT AVATAR FROM USER WHERE ID_USER = ?");
+  $avatar_stmt->bind_param('i', $_SESSION['user_id']);
+  $avatar_stmt->execute();
+  $avatar_result = $avatar_stmt->get_result();
+  $avatar_row = $avatar_result->fetch_assoc();
+  if (!empty($avatar_row['AVATAR'])) {
+    $avatar_path = $avatar_row['AVATAR'];
+  }
+  $avatar_stmt->close();
 }
 ?>
 <style>
@@ -163,11 +179,7 @@ if (!isset($user_credits) && isset($_SESSION['user_id'])) {
     <span class="credits-card__cta">Redeem rewards ➜</span>
   </a>
   <div class="user-actions">
-    <a class="notification-button" data-tooltip="Invitations" href="invitations.php" aria-label="Go to invitations">
-      <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 5a2 2 0 012-2h3.28a1 1 0 00.948-1.684c-.502-.757.074-2.316.944-2.316a9 9 0 019.5 9v.5c0 4.418-3.582 8-8 8s-8-3.582-8-8V7.5a2 2 0 00-2-2z" stroke-linecap="round" />
-      </svg>
-    </a>
+
     <a class="notification-button" data-tooltip="Notifications" href="notifications.php" aria-label="Go to notifications">
       <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M11 2C7.68629 2 5 4.68629 5 8V9.38268C5 10.1481 4.70711 10.8826 4.17157 11.4182L3.41421 12.1756C2.15602 13.4338 3.03714 15.5 4.82843 15.5H17.1716C18.9629 15.5 19.844 13.4338 18.5858 12.1756L17.8284 11.4182C17.2929 10.8826 17 10.1481 17 9.38268V8C17 4.68629 14.3137 2 11 2Z" stroke-linecap="round" />
@@ -175,7 +187,8 @@ if (!isset($user_credits) && isset($_SESSION['user_id'])) {
       </svg>
     </a>
     <a class="avatar" data-tooltip="Profile" href="profile.php" aria-label="Your profile">
-      <img src="IMAGES/avatar.png" alt="User avatar" />
+      <!-- <img src="<?php echo htmlspecialchars($avatar_path); ?>" alt="User avatar" /> -->
+      <img src="<?php echo htmlspecialchars($folder_name); ?>/images/profiles/<?php echo htmlspecialchars($avatar_path); ?>" alt="User avatar" />
     </a>
   </div>
 </div>
