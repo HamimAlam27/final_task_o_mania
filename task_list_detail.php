@@ -20,8 +20,9 @@ if (!$household_id || !$task_id) {
 
 // Fetch task details
 
+// Fetch task details
 $task_stmt = $conn->prepare("
-  SELECT ID_TASK, TASK_NAME, TASK_DESCRIPTION, AI_VALIDATION, IMAGE_NEEDED, TASK_POINT, IMAGE_BEFORE, IMAGE_AFTER, TASK_STATUS, ID_USER, TASK_CREATED
+  SELECT ID_TASK, TASK_NAME, TASK_DESCRIPTION, TASK_POINT, IMAGE_BEFORE, IMAGE_AFTER, TASK_STATUS, ID_USER, TASK_CREATED, IMAGE_NEEDED
   FROM TASK 
   WHERE ID_TASK = ? AND ID_HOUSEHOLD = ?
 ");
@@ -31,10 +32,7 @@ $task_result = $task_stmt->get_result();
 $task = $task_result->fetch_assoc();
 $task_stmt->close();
 
-$image_needed = "";
-if ($task['IMAGE_NEEDED'] === 1) {
-  $image_needed = "required";
-}
+$image_needed = isset($task['IMAGE_NEEDED']) ? intval($task['IMAGE_NEEDED']) : 0;
 
 // If task not found, redirect
 if (!$task) {
@@ -66,36 +64,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       header('Location: task_list_detail.php?task_id=' . $task_id);
       exit;
     }
-
     $filename = null;
-    if (!empty($_FILES['completion_image']['name']) && $_FILES['completion_image']['error'] === UPLOAD_ERR_OK) {
-      $uploadsDir = __DIR__ . '/images/tasks';
-      if (!is_dir($uploadsDir)) {
-        @mkdir($uploadsDir, 0775, true);
+    $status = 'pending';
+    if ($image_needed === 1) {
+      if (empty($_FILES['completion_image']['name']) || $_FILES['completion_image']['error'] !== UPLOAD_ERR_OK) {
+        $_SESSION['error'] = 'Image is required for this task.';
+        header('Location: task_list_detail.php?task_id=' . $task_id);
+        exit;
+      }
+      $upload_dir = 'images/tasks/';
+      if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
       }
       $ext = pathinfo($_FILES['completion_image']['name'], PATHINFO_EXTENSION);
-      $safeExt = $ext ? preg_replace('/[^a-zA-Z0-9]/', '', $ext) : 'jpg';
-      if ($safeExt === '') {
-        $safeExt = 'jpg';
+      $filename = uniqid('task_') . '.' . $ext;
+      $target = $upload_dir . $filename;
+      if (move_uploaded_file($_FILES['completion_image']['tmp_name'], $target)) {
+        // Save only filename
+        $update_sql = " 
+          UPDATE TASK
+          SET TASK_STATUS = ?, IMAGE_AFTER = ?
+          WHERE ID_TASK = ? AND ID_HOUSEHOLD = ?
+        ";
+        $update_stmt = $conn->prepare($update_sql);
+        if ($update_stmt === false) {
+          $_SESSION['error'] = 'DB prepare failed: ' . $conn->error;
+          header('Location: task_list_detail.php?task_id=' . $task_id);
+          exit;
+        }
+        $update_stmt->bind_param('ssii', $status, $filename, $task_id, $household_id);
+        if ($update_stmt->execute()) {
+          $_SESSION['success'] = 'Task submitted successfully and is pending approval.';
+        } else {
+          $_SESSION['error'] = 'Failed to submit the task. DB error: ' . $update_stmt->error . ' / ' . $conn->error;
+        }
+        $update_stmt->close();
+      } else {
+        $_SESSION['error'] = 'Failed to upload image.';
+        header('Location: task_list_detail.php?task_id=' . $task_id);
+        exit;
       }
-      $filename = sprintf('task_%d_user_%d_%d.%s', $task_id, $user_id, time(), $safeExt);
-      move_uploaded_file($_FILES['completion_image']['tmp_name'], $uploadsDir . '/' . $filename);
-    }
-
-    $status = 'pending';
-    // Update TASK: set status and IMAGE_AFTER
-    $update_stmt = $conn->prepare(" 
-      UPDATE TASK
-      SET TASK_STATUS = ?, IMAGE_AFTER = ?
-      WHERE ID_TASK = ? AND ID_HOUSEHOLD = ?
-    ");
-    $update_stmt->bind_param('ssii', $status, $filename, $task_id, $household_id);
-    if ($update_stmt->execute()) {
-      $_SESSION['success'] = 'Task submitted successfully and is pending approval.';
     } else {
-      $_SESSION['error'] = 'Failed to submit the task.';
+      // No image required, just update status
+      $update_stmt = $conn->prepare(" 
+        UPDATE TASK
+        SET TASK_STATUS = ?
+        WHERE ID_TASK = ? AND ID_HOUSEHOLD = ?
+      ");
+      $update_stmt->bind_param('sii', $status, $task_id, $household_id);
+      if ($update_stmt->execute()) {
+        $_SESSION['success'] = 'Task submitted successfully and is pending approval.';
+      } else {
+        $_SESSION['error'] = 'Failed to submit the task.';
+      }
+      $update_stmt->close();
     }
-    $update_stmt->close();
   }
 
   if (isset($_POST['approve_task']) || isset($_POST['reject_task'])) {
@@ -414,7 +437,9 @@ if (in_array($normalized_status, ['in_progress', 'pending'], true)) {
               <div class="task-detail__label">
                 <?php echo $normalized_status === 'pending' ? 'Submitted by' : 'People working on this'; ?>
               </div>
-              <form method="POST" action="task_list_detail.php?task_id=<?php echo intval($task_id); ?>" style="display: flex; gap: 8px;">
+              <?php if ($normalized_status === 'pending' && $is_creator): ?>
+                <form method="POST" action="task_list_detail.php?task_id=<?php echo intval($task_id); ?>" style="display: flex; gap: 8px;">
+              <?php endif; ?>
 
                 <div class="workers">
                   <?php foreach ($workers as $worker): ?>
@@ -467,10 +492,43 @@ if (in_array($normalized_status, ['in_progress', 'pending'], true)) {
                 </form>
               <?php elseif ($normalized_status === 'in_progress' && $already_joined): ?>
                 <form method="POST" enctype="multipart/form-data" action="task_list_detail.php?task_id=<?php echo intval($task_id); ?>" style="display: inline;">
-                  <label class="btn btn-secondary" for="completion-image">Submit proof</label>
-                  <input type="file" name="completion_image" id="completion-image" accept="image/*" style="display:none;" />
-                  <button type="submit" name="submit_completion" class="btn btn-primary">Submit task</button>
+                  <!-- <?php if ($image_needed === 1): ?> -->
+                    <label for="completion-image" style="display:block; margin-bottom:10px;">
+                      <span>Upload proof image <span style="color:red;">*</span></span>
+                      <div class="input-wrapper">
+                        <input type="file" name="completion_image" id="completion-image" accept="image/*" required />
+                      </div>
+                    </label>
+                    <img id="completion-preview" src="#" alt="Preview" style="display:none; max-width:200px; margin-bottom:10px; border-radius:8px;" />
+                    <button type="submit" name="submit_completion" class="btn btn-primary">Submit task</button>
+                  <?php else: ?>
+
+                    <button type="submit" name="submit_completion" class="btn btn-primary">Submit task</button>
+
+                  <?php endif; ?>
                 </form>
+                <script>
+                  document.addEventListener('DOMContentLoaded', function() {
+                    var input = document.getElementById('completion-image');
+                    var preview = document.getElementById('completion-preview');
+                    if (input && preview) {
+                      input.addEventListener('change', function(e) {
+                        const file = e.target.files[0];
+                        // if (file) {
+                        //   const reader = new FileReader();
+                        //   reader.onload = function(ev) {
+                        //     preview.src = ev.target.result;
+                        //     preview.style.display = 'block';
+                        //   };
+                        //   reader.readAsDataURL(file);
+                        // } else {
+                        //   preview.src = '#';
+                        //   preview.style.display = 'none';
+                        // }
+                      });
+                    }
+                  });
+                </script>
               <?php endif; ?>
             <?php endif; ?>
           </div>

@@ -35,10 +35,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['invite_code'])) {
         if ($check_stmt->num_rows === 0) {
             // Add user as member
             $add_stmt = $conn->prepare("INSERT INTO HOUSEHOLD_MEMBER (ID_USER, ID_HOUSEHOLD, ROLE) VALUES (?, ?, 'member')");
+
             $add_stmt->bind_param('ii', $user_id, $household_id);
             if ($add_stmt->execute()) {
                 // $_SESSION['household_id'] = $household_id;
                 $success_message = 'You have joined the household!';
+                $add_points = $conn->prepare("INSERT INTO POINTS (ID_USER, ID_HOUSEHOLD, TOTAL_POINTS) VALUES (?, ?, 0)");
+                $add_points->bind_param('ii', $user_id, $household_id);
+                $add_points->execute();
+                $add_points->close();
             } else {
                 $error_message = 'Failed to join household.';
             }
