@@ -15,7 +15,7 @@ if (!$task_id || !$household_id) {
 }
 
 // Fetch task from DB
-$stmt = $conn->prepare("SELECT TASK_NAME, TASK_DESCRIPTION, IMAGE_BEFORE, IMAGE_AFTER, TASK_POINT FROM TASK WHERE ID_TASK = ? AND ID_HOUSEHOLD = ?");
+$stmt = $conn->prepare("SELECT ID_USER, TASK_NAME, TASK_DESCRIPTION, IMAGE_BEFORE, IMAGE_AFTER, TASK_POINT FROM TASK WHERE ID_TASK = ? AND ID_HOUSEHOLD = ?");
 $stmt->bind_param('ii', $task_id, $household_id);
 $stmt->execute();
 $res = $stmt->get_result();

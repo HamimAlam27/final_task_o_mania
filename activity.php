@@ -20,7 +20,8 @@ $week_start = date('Y-m-d', strtotime('monday this week'));
 $month_start = date('Y-m-01');
 
 // Weekly completions
-$stmt = $conn->prepare("SELECT COUNT(*) AS completed, COALESCE(SUM(POINTS),0) AS points FROM COMPLETION c JOIN TASK t ON t.ID_TASK = c.ID_TASK WHERE c.STATUS='approved' AND c.SUBMITTED_BY=? AND t.ID_HOUSEHOLD=? AND c.SUBMITTED_AT >= ?");
+// Use COMPLETION.COMPLETED_AT and APPROVED_BY (no STATUS column in schema)
+$stmt = $conn->prepare("SELECT COUNT(*) AS completed, COALESCE(SUM(POINTS),0) AS points FROM COMPLETION c JOIN TASK t ON t.ID_TASK = c.ID_TASK WHERE c.APPROVED_BY IS NOT NULL AND c.SUBMITTED_BY=? AND t.ID_HOUSEHOLD=? AND c.COMPLETED_AT >= ?");
 $stmt->bind_param('iis', $user_id, $household_id, $week_start);
 $stmt->execute();
 $stmt->bind_result($tasks_week, $points_week);
@@ -28,7 +29,8 @@ $stmt->fetch();
 $stmt->close();
 
 // Monthly completions (for chart)
-$stmt = $conn->prepare("SELECT DAY(c.SUBMITTED_AT) AS day, COUNT(*) AS completed FROM COMPLETION c JOIN TASK t ON t.ID_TASK = c.ID_TASK WHERE c.STATUS='approved' AND c.SUBMITTED_BY=? AND t.ID_HOUSEHOLD=? AND c.SUBMITTED_AT >= ? GROUP BY day ORDER BY day ASC");
+// Use COMPLETION.COMPLETED_AT and APPROVED_BY
+$stmt = $conn->prepare("SELECT DAY(c.COMPLETED_AT) AS day, COUNT(*) AS completed FROM COMPLETION c JOIN TASK t ON t.ID_TASK = c.ID_TASK WHERE c.APPROVED_BY IS NOT NULL AND c.SUBMITTED_BY=? AND t.ID_HOUSEHOLD=? AND c.COMPLETED_AT >= ? GROUP BY day ORDER BY day ASC");
 $stmt->bind_param('iis', $user_id, $household_id, $month_start);
 $stmt->execute();
 $chart_days = [];
@@ -41,7 +43,8 @@ while ($row = $result->fetch_assoc()) {
 $stmt->close();
 
 // Inactivity warnings (tasks not completed in last 7 days)
-$stmt = $conn->prepare("SELECT COUNT(*) FROM TASK t LEFT JOIN COMPLETION c ON c.ID_TASK = t.ID_TASK AND c.SUBMITTED_BY=? AND c.STATUS='approved' WHERE t.ID_HOUSEHOLD=? AND (c.SUBMITTED_AT IS NULL OR c.SUBMITTED_AT < ?)");
+// Left join COMPLETION on SUBMITTED_BY and check COMPLETED_AT/APPROVED_BY
+$stmt = $conn->prepare("SELECT COUNT(*) FROM TASK t LEFT JOIN COMPLETION c ON c.ID_TASK = t.ID_TASK AND c.SUBMITTED_BY=? AND c.APPROVED_BY IS NOT NULL WHERE t.ID_HOUSEHOLD=? AND (c.COMPLETED_AT IS NULL OR c.COMPLETED_AT < ?)");
 $seven_days_ago = date('Y-m-d', strtotime('-7 days'));
 $stmt->bind_param('iis', $user_id, $household_id, $seven_days_ago);
 $stmt->execute();
