@@ -185,6 +185,12 @@ $stmt->close();
             // Colors (rotate)
             const palette = ['#6b63ff','#5fb3ff','#ff7676','#ffb563','#6bff9c','#9d7eff','#7ec8ff'];
 
+            // Visibility map: remember which members are checked/visible
+            const visibilityMap = {};
+            householdMembers.forEach((m, idx) => {
+              visibilityMap[m.ID_USER] = (idx === 0); // default: show first only
+            });
+
             // Build datasets function
             function buildDatasets(metric) {
               const datasets = [];
@@ -204,7 +210,7 @@ $stmt->close();
                   fill: metric === 'tasks' ? false : true,
                   tension: 0.3,
                   pointRadius: 4,
-                  hidden: idx !== 0 ? true : false // show only first by default
+                  hidden: !visibilityMap[uid]
                 });
               });
               return datasets;
@@ -284,10 +290,11 @@ $stmt->close();
               const cb = document.createElement('input');
               cb.type = 'checkbox';
               cb.id = id;
-              cb.checked = idx === 0; // check first only
+              cb.checked = !!visibilityMap[m.ID_USER];
               cb.addEventListener('change', () => {
+                visibilityMap[m.ID_USER] = cb.checked;
                 const dsIndex = householdMembers.findIndex(h => h.ID_USER == m.ID_USER);
-                if (dsIndex >= 0) {
+                if (dsIndex >= 0 && activityChart) {
                   activityChart.data.datasets[dsIndex].hidden = !cb.checked;
                   activityChart.update();
                 }
