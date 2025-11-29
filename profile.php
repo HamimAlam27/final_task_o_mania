@@ -19,7 +19,7 @@ $user_id = intval($_SESSION['user_id']);
 
 // Fetch user
 $user = null;
-$stmt = $conn->prepare("SELECT USER_NAME, USER_EMAIL, AVATAR FROM `user` WHERE ID_USER = ? LIMIT 1");
+$stmt = $conn->prepare("SELECT USER_NAME, USER_EMAIL, AVATAR FROM `USER` WHERE ID_USER = ? LIMIT 1");
 if ($stmt) {
   $stmt->bind_param('i', $user_id);
   $stmt->execute();
@@ -30,7 +30,7 @@ if ($stmt) {
 
 // Determine profile type: owner if user has any household_member role = 'admin'
 $profile_type = 'member';
-$stmt = $conn->prepare("SELECT ROLE FROM household_member WHERE ID_USER = ? LIMIT 1");
+$stmt = $conn->prepare("SELECT ROLE FROM HOUSEHOLD_MEMBER WHERE ID_USER = ? LIMIT 1");
 if ($stmt) {
   $stmt->bind_param('i', $user_id);
   $stmt->execute();
@@ -44,7 +44,7 @@ if ($stmt) {
 
 // Sum total points across households for this user
 $total_points = 0;
-$stmt = $conn->prepare("SELECT SUM(TOTAL_POINTS) AS total FROM points WHERE ID_USER = ?");
+$stmt = $conn->prepare("SELECT SUM(TOTAL_POINTS) AS total FROM POINTS WHERE ID_USER = ?");
 if ($stmt) {
   $stmt->bind_param('i', $user_id);
   $stmt->execute();
@@ -87,17 +87,16 @@ if ($stmt) {
 
           <h1 class="page-title">Profile</h1>
 
-          <?php include 'header.php'; ?>
+
         </header>
 
         <main class="page" role="main">
           <section class="card">
             <div class="card__avatar">
               <?php if (!empty($user['AVATAR'])): ?>
-                <?php $data = base64_encode($user['AVATAR']); ?>
-                <img src="data:image/png;base64,<?php echo $data; ?>" alt="<?php echo htmlspecialchars($user['USER_NAME'] ?? 'User'); ?>" />
+                <img src="images/profiles/<?php echo htmlspecialchars($user['AVATAR']); ?>" alt="<?php echo htmlspecialchars($user['USER_NAME'] ?? 'User'); ?>" />
               <?php else: ?>
-                <img src="IMAGES/avatar.png" alt="<?php echo htmlspecialchars($user['USER_NAME'] ?? 'User'); ?>" />
+                <img src="images/avatar.png" alt="<?php echo htmlspecialchars($user['USER_NAME'] ?? 'User'); ?>" />
               <?php endif; ?>
             </div>
             <h2 class="card__name">
@@ -108,10 +107,6 @@ if ($stmt) {
             </h2>
 
             <dl>
-              <div>
-                <dt>Profile type:</dt>
-                <dd><?php echo htmlspecialchars($profile_type); ?></dd>
-              </div>
               <div>
                 <dt>Total accumulated points:</dt>
                 <dd><?php echo htmlspecialchars($total_points); ?> <small>(across households)</small></dd>

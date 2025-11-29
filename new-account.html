@@ -26,14 +26,16 @@
 
         <div class="user-actions">
           
-          <div class="avatar">
-            <img src="IMAGES/avatar.png" alt="Profile preview" />
-            <div class="ring" aria-hidden="true"></div>
-          </div>
-        </div>
 
-        <form id="signup-form" class="form" action="api/account/singup.php" method="post">
+        <!-- <form id="signup-form" class="form" action="api/account/signup_mail.php?mode=new" method="post"> -->
+        <form id="signup-form" class="form" action="api/account/signup.php" method="post" enctype="multipart/form-data">
           <div class="form-field">
+                      <div class="form-field">
+                        <label for="avatar">Profile Picture</label>
+                        <div class="input-wrapper">
+                          <input id="avatar" name="avatar" type="file" accept="image/*" />
+                        </div>
+                      </div>
             <label for="name">Name <span aria-hidden="true">*</span></label>
             <div class="input-wrapper">
               <input id="name" name="name" type="text" placeholder="Livia Vacarro" required />

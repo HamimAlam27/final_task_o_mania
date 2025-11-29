@@ -2,17 +2,22 @@
 session_start();
 require "../../src/config/db.php";
 
-$email = $_POST['username'] ?? "";
-$password = $_POST['password'] ?? "";
+$identifier = $_POST['username'] ?? "";  // can be email or username
+$password   = $_POST['password'] ?? "";
 
-// Fetch user
-$stmt = $conn->prepare("SELECT ID_USER, USER_PASSWORD, USER_NAME FROM USER WHERE USER_EMAIL = ?");
-$stmt->bind_param("s", $email);
+// Fetch user by email OR username
+$stmt = $conn->prepare("
+    SELECT ID_USER, USER_PASSWORD, USER_NAME, USER_EMAIL 
+    FROM USER 
+    WHERE USER_EMAIL = ? OR USER_NAME = ?
+    LIMIT 1
+");
+$stmt->bind_param("ss", $identifier, $identifier);
 $stmt->execute();
 $res = $stmt->get_result();
 
 if ($res->num_rows === 0) {
-    header("Location: ../../sign-in.html?error=account_not_found");
+    header("Location: ../../sign-in.php?error=account_not_found");
     exit;
 }
 
@@ -24,6 +29,7 @@ if (!password_verify($password, $user['USER_PASSWORD'])) {
     exit;
 }
 
+// Login OK
 $_SESSION['user_id'] = $user['ID_USER'];
 
 // Fetch households
@@ -42,13 +48,8 @@ while ($row = $result->fetch_assoc()) {
     $households[] = $row;
 }
 
-// Redirect based on number of households
-if (count($households) === 0) {
-    header("Location: ../../households.php");
-} elseif (count($households) === 1) {
-    header("Location: ../../households.php");
-} else {
-    header("Location: ../../households.php");
-}
+// Redirect (you have same redirect for all cases)
+header("Location: ../../households.php");
 exit;
+
 ?>

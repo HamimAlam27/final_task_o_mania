@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Task Details - Task-o-Mania</title>
+    <meta name="description" content="View every field captured when creating a household task." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../style_task_list.css" />
+    <link rel="stylesheet" href="../style_user_chrome.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+      });
+    </script>
+  </head>
+  <body>
+    <div class="background" aria-hidden="true"></div>
+
+    <div class="dashboard-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <a class="sidebar__logo" href="index.html" aria-label="Task-o-Mania home">
+          <span class="sidebar__logo-icon" aria-hidden="true"><i data-lucide="sparkles"></i></span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a class="sidebar__link" href="dashboard.html" data-tooltip="Home">
+            <span aria-hidden="true"><i data-lucide="home"></i></span>
+          </a>
+          <a class="sidebar__link" href="households.html" data-tooltip="Households">
+            <span aria-hidden="true"><i data-lucide="users"></i></span>
+          </a>
+          <a class="sidebar__link" href="reward-store.html" data-tooltip="Reward Store">
+            <span aria-hidden="true"><i data-lucide="gift"></i></span>
+          </a>
+          <a class="sidebar__link" href="task-list-total-tasks.html" data-tooltip="Task List">
+            <span aria-hidden="true"><i data-lucide="check-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="choose_between_buttons.html" data-tooltip="New">
+            <span aria-hidden="true"><i data-lucide="plus-square"></i></span>
+          </a>
+          <a class="sidebar__link" href="activity.html" data-tooltip="Activity">
+            <span aria-hidden="true"><i data-lucide="activity"></i></span>
+          </a>
+          <a class="sidebar__link" href="leaderboard.html" data-tooltip="Leaderboard">
+            <span aria-hidden="true"><i data-lucide="trophy"></i></span>
+          </a>
+          <a class="sidebar__link" href="settings.html" data-tooltip="Definitions">
+            <span aria-hidden="true"><i data-lucide="settings"></i></span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="topbar">
+          <a class="back-btn" href="task-list-total-tasks.html" aria-label="Back to the task list">
+            <span aria-hidden="true">&#x2039;</span>
+          </a>
+
+          <h1 class="page-title">Task Details</h1>
+
+          <div class="user-actions">
+            <a class="notification-button" data-tooltip="Notifications" href="notifications.html" aria-label="Go to notifications">
+              <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z" stroke-linecap="round" />
+                <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke-linecap="round" />
+              </svg>
+            </a>
+            <a class="avatar" data-tooltip="Profile" href="profile.html" aria-label="Your profile">
+              <img src="IMAGES/avatar.png" alt="User avatar" />
+            </a>
+          </div>
+        </header>
+
+        <main class="page" role="main">
+          <section class="task-details" aria-live="polite">
+            <div class="task-detail-message" data-task-loading>Loading selected task...</div>
+            <div class="task-detail-message" data-task-error hidden>
+              We could not find the selected task. <a href="task-list-total-tasks.html">Return to the task list</a> and try again.
+            </div>
+
+            <article class="task-detail-card" data-task-card hidden>
+              <header>
+                <h2 data-task-title>Task details</h2>
+              </header>
+              <dl class="task-detail-fields" data-task-fields></dl>
+
+              <div class="task-detail-flow" data-task-flow>
+                <div class="task-detail-flow__card" data-share-card>
+                  <h3>Share your progress</h3>
+                  <form class="task-detail-form" data-task-form novalidate>
+                    <label class="task-detail-form__field">
+                      <span>Upload an image</span>
+                      <input type="file" accept="image/*" data-task-proof />
+                    </label>
+
+                    <fieldset class="task-detail-form__field task-detail-form__field--inline">
+                      <legend>Who confirms this task?</legend>
+                      <label>
+                        <input type="radio" name="confirmation-method" value="parent" checked />
+                        Parent
+                      </label>
+                      <label>
+                        <input type="radio" name="confirmation-method" value="ai" />
+                        AI
+                      </label>
+                    </fieldset>
+
+                    <label class="task-detail-form__field">
+                      <span>Your display name</span>
+                      <input type="text" placeholder="Add your name" data-participant-name />
+                    </label>
+
+                    <div class="task-detail-form__actions">
+                      <button type="button" class="btn-primary" data-task-start>Do this task</button>
+                      <button type="button" class="btn-secondary" data-task-join>Join</button>
+                    </div>
+                  </form>
+                </div>
+
+                <div class="task-detail-participants" data-participants-panel hidden>
+                  <div class="task-detail-participants__header">
+                    <h3>Participants</h3>
+                    <p data-points-per-user></p>
+                  </div>
+                  <div class="chip-list" data-participants-list></div>
+                </div>
+
+                <div class="task-detail-completed" data-completed-panel hidden>
+                  <h3>Completed submission</h3>
+                  <p data-completed-description></p>
+                  <img data-completed-image alt="Submitted image" hidden />
+                </div>
+              </div>
+
+              <div class="task-detail-review" data-review-actions hidden>
+                <p data-review-message>This task requires your review. Choose an action:</p>
+                <div class="task-detail-review__buttons">
+                  <button type="button" class="btn-primary" data-review-complete>Mark as Completed</button>
+                  <button type="button" class="btn-secondary" data-review-decline>Decline Task</button>
+                </div>
+              </div>
+
+              <div class="task-detail-actions" data-task-actions>
+                <button type="button" class="btn-primary" data-submit-task>Submit Task</button>
+              </div>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const STORAGE_KEY = 'taskomania_tasks';
+        const SELECTED_TASK_KEY = 'taskomania_selected_task';
+
+        const loadingMessage = document.querySelector('[data-task-loading]');
+        const errorMessage = document.querySelector('[data-task-error]');
+        const card = document.querySelector('[data-task-card]');
+        const titleEl = document.querySelector('[data-task-title]');
+        const fieldsEl = document.querySelector('[data-task-fields]');
+        const shareCard = document.querySelector('[data-share-card]');
+        const flowSection = document.querySelector('[data-task-flow]');
+        const taskForm = document.querySelector('[data-task-form]');
+        const proofInput = document.querySelector('[data-task-proof]');
+        const participantInput = document.querySelector('[data-participant-name]');
+        const confirmationChoices = document.querySelectorAll('input[name="confirmation-method"]');
+        const startBtn = document.querySelector('[data-task-start]');
+        const joinBtn = document.querySelector('[data-task-join]');
+        const submitBtn = document.querySelector('[data-submit-task]');
+        const actionsContainer = document.querySelector('[data-task-actions]');
+        const participantsPanel = document.querySelector('[data-participants-panel]');
+        const participantsList = document.querySelector('[data-participants-list]');
+        const perUserPointsEl = document.querySelector('[data-points-per-user]');
+        const completedPanel = document.querySelector('[data-completed-panel]');
+        const completedDescription = document.querySelector('[data-completed-description]');
+        const completedImage = document.querySelector('[data-completed-image]');
+        const reviewActions = document.querySelector('[data-review-actions]');
+        const reviewMessage = document.querySelector('[data-review-message]');
+        const reviewCompleteBtn = document.querySelector('[data-review-complete]');
+        const reviewDeclineBtn = document.querySelector('[data-review-decline]');
+
+        let activeTaskId = null;
+
+        if (!loadingMessage || !errorMessage || !card || !fieldsEl) {
+          return;
+        }
+
+        const readStoredTasks = () => {
+          try {
+            const raw = window.localStorage.getItem(STORAGE_KEY);
+            if (!raw) return [];
+            return JSON.parse(raw);
+          } catch (error) {
+            console.warn('Unable to parse tasks from storage', error);
+            return [];
+          }
+        };
+
+        const persistTasks = (tasks) => {
+          try {
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+          } catch (error) {
+            console.warn('Unable to persist tasks', error);
+          }
+        };
+
+        const EXCLUDED_FIELDS = new Set([
+          'task_photo',
+          'task_submission_photo',
+          'task_participants',
+          'task_confirmation_method',
+          'ai_validation',
+          'split_points',
+          'task_status',
+        ]);
+        const FIELD_ORDER = ['task_name', 'task_description', 'task_points'];
+
+        const formatLabel = (label) =>
+          label
+            .replace(/[-_]/g, ' ')
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+
+        const formatDateValue = (value) => {
+          if (!value) return '-';
+          const parsed = new Date(value);
+          if (Number.isNaN(parsed.getTime())) {
+            return value;
+          }
+          return parsed.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          });
+        };
+
+        const formatStatusValue = (value) => {
+          if (!value) return 'Pending';
+          return value
+            .toString()
+            .replace(/[_-]/g, ' ')
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+        };
+
+        const formatValue = (key, value) => {
+          if (value === null || value === undefined || value === '') return '-';
+          if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+          if (Array.isArray(value)) {
+            return value.map((item) => formatValue(key, item)).join(', ');
+          }
+          if (typeof value === 'object') {
+            if ('name' in value && 'size' in value) {
+              return value.name || 'Uploaded file';
+            }
+            return JSON.stringify(value);
+          }
+          if (key.includes('date')) {
+            return formatDateValue(value);
+          }
+          if (key.includes('status')) {
+            return formatStatusValue(value);
+          }
+          return value;
+        };
+
+        const getFieldOrderIndex = (key) => {
+          const index = FIELD_ORDER.indexOf(key);
+          return index === -1 ? FIELD_ORDER.length + key.charCodeAt(0) : index;
+        };
+
+        const normalizeStatus = (value) => {
+          if (!value) return 'todo';
+          const normalized = value.toString().trim().toLowerCase().replace(/\s+/g, '_');
+          if (normalized === 'in_progress' || normalized === 'in-progress') return 'in_progress';
+          if (normalized === 'completed') return 'completed';
+          if (['pending', 'under_review'].includes(normalized)) return 'pending';
+          return normalized || 'todo';
+        };
+
+        const isAiValidationEnabled = (value) => {
+          if (value === undefined || value === null) return false;
+          const normalized = value.toString().toLowerCase();
+          return normalized === 'true' || normalized === 'on';
+        };
+
+        const getSelectedConfirmationMethod = () => {
+          const checked = Array.from(confirmationChoices).find((choice) => choice.checked);
+          return checked ? checked.value : 'parent';
+        };
+
+        const setConfirmationMethod = (value) => {
+          if (!confirmationChoices) return;
+          const normalized = value && value.toString().toLowerCase();
+          let applied = false;
+          confirmationChoices.forEach((choice) => {
+            const shouldCheck = normalized ? choice.value === normalized : choice.value === 'parent';
+            if (shouldCheck) {
+              choice.checked = true;
+              applied = true;
+            }
+          });
+          if (!applied && confirmationChoices.length) {
+            confirmationChoices[0].checked = true;
+          }
+        };
+
+        const getParticipantName = () => {
+          if (!participantInput) return null;
+          const raw = participantInput.value.trim();
+          return raw || 'You';
+        };
+
+        const sanitizeParticipants = (value) => {
+          if (!Array.isArray(value)) return [];
+          return value
+            .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+            .filter(Boolean);
+        };
+
+        const readFileAsDataUrl = (file) =>
+          new Promise((resolve, reject) => {
+            if (!file) {
+              resolve(null);
+              return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () =>
+              reject(reader.error || new Error('Unable to read the selected file'));
+            reader.readAsDataURL(file);
+          });
+
+        const readProofFromInput = async () => {
+          if (!proofInput || !proofInput.files || !proofInput.files[0]) return null;
+          const file = proofInput.files[0];
+          const dataUrl = await readFileAsDataUrl(file);
+          if (!dataUrl) return null;
+          return {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            dataUrl,
+          };
+        };
+
+        const formatPointsSplit = (points, count) => {
+          const numeric = Number(points);
+          if (!numeric || Number.isNaN(numeric)) {
+            return count > 1
+              ? 'Points are divided equally between participants.'
+              : 'Single participants earn the full reward.';
+          }
+          if (!count || count <= 1) {
+            return `Solo completion earns ${numeric} pts.`;
+          }
+          const split = Math.round((numeric / count) * 10) / 10;
+          const displaySplit = Number.isInteger(split) ? split.toFixed(0) : split.toFixed(1);
+          return `Each participant earns ${displaySplit} pts (${numeric} pts total).`;
+        };
+
+        const renderParticipants = (fields, status) => {
+          if (!participantsPanel || !participantsList || !perUserPointsEl) return;
+          const participants = sanitizeParticipants(fields.task_participants);
+          participantsList.innerHTML = '';
+          if (status !== 'in_progress') {
+            participantsPanel.hidden = true;
+            return;
+          }
+          participantsPanel.hidden = false;
+          participantsList.innerHTML = '';
+
+          if (!participants.length) {
+            const emptyChip = document.createElement('span');
+            emptyChip.className = 'chip chip--empty';
+            emptyChip.textContent = 'Be the first helper';
+            participantsList.appendChild(emptyChip);
+            perUserPointsEl.textContent = 'Points go 100% to the first helper.';
+            return;
+          }
+
+          participants.forEach((name) => {
+            const chip = document.createElement('span');
+            chip.className = 'chip';
+            chip.textContent = name;
+            participantsList.appendChild(chip);
+          });
+
+          perUserPointsEl.textContent = formatPointsSplit(fields.task_points, participants.length);
+        };
+
+        const renderCompletedSummary = (fields, status) => {
+          if (!completedPanel || !completedDescription || !completedConfirmation || !completedImage) {
+            return;
+          }
+          const isCompleted = status === 'completed';
+          completedPanel.hidden = !isCompleted;
+          if (!isCompleted) {
+            completedImage.hidden = true;
+            completedImage.removeAttribute('src');
+            return;
+          }
+
+          completedDescription.textContent =
+            fields.task_description || 'This task does not have a detailed description.';
+
+          const submission = fields.task_submission_photo;
+          if (submission && submission.dataUrl) {
+            completedImage.hidden = false;
+            completedImage.src = submission.dataUrl;
+            completedImage.alt = submission.name ? `${submission.name} submission` : 'Submitted evidence';
+          } else {
+            completedImage.hidden = true;
+            completedImage.removeAttribute('src');
+          }
+        };
+
+        const updateFlowVisibility = (status) => {
+          if (!flowSection || !taskForm) return;
+          flowSection.hidden = status === 'pending';
+          taskForm.hidden = status === 'completed' || status === 'pending';
+
+          if (startBtn) {
+            startBtn.hidden = status !== 'todo';
+          }
+          if (joinBtn) {
+            joinBtn.hidden = status !== 'in_progress';
+          }
+
+          if (shareCard) {
+            shareCard.hidden = status !== 'todo' && status !== 'in_progress';
+          }
+
+          flowSection.classList.toggle('task-detail-flow--readonly', status === 'completed');
+        };
+
+        const COMPLETED_VISIBLE_FIELDS = new Set(['task_name', 'task_description', 'task_points']);
+
+        const shouldDisplayField = (key, status) => {
+          if (status === 'completed') {
+            return COMPLETED_VISIBLE_FIELDS.has(key);
+          }
+          return true;
+        };
+
+        const renderTask = (task) => {
+          const { fields = {}, id } = task;
+          activeTaskId = id;
+          titleEl.textContent = fields.task_name || 'Untitled task';
+
+          const status = normalizeStatus(fields.task_status || fields.status);
+
+          fieldsEl.innerHTML = '';
+          Object.entries(fields)
+            .filter(([key]) => !EXCLUDED_FIELDS.has(key))
+            .filter(([key]) => shouldDisplayField(key, status))
+            .sort((a, b) => getFieldOrderIndex(a[0]) - getFieldOrderIndex(b[0]))
+            .forEach(([key, value]) => {
+              const term = document.createElement('dt');
+              term.textContent = formatLabel(key);
+              const details = document.createElement('dd');
+              details.textContent = formatValue(key, value);
+              fieldsEl.appendChild(term);
+              fieldsEl.appendChild(details);
+            });
+
+          setConfirmationMethod(fields.task_confirmation_method || 'parent');
+          renderParticipants(fields, status);
+
+          updateFlowVisibility(status);
+          renderCompletedSummary(fields, status);
+          toggleReviewActions(fields);
+
+          if (actionsContainer) {
+            actionsContainer.hidden = status === 'completed';
+          }
+
+          if (submitBtn) {
+            if (status === 'completed') {
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'Task completed';
+            } else if (status === 'pending') {
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'Awaiting approval';
+            } else {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Submit Task';
+            }
+          }
+
+          if (participantInput) {
+            participantInput.value = '';
+          }
+          if (proofInput) {
+            proofInput.value = '';
+          }
+        };
+
+        const toggleReviewActions = (fields) => {
+          if (!reviewActions) return;
+          const status = normalizeStatus(fields.task_status || fields.status);
+          const aiEnabled = isAiValidationEnabled(fields.ai_validation);
+          const shouldDisplay = status === 'pending';
+          reviewActions.hidden = !shouldDisplay;
+
+          if (!shouldDisplay) {
+            return;
+          }
+
+          const message = aiEnabled
+            ? 'AI Validation is enabled. Turn it off to review this task manually.'
+            : 'This task requires your review. Choose an action:';
+
+          if (reviewMessage) {
+            reviewMessage.textContent = message;
+          }
+
+          const isDisabled = aiEnabled;
+          if (reviewCompleteBtn) {
+            reviewCompleteBtn.disabled = isDisabled;
+          }
+          if (reviewDeclineBtn) {
+            reviewDeclineBtn.disabled = isDisabled;
+          }
+
+          reviewActions.classList.toggle('task-detail-review--disabled', isDisabled);
+        };
+
+        const updateTaskStatus = (nextStatus) => {
+          if (!activeTaskId) return;
+          const tasks = readStoredTasks();
+          const targetIndex = tasks.findIndex((task) => task.id === activeTaskId);
+          if (targetIndex === -1) return;
+
+          tasks[targetIndex].fields = {
+            ...tasks[targetIndex].fields,
+            task_status: nextStatus,
+          };
+          tasks[targetIndex].updatedAt = new Date().toISOString();
+
+          persistTasks(tasks);
+          renderTask(tasks[targetIndex]);
+        };
+
+        const handleEngagement = async () => {
+          if (!activeTaskId) return;
+          const tasks = readStoredTasks();
+          const targetIndex = tasks.findIndex((task) => task.id === activeTaskId);
+          if (targetIndex === -1) return;
+
+          const task = tasks[targetIndex];
+          const fields = task.fields || {};
+          const participants = sanitizeParticipants(fields.task_participants);
+          const participantName = getParticipantName();
+          if (participantName && !participants.includes(participantName)) {
+            participants.push(participantName);
+          }
+
+          const submission = await readProofFromInput();
+
+          const nextFields = {
+            ...fields,
+            task_status: 'in_progress',
+            task_confirmation_method: getSelectedConfirmationMethod(),
+            task_participants: participants,
+          };
+
+          if (submission) {
+            nextFields.task_submission_photo = submission;
+          }
+
+          tasks[targetIndex] = {
+            ...task,
+            fields: nextFields,
+            updatedAt: new Date().toISOString(),
+          };
+
+          persistTasks(tasks);
+          renderTask(tasks[targetIndex]);
+        };
+
+        const handleSubmitTask = async () => {
+          if (!activeTaskId) return;
+          const tasks = readStoredTasks();
+          const targetIndex = tasks.findIndex((task) => task.id === activeTaskId);
+          if (targetIndex === -1) return;
+
+          const task = tasks[targetIndex];
+          const fields = task.fields || {};
+          const participants = sanitizeParticipants(fields.task_participants);
+          const participantName = getParticipantName();
+          if (participantName && !participants.includes(participantName)) {
+            participants.push(participantName);
+          }
+
+          const submission = await readProofFromInput();
+
+          const nextFields = {
+            ...fields,
+            task_status: 'pending',
+            task_confirmation_method: getSelectedConfirmationMethod(),
+            task_participants: participants,
+          };
+
+          if (submission) {
+            nextFields.task_submission_photo = submission;
+          }
+
+          tasks[targetIndex] = {
+            ...task,
+            fields: nextFields,
+            updatedAt: new Date().toISOString(),
+          };
+
+          persistTasks(tasks);
+          renderTask(tasks[targetIndex]);
+          window.location.href = 'total_task_list_bt_columns.html';
+        };
+
+        const init = () => {
+          const taskId = window.localStorage.getItem(SELECTED_TASK_KEY);
+          const tasks = readStoredTasks();
+          const selectedTask = tasks.find((task) => task.id === taskId);
+
+          loadingMessage.hidden = true;
+
+          if (!taskId || !selectedTask) {
+            errorMessage.hidden = false;
+            return;
+          }
+
+          renderTask(selectedTask);
+          card.hidden = false;
+        };
+
+        if (reviewCompleteBtn) {
+          reviewCompleteBtn.addEventListener('click', () => updateTaskStatus('completed'));
+        }
+
+        if (reviewDeclineBtn) {
+          reviewDeclineBtn.addEventListener('click', () => updateTaskStatus('declined'));
+        }
+
+        if (startBtn) {
+          startBtn.addEventListener('click', handleEngagement);
+        }
+
+        if (joinBtn) {
+          joinBtn.addEventListener('click', handleEngagement);
+        }
+
+        if (submitBtn) {
+          submitBtn.addEventListener('click', handleSubmitTask);
+        }
+
+        init();
+      })();
+    </script>
+  </body>
+</html>
+

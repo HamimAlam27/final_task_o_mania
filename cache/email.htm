@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Send Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            max-width: 600px;
+            margin: auto;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        input, textarea, button {
+            padding: 12px;
+            font-size: 16px;
+        }
+        textarea {
+            height: 150px;
+            resize: none;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Send Email</h2>
+
+<form action="send_email.php" method="POST">
+    <label>Send To:</label>
+    <input type="email" name="to" required>
+
+    <label>Subject:</label>
+    <input type="text" name="subject" required>
+
+    <label>Message:</label>
+    <textarea name="message" required></textarea>
+
+    <button type="submit">Send Email</button>
+</form>
+
+</body>
+</html>

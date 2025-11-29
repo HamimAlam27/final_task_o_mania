@@ -11,6 +11,52 @@ require_once 'src/config/db.php';
 
 $user_id = $_SESSION['user_id'];
 
+$success_message = '';
+$error_message = '';
+
+// Handle invite code submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['invite_code'])) {
+    $invite_code = trim($_POST['invite_code']);
+    // Find household by invite code
+    $stmt = $conn->prepare("SELECT ID_HOUSEHOLD FROM HOUSEHOLD WHERE INVITE_LINK = ?");
+    $stmt->bind_param('s', $invite_code);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $household = $result->fetch_assoc();
+    $stmt->close();
+
+    if ($household) {
+        $household_id = $household['ID_HOUSEHOLD'];
+        // Check if already a member
+        $check_stmt = $conn->prepare("SELECT 1 FROM HOUSEHOLD_MEMBER WHERE ID_USER = ? AND ID_HOUSEHOLD = ?");
+        $check_stmt->bind_param('ii', $user_id, $household_id);
+        $check_stmt->execute();
+        $check_stmt->store_result();
+        if ($check_stmt->num_rows === 0) {
+            // Add user as member
+            $add_stmt = $conn->prepare("INSERT INTO HOUSEHOLD_MEMBER (ID_USER, ID_HOUSEHOLD, ROLE) VALUES (?, ?, 'member')");
+
+            $add_stmt->bind_param('ii', $user_id, $household_id);
+            if ($add_stmt->execute()) {
+                // $_SESSION['household_id'] = $household_id;
+                $success_message = 'You have joined the household!';
+                $add_points = $conn->prepare("INSERT INTO POINTS (ID_USER, ID_HOUSEHOLD, TOTAL_POINTS) VALUES (?, ?, 0)");
+                $add_points->bind_param('ii', $user_id, $household_id);
+                $add_points->execute();
+                $add_points->close();
+            } else {
+                $error_message = 'Failed to join household.';
+            }
+            $add_stmt->close();
+        } else {
+            $error_message = 'You are already a member of this household.';
+        }
+        $check_stmt->close();
+    } else {
+        $error_message = 'Invalid invite code.';
+    }
+}
+
 // Fetch all pending invitations for this user
 $query = "SELECT i.ID_INVITATION, i.ID_HOUSEHOLD, i.INVITED_EMAIL, i.INVITED_BY, 
                  h.HOUSEHOLD_NAME, u.USER_NAME
@@ -33,6 +79,7 @@ $stmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -44,6 +91,7 @@ $stmt->close();
     <link rel="stylesheet" href="style_notifications.css" />
     <link rel="stylesheet" href="style_user_chrome.css" />
     <link rel="stylesheet" href="style_invitations.css" />
+    <link rel="stylesheet" href="style_profile.css" />
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -51,6 +99,7 @@ $stmt->close();
         });
     </script>
 </head>
+
 <body>
     <div class="background" aria-hidden="true"></div>
     <div class="dashboard-shell">
@@ -67,6 +116,32 @@ $stmt->close();
             </header>
 
             <main class="page" role="main">
+
+                <form class="edit-form" action="" method="post" enctype="multipart/form-data">
+                    <?php if (!empty($error_message)): ?>
+                        <div style="margin-bottom: 20px; padding: 15px; background-color: #fee; border: 1px solid #fcc; border-radius: 8px; color: #c00;">
+                            <?php echo htmlspecialchars($error_message); ?>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (!empty($success_message)): ?>
+                        <div style="margin-bottom: 20px; padding: 15px; background-color: #efe; border: 1px solid #cfc; border-radius: 8px; color: #060;">
+                            <?php echo htmlspecialchars($success_message); ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <label>
+                        <span>Invite Code</span>
+                        <div class="input-wrapper">
+                            <input type="text" name="invite_code" placeholder="code" required />
+                        </div>
+                    </label>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Join household</button>
+                    </div>
+                </form>
+
+
                 <?php if (empty($invitations)): ?>
                     <section class="group">
                         <header>
@@ -144,4 +219,5 @@ $stmt->close();
         }
     </script>
 </body>
+
 </html>

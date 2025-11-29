@@ -30,9 +30,15 @@ $user_res = $stmt->get_result()->fetch_assoc();
 $added_user_id = $user_res['ID_USER'];
 
 // Add to household members
+// Add to household members
 $stmt = $conn->prepare("INSERT INTO household_member (ID_HOUSEHOLD, ID_USER, ROLE) VALUES (?, ?, 'member')");
 $stmt->bind_param("ii", $household_id, $added_user_id);
 $stmt->execute();
+
+// Also insert into POINTS for this user and household
+$stmt2 = $conn->prepare("INSERT INTO POINTS (ID_USER, ID_HOUSEHOLD, TOTAL_POINTS) VALUES (?, ?, 0)");
+$stmt2->bind_param("ii", $added_user_id, $household_id);
+$stmt2->execute();
 
 // Update invitation status
 $stmt = $conn->prepare("UPDATE invitation SET STATUS = 'accepted' WHERE ID_INVITATION = ?");

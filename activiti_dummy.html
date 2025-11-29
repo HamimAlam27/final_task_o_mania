@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activity Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    select {
+      padding: 8px 12px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin: 0 10px;
+    }
+    canvas {
+      background: #f7f7f7;
+      border-radius: 10px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>User Activity Chart</h1>
+  <div class="controls">
+    <label for="variable">Select Variable:</label>
+    <select id="variable">
+      <option value="tasksByDay">Tasks Completed by Day</option>
+      <option value="tasksByMonth">Tasks Completed by Month</option>
+      <option value="pointsByDay">Points Earned by Day</option>
+      <option value="pointsByMonth">Points Earned by Month</option>
+    </select>
+  </div>
+  <canvas id="activityChart" width="800" height="400"></canvas>
+</div>
+
+<script>
+  const ctx = document.getElementById('activityChart').getContext('2d');
+
+  // Dummy data
+  const dataSets = {
+    tasksByDay: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      data: [3, 5, 2, 7, 4, 6, 5],
+      label: 'Tasks Completed'
+    },
+    tasksByMonth: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      data: [20, 25, 18, 30, 22, 28],
+      label: 'Tasks Completed'
+    },
+    pointsByDay: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      data: [30, 50, 20, 70, 40, 60, 50],
+      label: 'Points Earned'
+    },
+    pointsByMonth: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      data: [200, 250, 180, 300, 220, 280],
+      label: 'Points Earned'
+    }
+  };
+
+  let chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: dataSets.tasksByDay.labels,
+      datasets: [{
+        label: dataSets.tasksByDay.label,
+        data: dataSets.tasksByDay.data,
+        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1,
+        borderRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true },
+        tooltip: { enabled: true }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  document.getElementById('variable').addEventListener('change', function() {
+    const selected = this.value;
+    chart.data.labels = dataSets[selected].labels;
+    chart.data.datasets[0].data = dataSets[selected].data;
+    chart.data.datasets[0].label = dataSets[selected].label;
+    chart.update();
+  });
+</script>
+
+</body>
+</html>

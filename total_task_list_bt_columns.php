@@ -9,6 +9,15 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
+
+// Validate household session
+if (!isset($_SESSION['household_id'])) {
+  header('Location: households.php');
+  exit;
+}
+
+$current_household_id = intval($_SESSION['household_id']);
+
 $tasks_by_status = [
   'todo' => [],
   'in_progress' => [],
@@ -16,59 +25,88 @@ $tasks_by_status = [
   'completed' => []
 ];
 
-// Fetch all households the user belongs to
-$household_query = $conn->prepare("
-  SELECT ID_HOUSEHOLD 
-  FROM household_member 
-  WHERE ID_USER = ?
+// Use only the current session household
+$household_ids = [$current_household_id];
+
+// Fetch tasks for ONLY the selected household
+$placeholders = '?';
+
+$task_query = $conn->prepare("
+  SELECT 
+    ID_TASK,
+    ID_USER,
+    TASK_NAME,
+    TASK_POINT,
+    TASK_STATUS
+  FROM task 
+  WHERE ID_HOUSEHOLD IN ($placeholders)
+  ORDER BY TASK_CREATED DESC
 ");
-$household_query->bind_param('i', $user_id);
-$household_query->execute();
-$household_result = $household_query->get_result();
-$household_ids = [];
+$task_query->bind_param('i', $household_ids[0]);
+$task_query->execute();
+$task_result = $task_query->get_result();
 
-while ($row = $household_result->fetch_assoc()) {
-  $household_ids[] = $row['ID_HOUSEHOLD'];
-}
-$household_query->close();
+// Helper statements for worker/completion checks
+$progress_check = $conn->prepare("
+  SELECT 1 
+  FROM PROGRESS 
+  WHERE ID_TASK = ? AND ID_USER = ? 
+  LIMIT 1
+");
 
-// Fetch tasks from all user's households
-if (!empty($household_ids)) {
-  $placeholders = implode(',', array_fill(0, count($household_ids), '?'));
-  $task_query = $conn->prepare("
-    SELECT 
-      ID_TASK,
-      TASK_NAME,
-      TASK_POINT,
-      TASK_STATUS
-    FROM task 
-    WHERE ID_HOUSEHOLD IN ($placeholders)
-    ORDER BY TASK_CREATED DESC
-  ");
-  
-  $task_query->bind_param(str_repeat('i', count($household_ids)), ...$household_ids);
-  $task_query->execute();
-  $task_result = $task_query->get_result();
-  
-  while ($task = $task_result->fetch_assoc()) {
-    $status = strtolower(str_replace(' ', '_', $task['TASK_STATUS']));
-    
-    // Normalize status to match column keys
-    if (!in_array($status, ['todo', 'in_progress', 'pending', 'completed'])) {
-      if (in_array($status, ['to_do', 'available', 'new'])) $status = 'todo';
-      elseif (in_array($status, ['in progress', 'doing', 'active'])) $status = 'in_progress';
-      elseif (in_array($status, ['under_review', 'awaiting', 'waiting'])) $status = 'pending';
-      else $status = 'todo';
-    }
-    
-    $tasks_by_status[$status][] = [
-      'id' => $task['ID_TASK'],
-      'task_name' => $task['TASK_NAME'],
-      'task_points' => $task['TASK_POINT']
-    ];
+$completion_check = $conn->prepare("
+  SELECT 1 
+  FROM COMPLETION 
+  WHERE ID_TASK = ? 
+    AND SUBMITTED_BY = ? 
+  LIMIT 1
+");
+
+// Process tasks
+while ($task = $task_result->fetch_assoc()) {
+  $status = strtolower(str_replace([' ', '-'], '_', $task['TASK_STATUS']));
+
+  if (!array_key_exists($status, $tasks_by_status)) {
+    continue;
   }
-  $task_query->close();
+
+  $include = true;
+  $task_owner = $task['ID_USER'] ? intval($task['ID_USER']) : $user_id;
+
+  // Pending visibility
+  if ($status === 'pending') {
+    $progress_check->bind_param('ii', $task['ID_TASK'], $user_id);
+    $progress_check->execute();
+    $progress_result = $progress_check->get_result();
+    $is_worker = $progress_result->num_rows > 0;
+    $progress_result->free();
+
+    $include = ($task_owner === $user_id) || $is_worker;
+  }
+
+  // Completed visibility
+  if ($status === 'completed') {
+    $completion_check->bind_param('ii', $task['ID_TASK'], $user_id);
+    $completion_check->execute();
+    $completion_result = $completion_check->get_result();
+    $has_completion = $completion_result->num_rows > 0;
+    $completion_result->free();
+    
+    $include = $has_completion || ($task_owner === $user_id);
+  }
+
+  if (!$include) continue;
+
+  $tasks_by_status[$status][] = [
+    'id' => $task['ID_TASK'],
+    'task_name' => $task['TASK_NAME'],
+    'task_points' => $task['TASK_POINT']
+  ];
 }
+
+$progress_check->close();
+$completion_check->close();
+$task_query->close();
 ?>
 <!doctype html>
 <html lang="en">
@@ -82,6 +120,7 @@ if (!empty($household_ids)) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style_task_list.css" />
     <link rel="stylesheet" href="style_user_chrome.css" />
+    
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -126,9 +165,7 @@ if (!empty($household_ids)) {
             <div class="task-columns__grid">
               <article class="task-column task-column--todo" data-column="todo">
                 <header>
-                  <div>
-                    <h3>To Do</h3>
-                  </div>
+                  <div><h3>To Do</h3></div>
                   <span class="column-count" data-column-count="todo">0</span>
                 </header>
                 <p class="column-description">All available house tasks waiting for a hero.</p>
@@ -138,9 +175,7 @@ if (!empty($household_ids)) {
 
               <article class="task-column task-column--progress" data-column="in_progress">
                 <header>
-                  <div>
-                    <h3>In Progress</h3>
-                  </div>
+                  <div><h3>In Progress</h3></div>
                   <span class="column-count" data-column-count="in_progress">0</span>
                 </header>
                 <p class="column-description">Join ongoing tasks and share the effort (and the points).</p>
@@ -150,9 +185,7 @@ if (!empty($household_ids)) {
 
               <article class="task-column task-column--pending" data-column="pending">
                 <header>
-                  <div>
-                    <h3>Pending</h3>
-                  </div>
+                  <div><h3>Pending</h3></div>
                   <span class="column-count" data-column-count="pending">0</span>
                 </header>
                 <p class="column-description">Awaiting final confirmation by the owner.</p>
@@ -162,9 +195,7 @@ if (!empty($household_ids)) {
 
               <article class="task-column task-column--completed" data-column="completed">
                 <header>
-                  <div>
-                    <h3>Completed</h3>
-                  </div>
+                  <div><h3>Completed</h3></div>
                   <span class="column-count" data-column-count="completed">0</span>
                 </header>
                 <p class="column-description">Approved and rewarded tasks.</p>
@@ -179,10 +210,9 @@ if (!empty($household_ids)) {
 
     <script>
       (function () {
-        const DETAIL_PAGE = 'task_list_detail.html';
-        const OWNER_PENDING_PAGE = 'when_owner_clicks_on_pending.html';
+        const DETAIL_PAGE = 'task_list_detail.php';
+        const OWNER_PENDING_PAGE = 'task_list_detail.php';
 
-        // Tasks passed from PHP server-side
         const serverTasks = {
           todo: <?php echo json_encode($tasks_by_status['todo']); ?>,
           in_progress: <?php echo json_encode($tasks_by_status['in_progress']); ?>,
@@ -192,51 +222,34 @@ if (!empty($household_ids)) {
 
         const handleNavigateToDetails = (taskId) => {
           if (!taskId) return;
-          try {
-            window.localStorage.setItem('taskomania_selected_task', taskId);
-          } catch (error) {
-            console.warn('Unable to persist the selected task', error);
-          }
-          window.location.href = DETAIL_PAGE;
+          window.location.href = 'task_list_detail.php?task_id=' + taskId;
         };
 
         const handleNavigateToPending = (taskId) => {
           if (!taskId) return;
-          try {
-            window.localStorage.setItem('taskomania_selected_task', taskId);
-          } catch (error) {
-            console.warn('Unable to persist the selected task', error);
-          }
-          window.location.href = OWNER_PENDING_PAGE;
+          window.location.href = `task_list_detail.php?task_id=${taskId}`;
         };
 
         const columns = ['todo', 'in_progress', 'pending', 'completed'];
 
-        const columnLists = columns.reduce((acc, key) => {
-          acc[key] = document.querySelector(`[data-column-list="${key}"]`);
-          return acc;
-        }, {});
+        const columnLists = Object.fromEntries(
+          columns.map(key => [key, document.querySelector(`[data-column-list="${key}"]`)])
+        );
 
-        const columnEmpty = columns.reduce((acc, key) => {
-          acc[key] = document.querySelector(`[data-column-empty="${key}"]`);
-          return acc;
-        }, {});
+        const columnEmpty = Object.fromEntries(
+          columns.map(key => [key, document.querySelector(`[data-column-empty="${key}"]`)])
+        );
 
-        const columnCounts = columns.reduce((acc, key) => {
-          acc[key] = document.querySelector(`[data-column-count="${key}"]`);
-          return acc;
-        }, {});
+        const columnCounts = Object.fromEntries(
+          columns.map(key => [key, document.querySelector(`[data-column-count="${key}"]`)])
+        );
 
         const toggleColumnEmptyState = (key, hasItems) => {
-          const emptyMessage = columnEmpty[key];
-          if (!emptyMessage) return;
-          emptyMessage.hidden = hasItems;
+          if (columnEmpty[key]) columnEmpty[key].hidden = hasItems;
         };
 
         const updateColumnCount = (key, count) => {
-          const countEl = columnCounts[key];
-          if (!countEl) return;
-          countEl.textContent = count;
+          if (columnCounts[key]) columnCounts[key].textContent = count;
         };
 
         const formatPoints = (value) => {
@@ -274,6 +287,7 @@ if (!empty($household_ids)) {
           };
 
           card.addEventListener('click', handleClick);
+
           card.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' || event.key === ' ') {
               event.preventDefault();
@@ -286,9 +300,7 @@ if (!empty($household_ids)) {
 
         const renderTasks = () => {
           columns.forEach((key) => {
-            if (columnLists[key]) {
-              columnLists[key].innerHTML = '';
-            }
+            if (columnLists[key]) columnLists[key].innerHTML = '';
           });
 
           columns.forEach((key) => {

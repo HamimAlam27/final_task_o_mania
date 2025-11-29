@@ -103,6 +103,9 @@ if (!$updateStmt->execute()) {
 $updateStmt->close();
 
 // If accepted, add user to household_member table
+// Triggers will automatically:
+// - tr_create_points_on_household_join: Create POINTS record with 0 points
+// - tr_notify_on_household_invitation: Create notification for this invitation (already done on INSERT)
 if ($response === 'accept') {
     $role = 'member'; // Default role
     $memberQuery = "INSERT INTO household_member (ID_HOUSEHOLD, ID_USER, ROLE) VALUES (?, ?, ?)";

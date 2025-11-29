@@ -7,7 +7,11 @@ if ($is_local) {
     $host = "localhost";
     $user = "root";
     $pass = "";
-    $dbname = "task_mania";
+
+    // $dbname = "task_mania";
+
+    $dbname = "is_project";
+
     $port = 3306; // Default MySQL port
 } else {
     // Online InfinityFree credentials
