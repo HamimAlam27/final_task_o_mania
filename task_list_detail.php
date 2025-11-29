@@ -22,7 +22,7 @@ if (!$household_id || !$task_id) {
 
 // Fetch task details
 $task_stmt = $conn->prepare("
-  SELECT ID_TASK, TASK_NAME, TASK_DESCRIPTION, TASK_POINT, IMAGE_BEFORE, IMAGE_AFTER, TASK_STATUS, ID_USER, TASK_CREATED, IMAGE_NEEDED
+  SELECT ID_TASK, TASK_NAME, TASK_DESCRIPTION, TASK_POINT, IMAGE_BEFORE, IMAGE_AFTER, TASK_STATUS, ID_USER, TASK_CREATED, IMAGE_NEEDED, AI_VALIDATION
   FROM TASK 
   WHERE ID_TASK = ? AND ID_HOUSEHOLD = ?
 ");
@@ -33,6 +33,11 @@ $task = $task_result->fetch_assoc();
 $task_stmt->close();
 
 $image_needed = isset($task['IMAGE_NEEDED']) ? intval($task['IMAGE_NEEDED']) : 0;
+$ai_validation = isset($task['AI_VALIDATION']) ? intval($task['AI_VALIDATION']) : 0;
+
+if ($ai_validation === 1) {
+  $image_needed = 1;
+}
 
 // If task not found, redirect
 if (!$task) {
@@ -99,6 +104,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $_SESSION['error'] = 'Failed to submit the task. DB error: ' . $update_stmt->error . ' / ' . $conn->error;
         }
         $update_stmt->close();
+
+        // If AI validation is enabled, redirect the user to the AI validation handler
+        if (!empty($ai_validation) && $ai_validation === 1) {
+          $_SESSION['time'] = 0;
+          header('Location: api/task/ai_validation.php?task_id=' . urlencode($task_id) . '&household_id=' . urlencode($household_id));
+          exit;
+        }
       } else {
         $_SESSION['error'] = 'Failed to upload image.';
         header('Location: task_list_detail.php?task_id=' . $task_id);
@@ -114,6 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $update_stmt->bind_param('sii', $status, $task_id, $household_id);
       if ($update_stmt->execute()) {
         $_SESSION['success'] = 'Task submitted successfully and is pending approval.';
+
       } else {
         $_SESSION['error'] = 'Failed to submit the task.';
       }
