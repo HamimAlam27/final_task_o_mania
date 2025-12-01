@@ -5,6 +5,6 @@
 if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
     define('BASE_PATH', '/final_task_o_mania-1'); // For localhost
 } else {
-    define('BASE_PATH', '/'); // For InfinityFree or other environments
+    define('BASE_PATH', '/task-o-mania.infinityfreeapp.com'); // For InfinityFree or other environments
 }
 ?>
