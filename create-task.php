@@ -88,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </script>
 
     <style>
+      
       .form-field--upload label {
         font-size: 14px;
         font-weight: 600;
@@ -245,6 +246,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border: 1px solid rgba(124, 101, 255, 0.25);
         color: #4b2dbd;
       }
+
+      
     </style>
 
   </head>
@@ -314,7 +317,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <label for="task-photo">Add Photo</label>
               <label class="upload" for="task-photo">
                 <input id="task-photo" name="task_photo" type="file" accept="image/*" />
-                <span>Upload your photo</span>
+                <span
+      id="task-photo-filename"
+      class="upload-filename"
+      data-placeholder="Upload your photo"
+    >
+      Upload your photo
+    </span>
               </label>
             </div>
 
@@ -350,6 +359,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script>
       (function () {
+        document.addEventListener("DOMContentLoaded", function() {
+    const fileInput = document.getElementById('task-photo');
+    const filenameDisplay = document.getElementById('task-photo-filename');
+    const uploadLabel = fileInput.closest('.upload');
+
+    if (fileInput && filenameDisplay && uploadLabel) {
+      const placeholderText = filenameDisplay.getAttribute('data-placeholder');
+
+      fileInput.addEventListener('change', function(e) {
+        const fileName = e.target.files.length > 0 ? e.target.files[0].name : placeholderText;
+        
+        // Update the displayed text
+        filenameDisplay.textContent = fileName;
+
+        // Apply visual class to the upload box
+        if (e.target.files.length > 0) {
+          uploadLabel.classList.add('upload--filled');
+        } else {
+          uploadLabel.classList.remove('upload--filled');
+        }
+      });
+      
+      // Ensure the placeholder is correct on load (in case of failed form submit)
+      if (fileInput.value === "") {
+         uploadLabel.classList.remove('upload--filled');
+      }
+    }
+  });
+
+
         const modal = document.querySelector('.success-modal');
         const okButton = document.getElementById('success-modal-ok');
         const shouldShowSuccessModal = <?php echo $show_success_modal ? 'true' : 'false'; ?>;
