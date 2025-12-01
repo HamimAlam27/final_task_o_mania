@@ -104,8 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $update_stmt->close();
 
-        if (!empty($ai_validation) && $ai_validation === 1) {
+
+        //image
+        if (!empty($ai_validation) && $ai_validation === 1 && $image_needed === 1) {
           $_SESSION['time'] = 0;
+          $_SESSION['success'] = 'Task submitted successfully and is pending for automatic validation.';
+          $_SESSION['success_type'] = 'submit_task';
           header('Location: api/task/ai_validation.php?task_id=' . urlencode($task_id) . '&household_id=' . urlencode($household_id));
           exit;
         }

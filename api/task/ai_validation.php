@@ -147,6 +147,9 @@ if (is_array($model_result) && isset($model_result['verdict'])) {
     $verdict = $model_result['verdict'];
     $confidence = ($model_result['confidence'])*100;
     $reason = $model_result['reason'] ?? '';
+
+    $_SESSION['ai_reason'] = $reason;
+    $_SESSION['ai_verdict'] = $verdict;
 } else {
     $verdict = 'ERROR';
     $confidence = 0;
