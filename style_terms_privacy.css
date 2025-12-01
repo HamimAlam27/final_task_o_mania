@@ -1,0 +1,168 @@
+/* Task-o-Mania - Terms & Privacy Page */
+
+:root {
+  --page-bg-image: url('IMAGES/PageBackground.png');
+  --text: #16161d;
+  --muted: rgba(22, 22, 29, 0.65);
+  --card-bg: rgba(255, 255, 255, 0.72);
+  --card-border: rgba(255, 255, 255, 0.82);
+  --accent-start: #5b2df6;
+  --accent-end: #7047ff;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text);
+  background-color: #f2f4ff;
+  background-image: var(--page-bg-image);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.background {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(700px 600px at 25% 25%, rgba(255,255,255,0.76) 0%, transparent 65%),
+    radial-gradient(900px 700px at 75% 30%, rgba(244,235,255,0.76) 0%, transparent 60%),
+    radial-gradient(1200px 900px at 50% 80%, rgba(255,246,224,0.7) 0%, transparent 70%),
+    repeating-conic-gradient(from 20deg at 55% 45%, rgba(255,255,255,0.22) 0 18deg, rgba(255,255,255,0) 18deg 36deg),
+    var(--page-bg-image);
+  background-size: cover, cover, cover, cover, cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.95;
+  filter: saturate(1.05) contrast(1.02);
+  z-index: -1;
+}
+
+.page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: clamp(24px, 4vw, 48px);
+  position: relative;
+}
+
+.back-button {
+  position: absolute;
+  top: clamp(32px, 5vw, 48px);
+  left: clamp(32px, 5vw, 56px);
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(112, 106, 255, 0.18);
+  color: #5f4cff;
+  text-decoration: none;
+  font-size: 28px;
+  line-height: 1;
+  transition: transform .2s ease, background-color .2s ease;
+  backdrop-filter: blur(12px);
+  z-index: 5;
+}
+
+.back-button:hover { transform: translateX(-2px); background: rgba(112, 106, 255, 0.28); }
+
+.card {
+  width: min(900px, 100%);
+  padding: clamp(36px, 5vw, 72px) clamp(28px, 6vw, 96px);
+  border-radius: 28px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 30px 80px rgba(74, 52, 119, 0.15);
+  backdrop-filter: blur(24px);
+  display: grid;
+  gap: clamp(24px, 4vw, 32px);
+}
+
+.card-header {
+  text-align: center;
+  display: grid;
+  gap: 12px;
+}
+
+.card-header h1 {
+  margin: 0;
+  font-size: clamp(32px, 5vw, 50px);
+  font-weight: 800;
+}
+
+.card-header p {
+  margin: 0;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.content {
+  display: grid;
+  gap: clamp(18px, 3vw, 28px);
+}
+
+.block {
+  padding: clamp(16px, 2.5vw, 24px);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.64);
+  box-shadow: 0 12px 26px rgba(88, 63, 180, 0.12);
+  display: grid;
+  gap: 12px;
+}
+
+.block h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(120deg, var(--accent-start), var(--accent-end));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.block p {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.block ul {
+  margin: 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.block a {
+  color: #5b2df6;
+  text-decoration: underline;
+}
+
+.block a:hover { color: #3b1fcf; }
+
+@media (max-width: 720px) {
+  .back-button {
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+    top: 24px;
+    left: 24px;
+  }
+
+  .card {
+    padding: clamp(28px, 6vw, 48px) clamp(20px, 6vw, 42px);
+  }
+
+  .block {
+    padding: clamp(14px, 5vw, 18px);
+  }
+}

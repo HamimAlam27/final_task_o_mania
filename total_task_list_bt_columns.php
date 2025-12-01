@@ -104,6 +104,9 @@ while ($task = $task_result->fetch_assoc()) {
   ];
 }
 
+// Limit completed tasks to the most recent 5
+$tasks_by_status['completed'] = array_slice($tasks_by_status['completed'], 0, 5);
+
 $progress_check->close();
 $completion_check->close();
 $task_query->close();
@@ -150,7 +153,6 @@ $task_query->close();
           <section class="task-columns" aria-label="Task overview">
             <header class="task-columns__intro">
               <div>
-                <p class="subtitle">Move tasks from left to right</p>
                 <h2>Track available work, join teammates, await approval, and celebrate completions.</h2>
               </div>
               <div class="task-columns__legend">
@@ -198,7 +200,7 @@ $task_query->close();
                   <div><h3>Completed</h3></div>
                   <span class="column-count" data-column-count="completed">0</span>
                 </header>
-                <p class="column-description">Approved and rewarded tasks.</p>
+                <p class="column-description">Recent 5 completed tasks.</p>
                 <div class="task-column__list" data-column-list="completed"></div>
                 <p class="task-column__empty" data-column-empty="completed">No completed tasks yet.</p>
               </article>

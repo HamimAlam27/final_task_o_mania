@@ -20,7 +20,8 @@ $week_start = date('Y-m-d', strtotime('monday this week'));
 $month_start = date('Y-m-01');
 
 // Weekly completions
-$stmt = $conn->prepare("SELECT COUNT(*) AS completed, COALESCE(SUM(POINTS),0) AS points FROM COMPLETION c JOIN TASK t ON t.ID_TASK = c.ID_TASK WHERE c.STATUS='approved' AND c.SUBMITTED_BY=? AND t.ID_HOUSEHOLD=? AND c.SUBMITTED_AT >= ?");
+// Use COMPLETION.COMPLETED_AT and APPROVED_BY (no STATUS column in schema)
+$stmt = $conn->prepare("SELECT COUNT(*) AS completed, COALESCE(SUM(POINTS),0) AS points FROM COMPLETION c JOIN TASK t ON t.ID_TASK = c.ID_TASK WHERE c.APPROVED_BY IS NOT NULL AND c.SUBMITTED_BY=? AND t.ID_HOUSEHOLD=? AND c.COMPLETED_AT >= ?");
 $stmt->bind_param('iis', $user_id, $household_id, $week_start);
 $stmt->execute();
 $stmt->bind_result($tasks_week, $points_week);
@@ -28,20 +29,65 @@ $stmt->fetch();
 $stmt->close();
 
 // Monthly completions (for chart)
-$stmt = $conn->prepare("SELECT DAY(c.SUBMITTED_AT) AS day, COUNT(*) AS completed FROM COMPLETION c JOIN TASK t ON t.ID_TASK = c.ID_TASK WHERE c.STATUS='approved' AND c.SUBMITTED_BY=? AND t.ID_HOUSEHOLD=? AND c.SUBMITTED_AT >= ? GROUP BY day ORDER BY day ASC");
-$stmt->bind_param('iis', $user_id, $household_id, $month_start);
+// Use COMPLETION.COMPLETED_AT and APPROVED_BY
+// Fetch household members (to show everyone's activity)
+$members_stmt = $conn->prepare("SELECT DISTINCT u.ID_USER, u.USER_NAME FROM USER u JOIN HOUSEHOLD_MEMBER hm ON u.ID_USER = hm.ID_USER WHERE hm.ID_HOUSEHOLD = ? ORDER BY u.USER_NAME ASC");
+$members_stmt->bind_param('i', $household_id);
+$members_stmt->execute();
+$members_result = $members_stmt->get_result();
+$household_members = [];
+while ($m = $members_result->fetch_assoc()) {
+  $household_members[] = $m;
+}
+$members_stmt->close();
+
+// Prepare chart labels: days of the current month
+$days_in_month = intval(date('t'));
+$chart_labels = [];
+for ($d = 1; $d <= $days_in_month; $d++) $chart_labels[] = $d;
+
+// Initialize per-member daily buckets for tasks and points
+$tasks_by_member = []; // [user_id][day] = count
+$points_by_member = []; // [user_id][day] = sum points
+foreach ($household_members as $m) {
+  $uid = intval($m['ID_USER']);
+  $tasks_by_member[$uid] = array_fill(1, $days_in_month, 0);
+  $points_by_member[$uid] = array_fill(1, $days_in_month, 0);
+}
+
+// Fetch task completions grouped by submitter and day for this household/month
+$stmt = $conn->prepare(
+  "SELECT DAY(c.COMPLETED_AT) AS day, c.SUBMITTED_BY AS user_id, COUNT(*) AS completed, COALESCE(SUM(c.POINTS),0) AS points " .
+  "FROM COMPLETION c JOIN TASK t ON t.ID_TASK = c.ID_TASK " .
+  "WHERE c.APPROVED_BY IS NOT NULL AND t.ID_HOUSEHOLD = ? AND c.COMPLETED_AT >= ? GROUP BY user_id, day ORDER BY day ASC"
+);
+$stmt->bind_param('is', $household_id, $month_start);
 $stmt->execute();
-$chart_days = [];
-$chart_counts = [];
-$result = $stmt->get_result();
-while ($row = $result->fetch_assoc()) {
-  $chart_days[] = $row['day'];
-  $chart_counts[] = $row['completed'];
+$res = $stmt->get_result();
+while ($row = $res->fetch_assoc()) {
+  $day = intval($row['day']);
+  $uid = intval($row['user_id']);
+  if ($day >= 1 && $day <= $days_in_month) {
+    if (!isset($tasks_by_member[$uid])) {
+      // ensure unknown members don't break things
+      $tasks_by_member[$uid] = array_fill(1, $days_in_month, 0);
+      $points_by_member[$uid] = array_fill(1, $days_in_month, 0);
+    }
+    $tasks_by_member[$uid][$day] = intval($row['completed']);
+    $points_by_member[$uid][$day] = floatval($row['points']);
+  }
 }
 $stmt->close();
 
+// Expose chart data to JS
+$js_chart_labels = json_encode($chart_labels);
+$js_household_members = json_encode($household_members);
+$js_tasks_by_member = json_encode($tasks_by_member);
+$js_points_by_member = json_encode($points_by_member);
+
 // Inactivity warnings (tasks not completed in last 7 days)
-$stmt = $conn->prepare("SELECT COUNT(*) FROM TASK t LEFT JOIN COMPLETION c ON c.ID_TASK = t.ID_TASK AND c.SUBMITTED_BY=? AND c.STATUS='approved' WHERE t.ID_HOUSEHOLD=? AND (c.SUBMITTED_AT IS NULL OR c.SUBMITTED_AT < ?)");
+// Left join COMPLETION on SUBMITTED_BY and check COMPLETED_AT/APPROVED_BY
+$stmt = $conn->prepare("SELECT COUNT(*) FROM TASK t LEFT JOIN COMPLETION c ON c.ID_TASK = t.ID_TASK AND c.SUBMITTED_BY=? AND c.APPROVED_BY IS NOT NULL WHERE t.ID_HOUSEHOLD=? AND (c.COMPLETED_AT IS NULL OR c.COMPLETED_AT < ?)");
 $seven_days_ago = date('Y-m-d', strtotime('-7 days'));
 $stmt->bind_param('iis', $user_id, $household_id, $seven_days_ago);
 $stmt->execute();
@@ -68,6 +114,17 @@ $stmt->close();
   });
 </script>
 
+<style>
+  /* Responsive chart container adjustments */
+  .chart-panel { padding: 12px; }
+  .chart-panel .chart-wrapper { width: 100%; max-width: 100%; height: 360px; box-sizing: border-box; }
+  .chart-panel canvas { width: 100% !important; height: 100% !important; display: block; }
+  #memberFilters { max-width: 45%; overflow-x: auto; display: flex; gap: 8px; align-items: center; }
+  #memberFilters label { white-space: nowrap; }
+  .btn { background: #eee; border: 1px solid #ddd; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+  .btn.active { background: #6b63ff; color: #fff; border-color: #6b63ff; }
+</style>
+
   </head>
   <body>
     <div class="background" aria-hidden="true"></div>
@@ -82,19 +139,7 @@ $stmt->close();
             <h1>Activity</h1>
           </div>
 
-          <div class="topbar__actions">
-            <div class="user-actions">
-              <a class="notification-button" data-tooltip="Notifications" href="notifications.html" aria-label="Go to notifications">
-                <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M11 2C7.686 2 5 4.686 5 8v1.383c0 .765-.293 1.5-.829 2.036l-.757.757C2.156 13.434 3.037 15.5 4.828 15.5h12.344c1.791 0 2.672-2.066 1.414-3.324l-.757-.757A2.882 2.882 0 0 1 17 9.383V8c0-3.314-2.686-6-6-6Z" stroke-linecap="round" />
-                  <path d="M8.5 18.5c.398 1.062 1.368 1.833 2.5 1.833 1.132 0 2.102-.771 2.5-1.833" stroke-linecap="round" />
-                </svg>
-              </a>
-              <a class="avatar" data-tooltip="Profile" href="profile.html" aria-label="Your profile">
-                <img src="IMAGES/avatar.png" alt="User avatar" />
-              </a>
-            </div>
-          </div>
+          <?php include 'header.php'; ?>
         </header>
 
         <main class="page" role="main">
@@ -113,110 +158,157 @@ $stmt->close();
           <p class="warnings">Inactivity warnings this week: <strong><?php echo $inactivity_warnings; ?></strong></p>
 
           <section class="chart-panel" aria-labelledby="chart-title">
-            <div class="chart-panel__header">
-              <h2 id="chart-title">Tasks Completed (Monthly)</h2>
-              <nav aria-label="Chart intervals">
-                <ul>
-                  <li><a href="#" onclick="setChart('daily')">Daily</a></li>
-                  <li><a href="#" onclick="setChart('weekly')">Weekly</a></li>
-                  <li><a class="active" href="#" onclick="setChart('monthly')">Monthly</a></li>
-                </ul>
-              </nav>
+            <div class="chart-panel__header" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+              <h2 id="chart-title">Activity (Monthly)</h2>
+              <div style="margin-left:8px;">
+                <button id="metricTasks" class="btn" style="margin-right:8px;">Tasks Completed</button>
+                <button id="metricPoints" class="btn">Points Earned</button>
+              </div>
+              <div id="memberFilters" style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <!-- Member checkboxes populated by JS -->
+              </div>
             </div>
             <figure class="chart">
-              <canvas id="activityChart" width="600" height="220"></canvas>
+              <div class="chart-wrapper">
+                <canvas id="activityChart"></canvas>
+              </div>
             </figure>
           </section>
           <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
           <script>
-            const chartDays = <?php echo json_encode($chart_days); ?>;
-            const chartCounts = <?php echo json_encode($chart_counts); ?>;
+            // Data from PHP
+            const chartLabels = <?php echo $js_chart_labels; ?>;
+            const householdMembers = <?php echo $js_household_members; ?>; // array of {ID_USER, USER_NAME}
+            const tasksByMember = <?php echo $js_tasks_by_member; ?>; // { user_id: {day: count} }
+            const pointsByMember = <?php echo $js_points_by_member; ?>; // { user_id: {day: points} }
+
+            // Colors (rotate)
+            const palette = ['#6b63ff','#5fb3ff','#ff7676','#ffb563','#6bff9c','#9d7eff','#7ec8ff'];
+
+            // Visibility map: remember which members are checked/visible
+            const visibilityMap = {};
+            householdMembers.forEach((m, idx) => {
+              visibilityMap[m.ID_USER] = (idx === 0); // default: show first only
+            });
+
+            // Build datasets function
+            function buildDatasets(metric) {
+              const datasets = [];
+              householdMembers.forEach((m, idx) => {
+                const uid = m.ID_USER;
+                const name = m.USER_NAME;
+                const raw = (metric === 'tasks') ? tasksByMember[uid] || {} : pointsByMember[uid] || {};
+                const data = chartLabels.map(day => {
+                  // raw may be keyed by day number
+                  return raw[day] !== undefined ? raw[day] : 0;
+                });
+                datasets.push({
+                  label: name,
+                  data: data,
+                  borderColor: palette[idx % palette.length],
+                  backgroundColor: palette[idx % palette.length] + '33',
+                  fill: metric === 'tasks' ? false : true,
+                  tension: 0.3,
+                  pointRadius: 4,
+                  hidden: !visibilityMap[uid]
+                });
+              });
+              return datasets;
+            }
+
             const ctx = document.getElementById('activityChart').getContext('2d');
-            const activityChart = new Chart(ctx, {
-              type: 'line',
-              data: {
-                labels: chartDays,
-                datasets: [{
-                  label: 'Tasks Completed',
-                  data: chartCounts,
-                  backgroundColor: 'rgba(125, 117, 255, 0.28)',
-                  borderColor: '#6b63ff',
-                  borderWidth: 4,
-                  pointBackgroundColor: '#fff',
-                  pointBorderColor: '#6b63ff',
-                  pointRadius: 6,
-                  fill: true,
-                  tension: 0.4
-                }]
-              },
-              options: {
-                responsive: true,
-                plugins: {
-                  legend: { display: false },
-                  title: { display: false }
+            let currentMetric = 'tasks';
+            let activityChart = null;
+            try {
+              if (typeof Chart === 'undefined') throw new Error('Chart.js not loaded');
+              activityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                  labels: chartLabels,
+                  datasets: buildDatasets(currentMetric)
                 },
-                scales: {
-                  x: { title: { display: true, text: 'Day of Month' } },
-                  y: { title: { display: true, text: 'Tasks Completed' }, beginAtZero: true }
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  interaction: { mode: 'nearest', intersect: false },
+                  plugins: { title: { display: true, text: 'Activity by Member' }, legend: { display: false } },
+                  scales: {
+                    x: { title: { display: true, text: 'Day of Month' } },
+                    y: { title: { display: true, text: 'Value' }, beginAtZero: true }
+                  }
                 }
+              });
+            } catch (err) {
+              console.error('Chart initialization failed:', err);
+              // show a lightweight fallback message inside the chart area
+              const wrapper = document.querySelector('.chart-wrapper');
+              if (wrapper) {
+                wrapper.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666">Chart unavailable</div>';
+              }
+            }
+
+            // Metric button helpers (always attach so UI responds even if chart fails)
+            function setActiveMetricButton(metric) {
+              document.getElementById('metricTasks').classList.toggle('active', metric === 'tasks');
+              document.getElementById('metricPoints').classList.toggle('active', metric === 'points');
+            }
+
+            document.getElementById('metricTasks').addEventListener('click', () => {
+              currentMetric = 'tasks';
+              setActiveMetricButton(currentMetric);
+              if (activityChart) {
+                activityChart.data.datasets = buildDatasets(currentMetric);
+                activityChart.options.plugins.title.text = 'Tasks Completed by Member';
+                activityChart.options.scales.y.title.text = 'Tasks Completed';
+                activityChart.update();
               }
             });
-            // You can add setChart() for interval switching if you add more data
+
+            document.getElementById('metricPoints').addEventListener('click', () => {
+              currentMetric = 'points';
+              setActiveMetricButton(currentMetric);
+              if (activityChart) {
+                activityChart.data.datasets = buildDatasets(currentMetric);
+                activityChart.options.plugins.title.text = 'Points Earned by Member';
+                activityChart.options.scales.y.title.text = 'Points Earned';
+                activityChart.update();
+              }
+            });
+
+            // initialize active state
+            setActiveMetricButton(currentMetric);
+
+            // Member filters (checkboxes)
+            const filtersEl = document.getElementById('memberFilters');
+            householdMembers.forEach((m, idx) => {
+              const id = 'm_' + m.ID_USER;
+              const wrapper = document.createElement('label');
+              wrapper.style.display = 'flex';
+              wrapper.style.alignItems = 'center';
+              wrapper.style.gap = '6px';
+              wrapper.style.cursor = 'pointer';
+              const cb = document.createElement('input');
+              cb.type = 'checkbox';
+              cb.id = id;
+              cb.checked = !!visibilityMap[m.ID_USER];
+              cb.addEventListener('change', () => {
+                visibilityMap[m.ID_USER] = cb.checked;
+                const dsIndex = householdMembers.findIndex(h => h.ID_USER == m.ID_USER);
+                if (dsIndex >= 0 && activityChart) {
+                  activityChart.data.datasets[dsIndex].hidden = !cb.checked;
+                  activityChart.update();
+                }
+              });
+              const span = document.createElement('span');
+              span.textContent = m.USER_NAME;
+              span.style.fontSize = '13px';
+              wrapper.appendChild(cb);
+              wrapper.appendChild(span);
+              filtersEl.appendChild(wrapper);
+            });
           </script>
 
-          <section class="activity-scroll" role="list">
-            <article class="activity-card" role="listitem">
-              <header>
-                <span class="activity-card__label">My activity</span>
-                <span class="activity-card__value">08</span>
-              </header>
-              <figure aria-label="Activity trend">
-                <svg viewBox="0 0 120 40" role="presentation" focusable="false">
-                  <path d="M0 28 L20 24 L40 30 L60 18 L80 22 L100 8 L120 14" stroke="#6b63ff" stroke-width="3" fill="none" stroke-linecap="round" />
-                </svg>
-              </figure>
-              <p class="activity-card__delta"><span>10+</span> more from last week</p>
-            </article>
 
-            <article class="activity-card" role="listitem">
-              <header>
-                <span class="activity-card__label">Mom's activity</span>
-                <span class="activity-card__value">10</span>
-              </header>
-              <figure aria-label="Activity trend">
-                <svg viewBox="0 0 120 40" role="presentation" focusable="false">
-                  <path d="M0 30 L20 22 L40 28 L60 16 L80 20 L100 12 L120 18" stroke="#5fb3ff" stroke-width="3" fill="none" stroke-linecap="round" />
-                </svg>
-              </figure>
-              <p class="activity-card__delta"><span>10+</span> more from last week</p>
-            </article>
-
-            <article class="activity-card" role="listitem">
-              <header>
-                <span class="activity-card__label">Joe's activity</span>
-                <span class="activity-card__value">10</span>
-              </header>
-              <figure aria-label="Activity trend">
-                <svg viewBox="0 0 120 40" role="presentation" focusable="false">
-                  <path d="M0 24 L20 18 L40 22 L60 30 L80 20 L100 24 L120 18" stroke="#ff7676" stroke-width="3" fill="none" stroke-linecap="round" />
-                </svg>
-              </figure>
-              <p class="activity-card__delta"><span>08+</span> more from last week</p>
-            </article>
-
-            <article class="activity-card" role="listitem">
-              <header>
-                <span class="activity-card__label">My activity</span>
-                <span class="activity-card__value">08</span>
-              </header>
-              <figure aria-label="Activity trend">
-                <svg viewBox="0 0 120 40" role="presentation" focusable="false">
-                  <path d="M0 28 L20 24 L40 30 L60 18 L80 22 L100 8 L120 14" stroke="#6b63ff" stroke-width="3" fill="none" stroke-linecap="round" />
-                </svg>
-              </figure>
-              <p class="activity-card__delta"><span>10+</span> more from last week</p>
-            </article>
-          </section>
         </main></div>
     </div>
   </body>

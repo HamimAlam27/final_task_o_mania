@@ -69,20 +69,6 @@ if (!$household_id) {
                 <p>Find quick answers to common Task-O-Mania questions.</p>
               </div>
             </a>
-            <a class="tile" href="settings/all_your_data.php">
-              <div class="icon"><i data-lucide="database"></i></div>
-              <div>
-                <h2>All your data</h2>
-                <p>View or delete your personal and household data securely.</p>
-              </div>
-            </a>
-            <a class="tile" href="settings/privacy_and_sharing.php">
-              <div class="icon"><i data-lucide="shield"></i></div>
-              <div>
-                <h2>Privacy & sharing</h2>
-                <p>Manage visibility, sharing preferences, and privacy controls.</p>
-              </div>
-            </a>
           </section>
 
           <p class="cta-text">
