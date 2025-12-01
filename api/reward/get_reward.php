@@ -45,18 +45,21 @@ $user_points = $result_points->fetch_assoc()['TOTAL_POINTS'];
 if ($user_points < $point_cost) {
   http_response_code(400);
   echo json_encode(['error' => 'Insufficient points']);
+  header('Location: ../../reward-store.php?mode=error');
+
   exit;
 }
 // Deduct points and process reward redemption
 $stmt_deduct = $conn->prepare("
-    UPDATE USER_POINTS
-    SET POINTS = TOTAL_POINTS - ?
+    UPDATE Points
+    SET TOTAL_POINTS = TOTAL_POINTS - ?
     WHERE ID_USER = ?");
 $stmt_deduct->bind_param("ii", $point_cost, $user_id);
 if ($stmt_deduct->execute()) {
   echo json_encode(['success' => 'Reward redeemed successfully']);
-  header('Location: ../../reward-store.php');
+  header('Location: ../../reward-store.php?reward_id=' . $reward_id);
 } else {
   http_response_code(500);
   echo json_encode(['error' => 'Failed to redeem reward']);
+  header('Location: ../../reward-store.php?mode=error');
 }

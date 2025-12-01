@@ -24,50 +24,54 @@
           <h1>New Account</h1>
         </header>
 
-        <div class="user-actions">
-          
 
-        <!-- <form id="signup-form" class="form" action="api/account/signup_mail.php?mode=new" method="post"> -->
         <form id="signup-form" class="form" action="api/account/signup.php" method="post" enctype="multipart/form-data">
           <div class="form-field">
-                      <div class="form-field">
-                        <label for="avatar">Profile Picture</label>
-                        <div class="input-wrapper">
-                          <input id="avatar" name="avatar" type="file" accept="image/*" />
-                        </div>
-                      </div>
             <label for="name">Name <span aria-hidden="true">*</span></label>
             <div class="input-wrapper">
-              <input id="name" name="name" type="text" placeholder="Livia Vacarro" required />
+              <input id="name" name="name" type="text" placeholder="Your Name" required />
             </div>
           </div>
 
           <div class="form-field">
             <label for="email">Email <span aria-hidden="true">*</span></label>
             <div class="input-wrapper">
-              <input id="email" name="email" type="email" placeholder="liviavacarro1987@gmail.com" required />
+              <input id="email" name="email" type="email" placeholder="yourname@gmail.com" required />
             </div>
           </div>
 
           <div class="form-field">
-            <label for="username">Username <span aria-hidden="true">*</span></label>
-            <div class="input-wrapper">
-              <input id="username" name="username" type="text" placeholder="liviavacarro1987" required />
-            </div>
+            <label for="avatar">Profile Picture</label>
+                        <div class="input-wrapper">
+                          <input id="avatar" name="avatar" type="file" accept="image/*" />
+                        </div>
           </div>
 
           <div class="form-field">
             <label for="password">Password <span aria-hidden="true">*</span></label>
-            <div class="input-wrapper">
+            <div class="input-wrapper input-wrapper--password">
               <input id="password" name="password" type="password" placeholder="password" required />
+              <button class="toggle-password is-hidden" type="button" data-target="password" aria-label="Show password">
+                <span class="icon-eye" aria-hidden="true"></span>
+              </button>
             </div>
           </div>
 
           <div class="form-field">
             <label for="confirm-password">Repeat password <span aria-hidden="true">*</span></label>
-            <div class="input-wrapper">
+            <div class="input-wrapper input-wrapper--password">
               <input id="confirm-password" name="confirm_password" type="password" placeholder="password" required />
+              <button class="toggle-password is-hidden" type="button" data-target="confirm-password" aria-label="Show password">
+                <span class="icon-eye" aria-hidden="true"></span>
+              </button>
             </div>
+          </div>
+
+          <div class="form-field form-field--checkbox">
+            <label class="checkbox">
+              <input id="terms" name="terms" type="checkbox" required />
+              <span class="checkbox__label">I have read and accept the <a href="terms-and-conditions-privacy-policy.html">Terms and Conditions / Privacy Policy</a></span>
+            </label>
           </div>
 
           <div class="actions">
@@ -79,19 +83,44 @@
       </section>
     </main>
     <script>
-  document.getElementById('signup-form').addEventListener('submit', function(event) {
-    const password = document.getElementById('password').value;
-    const confirm = document.getElementById('confirm-password').value;
+  (function() {
+    const form = document.getElementById('signup-form');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirm-password');
+    const toggleButtons = document.querySelectorAll('.toggle-password');
 
-    if (password !== confirm) {
-      event.preventDefault();  // Stop form submission
-      alert("❌ Passwords do not match. Please try again.");
-      return;
-    }
+    form.addEventListener('submit', function(event) {
+      if (passwordInput.value !== confirmInput.value) {
+        event.preventDefault();
+        alert("❌ Passwords do not match. Please try again.");
+        return;
+      }
 
-    // If they match, redirect (or submit backend)
-    window.location.href = "households.html";
-  });
+      window.location.href = "households.html";
+    });
+
+    toggleButtons.forEach(function(button) {
+      const targetId = button.getAttribute('data-target');
+      const targetInput = document.getElementById(targetId);
+      if (!targetInput) {
+        return;
+      }
+
+      button.addEventListener('click', function() {
+        const isHidden = targetInput.getAttribute('type') === 'password';
+        if (isHidden) {
+          targetInput.setAttribute('type', 'text');
+          button.classList.remove('is-hidden');
+          button.setAttribute('aria-label', 'Hide password');
+        } else {
+          targetInput.setAttribute('type', 'password');
+          button.classList.add('is-hidden');
+          button.setAttribute('aria-label', 'Show password');
+        }
+        targetInput.focus();
+      });
+    });
+  })();
 </script>
 
   </body>

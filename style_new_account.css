@@ -126,6 +126,7 @@ body {
 }
 
 .form-field { display: grid; gap: 10px; }
+.form-field--checkbox { gap: 6px; }
 .form-field label {
   font-size: 14px;
   font-weight: 600;
@@ -141,6 +142,7 @@ body {
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.6),
     0 6px 20px rgba(123, 111, 255, 0.08);
+  position: relative;
 }
 
 .input-wrapper input {
@@ -153,6 +155,62 @@ body {
   font-family: inherit;
   outline: none;
 }
+
+
+.checkbox {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(22, 22, 29, 0.75);
+}
+
+.checkbox input {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid rgba(91, 45, 246, 0.35);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+  display: grid;
+  place-items: center;
+  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+
+.checkbox input::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  transform: scale(0);
+  transition: transform .2s ease;
+  background: linear-gradient(135deg, var(--btn-start), var(--btn-end));
+}
+
+.checkbox input:checked {
+  border-color: transparent;
+  background: rgba(91, 45, 246, 0.15);
+}
+
+.checkbox input:checked::after { transform: scale(1); }
+
+.checkbox input:focus-visible {
+  outline: 2px solid rgba(91, 45, 246, 0.45);
+  outline-offset: 2px;
+}
+
+.checkbox__label {
+  line-height: 1.5;
+}
+
+.checkbox__label a {
+  color: #5b2df6;
+  text-decoration: underline;
+}
+
+.checkbox__label a:hover { color: #3b1fcf; }
 
 .actions {
   display: flex;

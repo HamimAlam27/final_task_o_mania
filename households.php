@@ -43,12 +43,24 @@ $has_household = false;
 try {
     // Get user's households
     $stmt = $conn->prepare("
-        SELECT h.ID_HOUSEHOLD, h.HOUSEHOLD_NAME, COUNT(hm.ID_USER) as member_count
-        FROM HOUSEHOLD h
-        JOIN HOUSEHOLD_MEMBER hm ON h.ID_HOUSEHOLD = hm.ID_HOUSEHOLD
-        WHERE hm.ID_USER = ?
-        GROUP BY h.ID_HOUSEHOLD
-        ORDER BY h.ID_HOUSEHOLD DESC
+        SELECT 
+    h.ID_HOUSEHOLD, 
+    h.HOUSEHOLD_NAME, 
+    (
+        SELECT COUNT(ID_USER) 
+        FROM HOUSEHOLD_MEMBER 
+        WHERE ID_HOUSEHOLD = h.ID_HOUSEHOLD
+    ) as member_count
+FROM 
+    HOUSEHOLD h
+JOIN 
+    HOUSEHOLD_MEMBER hm ON h.ID_HOUSEHOLD = hm.ID_HOUSEHOLD
+WHERE 
+    hm.ID_USER = ?
+GROUP BY 
+    h.ID_HOUSEHOLD, h.HOUSEHOLD_NAME
+ORDER BY 
+    h.ID_HOUSEHOLD DESC
     ");
     
     if (!$stmt) {

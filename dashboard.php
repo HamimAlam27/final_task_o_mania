@@ -146,33 +146,6 @@ $activity_colors = ['#6b63ff', '#5fb3ff', '#ff7676', '#ffb563', '#6bff9c'];
             </div>
           </section>
 
-          <section class="panel" id="activity">
-            <div class="panel__header">
-              <h2>Recent Activity</h2>
-              <a class="panel__link" href="activity.html">See all ➜</a>
-            </div>
-
-            <div class="activity-scroll" role="list">
-              <?php if (!empty($household_members)): ?>
-                <?php foreach ($household_members as $index => $member): ?>
-                  <article class="activity-card" role="listitem">
-                    <header>
-                      <span class="activity-card__label"><?php echo htmlspecialchars($member['USER_NAME']); ?>'s activity</span>
-                      <span class="activity-card__value">0<?php echo ($index + 1); ?></span>
-                    </header>
-                    <figure aria-label="Activity trend">
-                      <svg viewBox="0 0 120 40" role="presentation" focusable="false">
-                        <path d="M0 28 L20 24 L40 30 L60 18 L80 22 L100 8 L120 14" stroke="<?php echo htmlspecialchars($activity_colors[$index % count($activity_colors)]); ?>" stroke-width="3" fill="none" stroke-linecap="round" />
-                      </svg>
-                    </figure>
-                    <p class="activity-card__delta"><span>0+</span> from this period</p>
-                  </article>
-                <?php endforeach; ?>
-              <?php else: ?>
-                <p style="text-align: center; color: #999; padding: 40px 20px;">No household members found.</p>
-              <?php endif; ?>
-            </div>
-          </section>
         </main></div>
     </div>
   </body>
