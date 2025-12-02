@@ -69,14 +69,21 @@
 
           <div class="form-field form-field--checkbox">
             <label class="checkbox">
+              <input id="is-kid" name="is_kid" type="hidden" value="0" />
+              <input id="is-kid-toggle" type="checkbox" onchange="document.getElementById('is-kid').value = this.checked ? '1' : '0';" />
+              <span class="checkbox__label">This is a kid's account</span>
+            </label>
+          </div>
+          <div class="form-field form-field--checkbox">
+            <label class="checkbox">
               <input id="terms" name="terms" type="checkbox" required />
               <span class="checkbox__label">I have read and accept the <a href="terms-and-conditions-privacy-policy.html">Terms and Conditions / Privacy Policy</a></span>
             </label>
           </div>
 
+
           <div class="actions">
             <button class="btn-primary" type="submit">Create an account</button>
-            <a href="new-kids-account.html" class="btn-secondary" role="button">Create Kids Account</a>
 
           </div>
         </form>
@@ -96,7 +103,6 @@
         return;
       }
 
-      window.location.href = "households.html";
     });
 
     toggleButtons.forEach(function(button) {
