@@ -6,6 +6,7 @@ require "../../src/config/response.php";
 $name = $_POST['name'] ?? "";
 $email = $_POST['email'] ?? "";
 $password = $_POST['password'] ?? "";
+$is_kid = $_POST['is_kid'] ?? "0";
 
 if(!$name || !$email || !$password) {
     jsonResponse("error", "Missing fields");
@@ -27,13 +28,13 @@ if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
 }
 
 $hashed = password_hash($password, PASSWORD_BCRYPT);
-
-if ($avatar_path) {
-    $stmt = $conn->prepare("INSERT INTO USER (USER_NAME, USER_EMAIL, USER_PASSWORD, AVATAR) VALUES (?, ?, ?, ?)");
+if ($is_kid === "1") {
+    $stmt = $conn->prepare("INSERT INTO USER (USER_NAME, USER_EMAIL, USER_PASSWORD, IS_KID, AVATAR) VALUES (?, ?, ?, 1, ?)");
     $stmt->bind_param("ssss", $name, $email, $hashed, $avatar_path);
 } else {
-    $stmt = $conn->prepare("INSERT INTO USER (USER_NAME, USER_EMAIL, USER_PASSWORD) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $name, $email, $hashed);
+        $stmt = $conn->prepare("INSERT INTO USER (USER_NAME, USER_EMAIL, USER_PASSWORD, AVATAR, IS_KID) VALUES (?, ?, ?, ?, 0)");
+        $stmt->bind_param("ssss", $name, $email, $hashed, $avatar_path);
+
 }
 
 if ($stmt->execute()) {

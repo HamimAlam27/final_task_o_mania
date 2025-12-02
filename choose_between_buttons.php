@@ -1,3 +1,15 @@
+<?php
+session_start();
+require 'src/config/db.php';
+if (!isset($_SESSION['user_id'])) {
+    header('Location: sign-in.php');
+    exit;
+}
+if (!isset($_SESSION['household_id'])) {
+    header('Location: households.php');
+    exit;
+}
+?>
 <!doctype html>
 <html lang="en">
   <head>

@@ -105,7 +105,7 @@ while ($task = $task_result->fetch_assoc()) {
 }
 
 // Limit completed tasks to the most recent 5
-$tasks_by_status['completed'] = array_slice($tasks_by_status['completed'], 0, 5);
+$tasks_by_status['completed'] = array_slice($tasks_by_status['completed'], 0, 20);
 
 $progress_check->close();
 $completion_check->close();

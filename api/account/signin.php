@@ -7,7 +7,7 @@ $password   = $_POST['password'] ?? "";
 
 // Fetch user by email OR username
 $stmt = $conn->prepare("
-    SELECT ID_USER, USER_PASSWORD, USER_NAME, USER_EMAIL 
+    SELECT ID_USER, USER_PASSWORD, USER_NAME, USER_EMAIL, IS_KID
     FROM USER 
     WHERE USER_EMAIL = ? OR USER_NAME = ?
     LIMIT 1
@@ -31,6 +31,8 @@ if (!password_verify($password, $user['USER_PASSWORD'])) {
 
 // Login OK
 $_SESSION['user_id'] = $user['ID_USER'];
+$_SESSION['is_kid'] = $user['IS_KID'];
+$_SESSION['user_name'] = $user['USER_NAME'];
 
 // Fetch households
 $stmt2 = $conn->prepare("

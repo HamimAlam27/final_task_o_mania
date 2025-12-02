@@ -186,7 +186,7 @@ if (isset($_SESSION['user_id'])) {
         <path d="M8.5 18.5C8.89782 19.5619 9.86827 20.3333 11 20.3333C12.1317 20.3333 13.1022 19.5619 13.5 18.5" stroke-linecap="round" />
       </svg>
     </a>
-    <a class="avatar" data-tooltip="Profile" href="profile.php" aria-label="Your profile">
+    <a class="avatar" data-tooltip="Profile" href="<?php echo htmlspecialchars($folder_name); ?>/profile.php" aria-label="Your profile">
       <!-- <img src="<?php echo htmlspecialchars($avatar_path); ?>" alt="User avatar" /> -->
       <img src="<?php echo htmlspecialchars($folder_name); ?>/images/profiles/<?php echo htmlspecialchars($avatar_path); ?>" alt="User avatar" />
     </a>

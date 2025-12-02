@@ -11,10 +11,10 @@
  */
 
 // Set headers
+session_start();
 header('Content-Type: text/html; charset=utf-8');
 
 // Start session
-session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -37,7 +37,7 @@ require 'src/config/db.php';
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'User';
 $user_id = $_SESSION['user_id'];
 $households = [];
-$user_credits = 0;
+
 $has_household = false;
 
 try {
@@ -78,21 +78,6 @@ ORDER BY
     
     $has_household = count($households) > 0;
     
-    // Get user's total points (for credits display)
-    $points_stmt = $conn->prepare("
-        SELECT SUM(p.TOTAL_POINTS) as total_credits
-        FROM POINTS p
-        WHERE p.ID_USER = ?
-    ");
-    if ($points_stmt) {
-        $points_stmt->bind_param("i", $user_id);
-        $points_stmt->execute();
-        $points_result = $points_stmt->get_result();
-        if ($points_row = $points_result->fetch_assoc()) {
-            $user_credits = $points_row['total_credits'] ?? 0;
-        }
-        $points_stmt->close();
-    }
     
     $stmt->close();
     
