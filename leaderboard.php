@@ -75,65 +75,51 @@ $stmt->close();
             </header>
 
             <main class="page" role="main">
-                <section class="podium" aria-label="All-time podium">
-                    <?php
-                    $top = array_slice($members, 0, 3);
-                    // Uniform cards, all same style and level
-                    for ($i = 0; $i < 3; $i++) {
-                        $slot = $top[$i] ?? null;
-                        $rank = $i + 1;
-                        if ($slot) {
-                            $name = htmlspecialchars($slot['USER_NAME']);
-                            $points = htmlspecialchars($slot['TOTAL_POINTS']);
-                            $avatar = $slot['AVATAR'];
-                        } else {
-                            $name = '—';
-                            $points = '0';
-                            $avatar = null;
-                        }
-                        echo "<article class=\"podium-card\">";
-                        if (!empty($avatar)) {
-                            $b64 = base64_encode($avatar);
-                            echo "<img src=\"data:image/png;base64,$b64\" alt=\"$name\" />";
-                        } else {
-                            echo "<img src=\"IMAGES/avatar.png\" alt=\"$name\" />";
-                        }
-                        echo "<h2>$name</h2>";
-                        echo "<p>{$points} pts</p>";
-                        echo "<span class=\"rank\">#$rank</span>";
-                        echo "</article>";
-                    }
-                    ?>
-                </section>
+                
 
                 <section class="board" aria-label="This week standings">
-                    <ol>
-                        <?php
-                        $pos = 1;
-                        foreach ($members as $m) {
-                            $name = htmlspecialchars($m['USER_NAME']);
-                            $points = htmlspecialchars($m['TOTAL_POINTS']);
-                            $avatar = $m['AVATAR'];
-                            echo '<li>';
-                            echo '<span class="position">' . $pos . '</span>';
-                            echo '<span class="member">';
-                            if (!empty($avatar)) {
-                                $b64 = base64_encode($avatar);
-                                echo '<img src="data:image/png;base64,' . $b64 . '" alt="' . $name . '" /> ' . $name;
-                            } else {
-                                echo '<img src="IMAGES/avatar.png" alt="' . $name . '" /> ' . $name;
-                            }
-                            echo '</span>';
-                            echo '<span class="points">' . $points . ' pts</span>';
-                            echo '</li>';
-                            $pos++;
-                        }
-                        if (count($members) === 0) {
-                            echo '<li>No members found.</li>';
-                        }
-                        ?>
-                    </ol>
-                </section>
+    <ol>
+        <?php
+        $pos = 1;
+        $image_base_path = 'images/profiles/'; // Define the path once
+
+        foreach ($members as $m) {
+            $name = htmlspecialchars($m['USER_NAME']);
+            $points = htmlspecialchars($m['TOTAL_POINTS']);
+            $avatar = $m['AVATAR']; // This should be the filename (e.g., 'avatar_123.jpg')
+            
+            // Determine the image source and alt text
+            if (!empty($avatar)) {
+                // Correctly construct the full path for the custom avatar
+                $img_src = htmlspecialchars($image_base_path . $avatar);
+                $img_alt = 'Profile picture for ' . $name;
+            } else {
+                // Use the default avatar
+                $img_src = 'IMAGES/avatar.png'; // Make sure the case (IMAGES) is correct
+                $img_alt = 'Default profile picture for ' . $name;
+            }
+
+            echo '<li>';
+            echo '<span class="position">' . $pos . '</span>';
+            echo '<span class="member">';
+            
+            // Output the image tag
+            echo '<img src="' . $img_src . '" alt="' . htmlspecialchars($img_alt) . '" />';
+            
+            // Output the member name next to the image (optional, depends on your design)
+            echo ' ' . $name; 
+            
+            echo '</span>';
+            echo '<span class="points">' . $points . ' pts</span>';
+            echo '</li>';
+            $pos++;
+        }
+        if (count($members) === 0) {
+            echo '<li>No members found.</li>';
+        }
+        ?>
+    </ol>
+</section>
             </main>
         </div>
     </div>

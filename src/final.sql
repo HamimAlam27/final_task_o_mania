@@ -113,7 +113,8 @@ CREATE TABLE `USER` (
   `USER_NAME` varchar(255) NOT NULL,
   `USER_EMAIL` varchar(255) NOT NULL,
   `USER_PASSWORD` varchar(255) NOT NULL,
-  `AVATAR` varchar(1000) DEFAULT NULL
+  `AVATAR` varchar(1000) DEFAULT NULL,
+  `IS_KID` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
