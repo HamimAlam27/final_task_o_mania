@@ -8,6 +8,10 @@ if (!isset($_SESSION['user_id'])) {
   exit;
 }
 
+if (!isset($_SESSION['household_id'])) {
+  header('Location: households.php');
+  exit;
+}
 $user_id = $_SESSION['user_id'];
 $household_id = $_SESSION['household_id'] ?? null;
 if (!$household_id) {
