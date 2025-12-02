@@ -60,6 +60,14 @@ $progress_result = $progress_stmt->get_result();
 $already_joined = $progress_result->num_rows > 0;
 $progress_stmt->close();
 
+// Function to send notifications
+function sendNotification($userId, $title, $message, $type, $referenceId, $conn) {
+    $stmt = $conn->prepare("INSERT INTO NOTIFICATION (ID_USER, NOTIFICATION_TITLE, NOTIFICATION_MESSAGE, NOTIFICATION_TYPE, REFERENCE_ID, NOTIFICATION_CREATED) VALUES (?, ?, ?, ?, ?, NOW())");
+    $stmt->bind_param('isssi', $userId, $title, $message, $type, $referenceId);
+    $stmt->execute();
+    $stmt->close();
+}
+
 // === MODIFICATION START: Handle Submission ===
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['submit_completion'])) {
@@ -114,7 +122,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($update_stmt->execute()) {
             $_SESSION['success'] = 'Task submitted successfully.';
             $_SESSION['success_type'] = 'submit_task';
-            
+
+            if ($ai_validation ===0){
+            // Send notification to the task creator
+            $creatorId = $task['ID_USER'];
+            $title = "Task Submission";
+            $message = "A task has been submitted for your review: " . htmlspecialchars($task['TASK_NAME']);
+            $type = "task_submission";
+            sendNotification($creatorId, $title, $message, $type, $task_id, $conn);
+        }
+
             // *** NEW ASYNC LOGIC ***
             if ($ai_validation === 1 && $image_needed === 1) {
                 // Set a flag for the JavaScript to start the AI check
@@ -180,6 +197,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['success'] = $new_status === 'completed'
                 ? 'Task marked as completed and points awarded.'
                 : 'Task rejected and returned to To Do.';
+
+            if ($new_status === 'completed') {
+                // Send notification to workers
+                foreach ($selected_assignees as $assignee_id) {
+                    $title = "Task Approved";
+                    $message = "The task \"" . htmlspecialchars($task['TASK_NAME']) . "\" has been approved.";
+                    $type = "task_approval";
+                    sendNotification($assignee_id, $title, $message, $type, $task_id, $conn);
+                }
+            }
         } else {
             $_SESSION['error'] = 'Failed to update task status.';
         }

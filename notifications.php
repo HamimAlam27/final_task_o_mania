@@ -114,7 +114,7 @@ $userId = intval($_SESSION['user_id']);
               $readClass = $isRead ? 'notification-card--read' : '';
               $reminderClass = $n['NOTIFICATION_TYPE'] === 'reminder' ? 'notification-card--reminder' : '';
             ?>
-              <article class="notification-card <?php echo $readClass; ?> <?php echo $reminderClass; ?>" style="<?php echo $isRead ? 'opacity: 0.65;' : ''; ?>" data-notification-id="<?php echo intval($n['ID_NOTIFICATION']); ?>">
+              <article class="notification-card <?php echo $readClass; ?> <?php echo $reminderClass; ?>" style="<?php echo $isRead ? 'opacity: 0.50;' : ''; ?>" data-notification-id="<?php echo intval($n['ID_NOTIFICATION']); ?>">
                 <label class="notification-card__check">
                   <input type="checkbox" aria-label="Mark as read" value="<?php echo intval($n['ID_NOTIFICATION']); ?>" <?php echo $isRead ? 'checked' : ''; ?> />
                   <span></span>
