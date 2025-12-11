@@ -20,6 +20,24 @@ if ($mode === "new") {
     // $username = $_POST['username'] ?? "";
     $email = $_POST['email'] ?? "";
     $password = $_POST['password'] ?? "";
+    $is_kid = $_POST['is_kid'] ?? "0";
+
+    $avatar_path = NULL;
+if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+    $upload_dir = '../../images/profiles/';
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+    $ext = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
+    $filename = uniqid('avatar_') . '.' . $ext;
+    $target = $upload_dir . $filename;
+    if (move_uploaded_file($_FILES['avatar']['tmp_name'], $target)) {
+        // $avatar_path = 'images/profiles/' . $filename;
+        $avatar_path = $filename;
+    }
+}
+
+
 
      $invite_link = bin2hex(random_bytes(4)); // simple unique token
 
@@ -27,6 +45,8 @@ if ($mode === "new") {
     $_SESSION['pending_email'] = $email;
     $_SESSION['pending_password'] = $password;   // raw password
     $_SESSION['pending_code'] = $invite_link;
+    $_SESSION['pending_avatar'] = $avatar_path;
+    $_SESSION['pending_is_kid'] = $is_kid;
 
 
 
@@ -71,8 +91,8 @@ if ($mode === "new") {
     }
     $hashed = password_hash($_SESSION['pending_password'], PASSWORD_BCRYPT);
 
-    $stmt = $conn->prepare("INSERT INTO USER (USER_NAME, USER_EMAIL, USER_PASSWORD) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $_SESSION['pending_name'], $_SESSION['pending_email'], $hashed);
+    $stmt = $conn->prepare("INSERT INTO USER (USER_NAME, USER_EMAIL, USER_PASSWORD, AVATAR, IS_KID) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssi", $_SESSION['pending_name'], $_SESSION['pending_email'], $hashed, $_SESSION['pending_avatar'], $_SESSION['pending_is_kid']);
 
     if ($stmt->execute()) {
 
