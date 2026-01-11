@@ -15,10 +15,10 @@ if ($is_local) {
     $port = 3306; // Default MySQL port
 } else {
     // Online InfinityFree credentials
-    $host = "sql206.infinityfree.com";
-    $user = "if0_40443147";
-    $pass = "taskomania2025";
-    $dbname = "if0_40443147_task_mania";
+    $host = "task-o-mania-server.mysql.database.azure.com";
+    $user = "mfwncmhgvf";
+    $pass = "KSmU0PggkZ\$kNuH\$"; // Escape $ to prevent variable interpretation
+    $dbname = "task-o-mania-database";
     $port = 3306; // InfinityFree default port
 }
 
